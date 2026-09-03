@@ -1,0 +1,5 @@
+{
+  "typeCheckingMode": "basic",
+  "extraPaths": ["gate", "profile", "tests"],
+  "include": ["gate", "profile", "tests", "report"]
+}
