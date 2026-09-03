@@ -333,8 +333,13 @@ def main(argv: list[str] | None = None) -> int:
         print(f"gate refused: {exc}", file=sys.stderr)
         return 2
 
-    with log_path.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(line, sort_keys=True) + "\n")
+    payload = (json.dumps(line, sort_keys=True) + "\n").encode("utf-8")
+    fd = os.open(log_path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o644)
+    try:
+        if os.write(fd, payload) != len(payload):
+            raise OSError("short write to the decision log")
+    finally:
+        os.close(fd)
     print(json.dumps(line, sort_keys=True))
     return 0
 

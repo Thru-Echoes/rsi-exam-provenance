@@ -30,8 +30,9 @@ SOURCE_SCHEMA = "rsi-exam-decision-log/v1"
 IMPORTER = "rsi-exam-provenance/trace_from_decisions.py 0.1"
 LOCATOR_BASE = "artifacts/app/methods"
 GATE_ACTOR = {"type": "system", "id": "rsi-exam-gate/decide.py", "role": "decision-gate"}
-CONFIDENCE_KEYS = ("interval", "method", "sample_size", "evidence_digests", "statistic", "unit", "direction",
-                   "estimate", "min_effect", "verdict", "evidence", "holdout")
+CONFIDENCE_KEYS = ("interval", "method", "sample_size", "evidence_digests", "contract", "statistic", "unit",
+                   "direction", "estimate", "min_effect", "verdict", "evidence", "holdout")
+ROLES = ("parent", "candidate", "holdout-parent", "holdout-candidate", "receipt-parent", "receipt-candidate")
 HOLDOUT_KEYS = ("estimate", "interval", "sample_size", "verdict", "evidence", "evidence_digests")
 
 
@@ -74,8 +75,8 @@ def _check_line(line: dict[str, Any]) -> None:
     if line["verdict"] != expected_verdict:
         raise ValueError(f"line {line['line']}: verdict {line['verdict']} contradicts the interval")
     roles = [e["role"] for e in line["evidence"]]
-    if len(set(roles)) != len(roles) or roles[:2] != ["parent", "candidate"]:
-        raise ValueError(f"line {line['line']}: evidence roles must be unique and start with parent, candidate")
+    if len(set(roles)) != len(roles) or roles[:2] != ["parent", "candidate"] or any(r not in ROLES for r in roles):
+        raise ValueError(f"line {line['line']}: evidence roles must be unique, known, and start with parent, candidate")
     digests = {e["role"]: "sha256:" + e["sha256"] for e in line["evidence"]}
     for e in line["evidence"]:
         loc = e["locator"]
@@ -86,6 +87,14 @@ def _check_line(line: dict[str, Any]) -> None:
         raise ValueError(f"line {line['line']}: evidence_digests do not match evidence")
     holdout = line.get("holdout")
     holdout_verdict = holdout["verdict"] if holdout else None
+    if holdout:
+        hroles = [e["role"] for e in holdout["evidence"]]
+        if len(set(hroles)) != len(hroles) or any(r not in ROLES for r in hroles):
+            raise ValueError(f"line {line['line']}: holdout evidence roles must be unique and known")
+        if set(e["sha256"] for e in holdout["evidence"]) & set(e["sha256"] for e in line["evidence"]):
+            raise ValueError(f"line {line['line']}: holdout evidence aliases the primary evidence")
+        if holdout["interval"]["level"] != level:
+            raise ValueError(f"line {line['line']}: holdout level differs from the primary level")
     if line.get("replicates"):
         if line["replicates"] != line["version_id"]:
             raise ValueError(f"line {line['line']}: replicates must equal version_id")
@@ -104,7 +113,7 @@ def _check_line(line: dict[str, Any]) -> None:
 
 
 def _confidence(line: dict[str, Any]) -> dict[str, Any]:
-    block = {key: line[key] for key in CONFIDENCE_KEYS if key != "holdout"}
+    block = {key: (SOURCE_SCHEMA if key == "contract" else line[key]) for key in CONFIDENCE_KEYS if key != "holdout"}
     holdout = line.get("holdout")
     block["holdout"] = {key: holdout[key] for key in HOLDOUT_KEYS} if holdout else None
     return block

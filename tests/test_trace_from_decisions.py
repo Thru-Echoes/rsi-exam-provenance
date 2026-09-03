@@ -23,8 +23,8 @@ def line(n: int, version: str, parent: str, verdict: str, disposition: str, repl
     holdout = None
     if holdout_verdict:
         hl, hh, he = INTERVALS[holdout_verdict]
-        hev = [{"role": "holdout-parent", "locator": f"results/{version}/holdout/parent_result.json", "sha256": D},
-               {"role": "holdout-candidate", "locator": f"results/{version}/holdout/candidate_result.json", "sha256": D}]
+        hev = [{"role": "holdout-parent", "locator": f"results/{version}/holdout/parent_result.json", "sha256": "e" * 64},
+               {"role": "holdout-candidate", "locator": f"results/{version}/holdout/candidate_result.json", "sha256": "f" * 64}]
         holdout = {"estimate": he, "interval": {"lower": hl, "upper": hh, "level": 0.9}, "sample_size": 8,
                    "verdict": holdout_verdict, "evidence": hev,
                    "evidence_digests": {e["role"]: "sha256:" + e["sha256"] for e in hev}}
@@ -87,6 +87,8 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(conf["estimate"], 518.75)
         self.assertEqual(conf["min_effect"], 0.0)
         self.assertEqual(conf["direction"], "higher")
+        self.assertEqual(conf["contract"], "rsi-exam-decision-log/v1")
+        self.assertEqual(list(conf)[:5], ["interval", "method", "sample_size", "evidence_digests", "contract"])
         self.assertEqual([e["locator"] for e in conf["evidence"]],
                          ["results/v0/visible_result.json", "results/v1/visible_result.json"])
         self.assertIsNone(conf["holdout"])
@@ -141,6 +143,16 @@ class TestMapping(unittest.TestCase):
             self.build([line(1, "v3", "v1", "inconclusive", "provisional"), line(2, "v3", "v2", "clears", "keep", replicates="v3")])
         with self.assertRaises(ValueError):
             self.build([line(1, "v3", "v1", "inconclusive", "provisional"), line(2, "v4", "v3", "clears", "keep")])
+        alias = line(1, "v3", "v1", "clears", "provisional", holdout_verdict="inconclusive")
+        alias["holdout"]["evidence"] = [dict(e, role="holdout-" + e["role"]) for e in alias["evidence"]]
+        alias["holdout"]["evidence_digests"] = {e["role"]: "sha256:" + e["sha256"] for e in alias["holdout"]["evidence"]}
+        with self.assertRaises(ValueError):
+            self.build([alias])
+        unknown = line(1, "v1", "v0", "clears", "keep")
+        unknown["evidence"].append({"role": "mystery", "locator": "results/x.json", "sha256": "c" * 64})
+        unknown["evidence_digests"]["mystery"] = "sha256:" + "c" * 64
+        with self.assertRaises(ValueError):
+            self.build([unknown])
         dup = line(1, "v1", "v0", "clears", "keep")
         dup["evidence"].append(dict(dup["evidence"][0]))
         with self.assertRaises(ValueError):
