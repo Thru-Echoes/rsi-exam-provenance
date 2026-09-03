@@ -84,8 +84,8 @@ class TestCli(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = tempfile.TemporaryDirectory()
         self.methods = Path(self.tmp.name) / "methods"
-        write_result(self.methods / "versions" / "v6" / "visible_result.json", PARENT)
-        write_result(self.methods / "versions" / "v7" / "visible_result.json", [p + d for p, d in zip(PARENT, DELTAS_INCONCLUSIVE)])
+        write_result(self.methods / "results" / "v6" / "visible_result.json", PARENT)
+        write_result(self.methods / "results" / "v7" / "visible_result.json", [p + d for p, d in zip(PARENT, DELTAS_INCONCLUSIVE)])
 
     def tearDown(self) -> None:
         self.tmp.cleanup()
@@ -115,7 +115,7 @@ class TestCli(unittest.TestCase):
                                           "resamples": 5000, "seed": 20260902})
         self.assertEqual([e["role"] for e in line["evidence"]], ["parent", "candidate"])
         self.assertEqual([e["locator"] for e in line["evidence"]],
-                         ["versions/v6/visible_result.json", "versions/v7/visible_result.json"])
+                         ["results/v6/visible_result.json", "results/v7/visible_result.json"])
         for ref in line["evidence"]:
             self.assertEqual(decide.sha256_of(self.methods / ref["locator"]), ref["sha256"])
             self.assertEqual(line["evidence_digests"][ref["role"]], "sha256:" + ref["sha256"])
@@ -124,81 +124,81 @@ class TestCli(unittest.TestCase):
 
     def test_refuses_to_stack_on_an_unreplicated_provisional(self) -> None:
         self.assertEqual(self.run_gate(), 0)
-        write_result(self.methods / "versions" / "v8" / "visible_result.json", [p + d + 20 for p, d in zip(PARENT, DELTAS_INCONCLUSIVE)])
+        write_result(self.methods / "results" / "v8" / "visible_result.json", [p + d + 20 for p, d in zip(PARENT, DELTAS_INCONCLUSIVE)])
         code = decide.main(["--methods", str(self.methods), "--version", "v8", "--parent", "v7"])
         self.assertEqual(code, 3)
         self.assertEqual(len(self.lines()), 1)
 
     def test_refuses_a_second_open_provisional_on_another_parent(self) -> None:
         self.assertEqual(self.run_gate(), 0)
-        write_result(self.methods / "versions" / "v8" / "visible_result.json", [p + d for p, d in zip(PARENT, DELTAS_INCONCLUSIVE)])
+        write_result(self.methods / "results" / "v8" / "visible_result.json", [p + d for p, d in zip(PARENT, DELTAS_INCONCLUSIVE)])
         code = decide.main(["--methods", str(self.methods), "--version", "v8", "--parent", "v6"])
         self.assertEqual(code, 3)
         self.assertEqual(len(self.lines()), 1)
 
     def test_a_clear_keep_on_another_parent_is_allowed_while_one_provisional_is_open(self) -> None:
         self.assertEqual(self.run_gate(), 0)
-        write_result(self.methods / "versions" / "v8" / "visible_result.json", [p + d for p, d in zip(PARENT, DELTAS_CLEAR)])
+        write_result(self.methods / "results" / "v8" / "visible_result.json", [p + d for p, d in zip(PARENT, DELTAS_CLEAR)])
         code = decide.main(["--methods", str(self.methods), "--version", "v8", "--parent", "v6"])
         self.assertEqual(code, 0)
         self.assertEqual(self.lines()[1]["disposition"], "keep")
 
     def test_replication_resolves_the_provisional(self) -> None:
         self.assertEqual(self.run_gate(), 0)
-        write_result(self.methods / "versions" / "v7" / "replication" / "parent_result.json", PARENT)
-        write_result(self.methods / "versions" / "v7" / "replication" / "candidate_result.json",
+        write_result(self.methods / "results" / "v7" / "replication" / "parent_result.json", PARENT)
+        write_result(self.methods / "results" / "v7" / "replication" / "candidate_result.json",
                      [p + d for p, d in zip(PARENT, DELTAS_CLEAR)])
         self.assertEqual(self.run_gate("--replicates", "v7"), 0)
         lines = self.lines()
         self.assertEqual(lines[1]["replicates"], "v7")
         self.assertEqual(lines[1]["disposition"], "keep")
         self.assertEqual(lines[1]["line"], 2)
-        self.assertEqual(lines[1]["evidence"][0]["locator"], "versions/v7/replication/parent_result.json")
+        self.assertEqual(lines[1]["evidence"][0]["locator"], "results/v7/replication/parent_result.json")
         # the provisional is now resolved, so building on v7 is allowed
-        write_result(self.methods / "versions" / "v8" / "visible_result.json", [p + d + 600 for p, d in zip(PARENT, DELTAS_CLEAR)])
+        write_result(self.methods / "results" / "v8" / "visible_result.json", [p + d + 600 for p, d in zip(PARENT, DELTAS_CLEAR)])
         self.assertEqual(decide.main(["--methods", str(self.methods), "--version", "v8", "--parent", "v7"]), 0)
 
     def test_replication_without_an_open_provisional_is_refused(self) -> None:
-        write_result(self.methods / "versions" / "v7" / "replication" / "parent_result.json", PARENT)
-        write_result(self.methods / "versions" / "v7" / "replication" / "candidate_result.json", PARENT)
+        write_result(self.methods / "results" / "v7" / "replication" / "parent_result.json", PARENT)
+        write_result(self.methods / "results" / "v7" / "replication" / "candidate_result.json", PARENT)
         self.assertEqual(self.run_gate("--replicates", "v7"), 2)
         self.assertFalse((self.methods / "decisions.jsonl").exists())
 
     def test_replication_with_wrong_parent_is_refused(self) -> None:
         self.assertEqual(self.run_gate(), 0)
-        write_result(self.methods / "versions" / "v7" / "replication" / "parent_result.json", PARENT)
-        write_result(self.methods / "versions" / "v7" / "replication" / "candidate_result.json", PARENT)
+        write_result(self.methods / "results" / "v7" / "replication" / "parent_result.json", PARENT)
+        write_result(self.methods / "results" / "v7" / "replication" / "candidate_result.json", PARENT)
         code = decide.main(["--methods", str(self.methods), "--version", "v7", "--parent", "v5", "--replicates", "v7"])
         self.assertEqual(code, 2)
         self.assertEqual(len(self.lines()), 1)
 
     def test_replication_with_non_clearing_holdout_reverts(self) -> None:
         self.assertEqual(self.run_gate(), 0)
-        write_result(self.methods / "versions" / "v7" / "replication" / "parent_result.json", PARENT)
-        write_result(self.methods / "versions" / "v7" / "replication" / "candidate_result.json",
+        write_result(self.methods / "results" / "v7" / "replication" / "parent_result.json", PARENT)
+        write_result(self.methods / "results" / "v7" / "replication" / "candidate_result.json",
                      [p + d for p, d in zip(PARENT, DELTAS_CLEAR)])
-        write_result(self.methods / "versions" / "v7" / "holdout" / "parent_result.json", PARENT)
-        write_result(self.methods / "versions" / "v7" / "holdout" / "candidate_result.json",
+        write_result(self.methods / "results" / "v7" / "holdout" / "parent_result.json", PARENT)
+        write_result(self.methods / "results" / "v7" / "holdout" / "candidate_result.json",
                      [p + d for p, d in zip(PARENT, DELTAS_INCONCLUSIVE)])
         code = self.run_gate("--replicates", "v7",
-                             "--holdout-parent-result", "versions/v7/holdout/parent_result.json",
-                             "--holdout-candidate-result", "versions/v7/holdout/candidate_result.json")
+                             "--holdout-parent-result", "results/v7/holdout/parent_result.json",
+                             "--holdout-candidate-result", "results/v7/holdout/candidate_result.json")
         self.assertEqual(code, 0)
         lines = self.lines()
         self.assertEqual(len(lines), 2)
         self.assertEqual((lines[1]["verdict"], lines[1]["holdout"]["verdict"], lines[1]["disposition"]),
                          ("clears", "inconclusive", "revert"))
         # the provisional is resolved, so a new line on v6 may open a fresh provisional
-        write_result(self.methods / "versions" / "v8" / "visible_result.json", [p + d for p, d in zip(PARENT, DELTAS_INCONCLUSIVE)])
+        write_result(self.methods / "results" / "v8" / "visible_result.json", [p + d for p, d in zip(PARENT, DELTAS_INCONCLUSIVE)])
         self.assertEqual(decide.main(["--methods", str(self.methods), "--version", "v8", "--parent", "v6"]), 0)
 
     def test_holdout_forces_provisional_and_is_recorded(self) -> None:
-        write_result(self.methods / "versions" / "v7" / "visible_result.json", [p + d for p, d in zip(PARENT, DELTAS_CLEAR)])
-        write_result(self.methods / "versions" / "v7" / "holdout" / "parent_result.json", PARENT)
-        write_result(self.methods / "versions" / "v7" / "holdout" / "candidate_result.json",
+        write_result(self.methods / "results" / "v7" / "visible_result.json", [p + d for p, d in zip(PARENT, DELTAS_CLEAR)])
+        write_result(self.methods / "results" / "v7" / "holdout" / "parent_result.json", PARENT)
+        write_result(self.methods / "results" / "v7" / "holdout" / "candidate_result.json",
                      [p + d for p, d in zip(PARENT, DELTAS_INCONCLUSIVE)])
-        code = self.run_gate("--holdout-parent-result", "versions/v7/holdout/parent_result.json",
-                             "--holdout-candidate-result", "versions/v7/holdout/candidate_result.json")
+        code = self.run_gate("--holdout-parent-result", "results/v7/holdout/parent_result.json",
+                             "--holdout-candidate-result", "results/v7/holdout/candidate_result.json")
         self.assertEqual(code, 0)
         line = self.lines()[0]
         self.assertEqual(line["verdict"], "clears")
@@ -218,12 +218,19 @@ class TestCli(unittest.TestCase):
 
     def test_locator_escaping_methods_is_refused(self) -> None:
         self.assertEqual(self.run_gate("--parent-result", "../outside.json"), 2)
+        self.assertEqual(self.run_gate("--parent-result", "results\\v6\\visible_result.json"), 2)
+        self.assertEqual(self.run_gate("--parent-result", "results/%2e%2e/v6.json"), 2)
+
+    def test_evidence_inside_the_policy_tree_is_refused(self) -> None:
+        write_result(self.methods / "versions" / "v6" / "visible_result.json", PARENT)
+        self.assertEqual(self.run_gate("--parent-result", "versions/v6/visible_result.json"), 2)
+        self.assertFalse((self.methods / "decisions.jsonl").exists())
 
     def test_corrupt_log_is_refused(self) -> None:
         self.assertEqual(self.run_gate(), 0)
         log = self.methods / "decisions.jsonl"
         log.write_text(log.read_text(encoding="utf-8") + "\n", encoding="utf-8")
-        write_result(self.methods / "versions" / "v8" / "visible_result.json", [p + d for p, d in zip(PARENT, DELTAS_CLEAR)])
+        write_result(self.methods / "results" / "v8" / "visible_result.json", [p + d for p, d in zip(PARENT, DELTAS_CLEAR)])
         self.assertEqual(decide.main(["--methods", str(self.methods), "--version", "v8", "--parent", "v6"]), 2)
 
 

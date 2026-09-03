@@ -11,10 +11,12 @@ Inputs (CLI): ``--methods`` (the methods directory), ``--version``, ``--parent``
 optional ``--replicates`` (equal to ``--version``; resolves that version's open
 provisional decision on fresh evidence), ``--parent-result`` and
 ``--candidate-result`` (locators relative to the methods directory; defaults are
-``versions/<id>/visible_result.json``, or ``versions/<version>/replication/
+``results/<id>/visible_result.json``, or ``results/<version>/replication/
 {parent,candidate}_result.json`` for a replication), ``--holdout-parent-result``
-and ``--holdout-candidate-result`` (optional held-out suite; defaults under
-``versions/<version>/holdout/``), ``--direction`` (``higher`` or ``lower``:
+and ``--holdout-candidate-result`` (optional second suite; defaults under
+``results/<version>/holdout/``). Evidence never lives under ``versions/`` or
+``main/``: the sealed grader rejects any non-Python file in the policy tree,
+so result files must stay outside every snapshot and outside ``main/``, ``--direction`` (``higher`` or ``lower``:
 the metric's native sense; deltas are oriented so a positive value favours
 the candidate), ``--level``, ``--resamples``, ``--seed``, ``--min-effect``
 (must be at or above zero), ``--unit``.
@@ -63,11 +65,19 @@ def sha256_of(path: Path) -> str:
 
 
 def check_locator(locator: str) -> str:
-    """A locator is a relative POSIX path without ``..`` segments or control characters."""
-    if not locator or locator.startswith("/") or any(ord(c) < 32 for c in locator):
+    """A locator is a canonical relative POSIX path outside the policy trees.
+
+    Rules: no leading slash, no backslash, no percent escape, no drive prefix, no ``..`` or empty
+    segment, no control characters, and never under ``versions/`` or ``main/`` (the sealed grader
+    rejects non-Python files in the policy tree, so evidence must stay out of every snapshot).
+    """
+    bad = (not locator or locator.startswith("/") or "\\" in locator or "%" in locator or ":" in locator
+           or any(ord(c) < 32 for c in locator) or any(part in ("..", "", ".") for part in locator.split("/")))
+    if bad:
         raise GateError(f"bad locator: {locator!r}")
-    if any(part in ("..", "") for part in locator.split("/")):
-        raise GateError(f"bad locator: {locator!r}")
+    top = locator.split("/", 1)[0]
+    if top in ("versions", "main"):
+        raise GateError(f"evidence locator must not live in the policy tree: {locator!r}")
     return locator
 
 
@@ -277,11 +287,11 @@ def main(argv: list[str] | None = None) -> int:
 
     methods: Path = args.methods
     if args.replicates is not None:
-        parent_locator = args.parent_result or f"versions/{args.version}/replication/parent_result.json"
-        candidate_locator = args.candidate_result or f"versions/{args.version}/replication/candidate_result.json"
+        parent_locator = args.parent_result or f"results/{args.version}/replication/parent_result.json"
+        candidate_locator = args.candidate_result or f"results/{args.version}/replication/candidate_result.json"
     else:
-        parent_locator = args.parent_result or f"versions/{args.parent}/visible_result.json"
-        candidate_locator = args.candidate_result or f"versions/{args.version}/visible_result.json"
+        parent_locator = args.parent_result or f"results/{args.parent}/visible_result.json"
+        candidate_locator = args.candidate_result or f"results/{args.version}/visible_result.json"
     log_path = methods / LOG_NAME
     try:
         if not math.isfinite(args.min_effect) or args.min_effect < 0.0:

@@ -31,8 +31,8 @@ Does not establish:
 - TRACE at `~/Developer/TRACE` (`origin/main` `f5e60fa`), invoked with `uv run trace-mcp validate`.
 - ProofPress `origin/main` `e911b34` extracted with `git archive` and used via
   `PYTHONPATH=<tree>/src python3 -m proofpress.cli`.
-- Repository state: commits `00fd7ca` (seed) and `f1e1c13` (gate and converter); `python3 -m unittest
-  discover -s tests -t .` prints `Ran 69 tests` and `OK`; `pyright` on `gate/` and the two new test
+- Repository state: commits `00fd7ca` (seed), `f1e1c13` (gate and converter), and the evidence-location fix; `python3 -m unittest
+  discover -s tests -t .` prints `Ran 70 tests` and `OK`; `pyright` on `gate/` and the two new test
   files reports 0 errors.
 
 ## Lineage
@@ -40,10 +40,10 @@ Does not establish:
 Result files in the exact shape of the task's `selfcheck.py` output (`instances[].seed`,
 `instances[].score`, plus the other keys), eight visible seeds:
 
-- `versions/v1/visible_result.json`: the parent scores.
-- `versions/v2/visible_result.json`: every seed worse (deltas -410 to -180).
-- `versions/v3/visible_result.json`: two seeds carry the gain, three got worse (deltas +1310 to -300).
-- `versions/v3/replication/{parent,candidate}_result.json`: the fresh-seed replication
+- `results/v1/visible_result.json`: the parent scores.
+- `results/v2/visible_result.json`: every seed worse (deltas -410 to -180).
+- `results/v3/visible_result.json`: two seeds carry the gain, three got worse (deltas +1310 to -300).
+- `results/v3/replication/{parent,candidate}_result.json`: the fresh-seed replication
   (deltas +390 to +700).
 
 ## Commands and outputs

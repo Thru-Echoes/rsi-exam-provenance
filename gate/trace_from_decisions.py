@@ -30,7 +30,7 @@ SOURCE_SCHEMA = "rsi-exam-decision-log/v1"
 IMPORTER = "rsi-exam-provenance/trace_from_decisions.py 0.1"
 LOCATOR_BASE = "artifacts/app/methods"
 GATE_ACTOR = {"type": "system", "id": "rsi-exam-gate/decide.py", "role": "decision-gate"}
-CONFIDENCE_KEYS = ("interval", "method", "sample_size", "evidence_digests", "statistic", "unit",
+CONFIDENCE_KEYS = ("interval", "method", "sample_size", "evidence_digests", "statistic", "unit", "direction",
                    "estimate", "min_effect", "verdict", "evidence", "holdout")
 HOLDOUT_KEYS = ("estimate", "interval", "sample_size", "verdict", "evidence", "evidence_digests")
 
@@ -77,6 +77,11 @@ def _check_line(line: dict[str, Any]) -> None:
     if len(set(roles)) != len(roles) or roles[:2] != ["parent", "candidate"]:
         raise ValueError(f"line {line['line']}: evidence roles must be unique and start with parent, candidate")
     digests = {e["role"]: "sha256:" + e["sha256"] for e in line["evidence"]}
+    for e in line["evidence"]:
+        loc = e["locator"]
+        if (not loc or loc.startswith("/") or "\\" in loc or "%" in loc or ":" in loc
+                or any(part in ("..", "", ".") for part in loc.split("/")) or loc.split("/", 1)[0] in ("versions", "main")):
+            raise ValueError(f"line {line['line']}: bad evidence locator {loc!r}")
     if line["evidence_digests"] != digests:
         raise ValueError(f"line {line['line']}: evidence_digests do not match evidence")
     holdout = line.get("holdout")
@@ -188,6 +193,8 @@ def build_session(lines: list[dict[str, Any]], *, project: str, rollout_id: str,
             continue
         if line["disposition"] == "provisional" and open_provisional:
             raise ValueError(f"line {number} opens a second provisional decision")
+        if any(parent == v for v in open_provisional):
+            raise ValueError(f"line {number} builds on {parent} while its provisional decision is unresolved")
         if line["disposition"] == "keep":
             events.append(_event(event_id, session_id, line, agent, f"Keep {version} (parent {parent})",
                                  "accepted", None, None))

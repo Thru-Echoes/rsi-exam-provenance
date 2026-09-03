@@ -18,13 +18,13 @@ INTERVALS = {"inconclusive": (-30.0, 583.8, 260.0), "clears": (467.5, 575.0, 518
 def line(n: int, version: str, parent: str, verdict: str, disposition: str, replicates: str | None = None,
          holdout_verdict: str | None = None) -> dict:
     low, high, est = INTERVALS[verdict]
-    evidence = [{"role": "parent", "locator": f"versions/{parent}/visible_result.json", "sha256": D},
-                {"role": "candidate", "locator": f"versions/{version}/visible_result.json", "sha256": D}]
+    evidence = [{"role": "parent", "locator": f"results/{parent}/visible_result.json", "sha256": D},
+                {"role": "candidate", "locator": f"results/{version}/visible_result.json", "sha256": D}]
     holdout = None
     if holdout_verdict:
         hl, hh, he = INTERVALS[holdout_verdict]
-        hev = [{"role": "holdout-parent", "locator": f"versions/{version}/holdout/parent_result.json", "sha256": D},
-               {"role": "holdout-candidate", "locator": f"versions/{version}/holdout/candidate_result.json", "sha256": D}]
+        hev = [{"role": "holdout-parent", "locator": f"results/{version}/holdout/parent_result.json", "sha256": D},
+               {"role": "holdout-candidate", "locator": f"results/{version}/holdout/candidate_result.json", "sha256": D}]
         holdout = {"estimate": he, "interval": {"lower": hl, "upper": hh, "level": 0.9}, "sample_size": 8,
                    "verdict": holdout_verdict, "evidence": hev,
                    "evidence_digests": {e["role"]: "sha256:" + e["sha256"] for e in hev}}
@@ -86,8 +86,9 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(conf["verdict"], "clears")
         self.assertEqual(conf["estimate"], 518.75)
         self.assertEqual(conf["min_effect"], 0.0)
+        self.assertEqual(conf["direction"], "higher")
         self.assertEqual([e["locator"] for e in conf["evidence"]],
-                         ["versions/v0/visible_result.json", "versions/v1/visible_result.json"])
+                         ["results/v0/visible_result.json", "results/v1/visible_result.json"])
         self.assertIsNone(conf["holdout"])
 
     def test_rationale_template(self) -> None:
@@ -138,6 +139,8 @@ class TestMapping(unittest.TestCase):
             self.build([line(1, "v3", "v1", "clears", "keep", replicates="v3")])
         with self.assertRaises(ValueError):
             self.build([line(1, "v3", "v1", "inconclusive", "provisional"), line(2, "v3", "v2", "clears", "keep", replicates="v3")])
+        with self.assertRaises(ValueError):
+            self.build([line(1, "v3", "v1", "inconclusive", "provisional"), line(2, "v4", "v3", "clears", "keep")])
         dup = line(1, "v1", "v0", "clears", "keep")
         dup["evidence"].append(dict(dup["evidence"][0]))
         with self.assertRaises(ValueError):
