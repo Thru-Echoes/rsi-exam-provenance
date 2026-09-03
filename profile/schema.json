@@ -1,0 +1,427 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://proofpress.local/schemas/rsi-exam-trajectory-v2.json",
+  "title": "Proofpress RSI-Exam rollout provenance record",
+  "description": "Version 2. Derived from the published RSI-Exam materials (repo aiming-lab/RSI-Exam @ bc36dadb405b, dataset RSI-Exam/RSI-Exam @ 956025d7ecf6, harbor job layout, autoresearch protocol). The primary trail is the harness-preserved methods tree: experiment_log.md plus one snapshot directory per version under versions/. TRACE session exports are optional enrichment; the record must be producible without them. Directory digests use the canonical tree digest: for every regular file under the directory, one line '<sha256hex><space><space><posix relpath>\\n', paths byte-sorted, concatenated and hashed with SHA-256; symlinks are rejected. For type 'file' the digest is the file's SHA-256. A record is tamper-evident relative to the supplied files; receipts are unsigned and score bindings are self-consistent, not issuer-authenticated.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "capsule_id",
+    "benchmark",
+    "rollout",
+    "freeze",
+    "source",
+    "versions",
+    "final_submission",
+    "hidden_evaluation"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "proofpress/rsi-exam-trajectory/v2"
+    },
+    "capsule_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "benchmark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "release",
+        "task_id"
+      ],
+      "properties": {
+        "name": {
+          "const": "RSI-Exam"
+        },
+        "release": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "task_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      }
+    },
+    "rollout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "model",
+        "harness",
+        "config_digest",
+        "budget_hours"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "harness": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "config_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "budget_hours": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "trace_session_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      }
+    },
+    "freeze": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_digest",
+        "grader_digest"
+      ],
+      "properties": {
+        "task_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "grader_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "experiment_log",
+        "versions_root"
+      ],
+      "properties": {
+        "experiment_log": {
+          "$ref": "#/$defs/bound_file"
+        },
+        "versions_root": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "locator"
+          ],
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/locator"
+            }
+          }
+        },
+        "trajectory": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "locator",
+            "sha256",
+            "format"
+          ],
+          "properties": {
+            "locator": {
+              "$ref": "#/$defs/locator"
+            },
+            "sha256": {
+              "$ref": "#/$defs/digest"
+            },
+            "format": {
+              "const": "ATIF"
+            }
+          }
+        },
+        "trace_exports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "session_id",
+              "locator",
+              "sha256"
+            ],
+            "properties": {
+              "session_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "locator": {
+                "$ref": "#/$defs/locator"
+              },
+              "sha256": {
+                "$ref": "#/$defs/digest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "wall_time_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "input_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "output_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "model_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "estimated_cost_usd": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "versions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/version"
+      }
+    },
+    "final_submission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version_id",
+        "tree_sha256"
+      ],
+      "properties": {
+        "version_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "tree_sha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "hidden_evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reward_locator",
+        "reward_sha256",
+        "reward",
+        "binding"
+      ],
+      "properties": {
+        "reward_locator": {
+          "$ref": "#/$defs/locator"
+        },
+        "reward_sha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "reward": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "error": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "score_details_locator": {
+          "$ref": "#/$defs/locator"
+        },
+        "score_details_sha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "binding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "basis",
+            "job_id"
+          ],
+          "properties": {
+            "basis": {
+              "const": "job_directory"
+            },
+            "job_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "locator": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "bound_file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "locator",
+        "sha256"
+      ],
+      "properties": {
+        "locator": {
+          "$ref": "#/$defs/locator"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "version": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version_id",
+        "ordinal",
+        "parent_ids",
+        "status",
+        "artifact",
+        "log"
+      ],
+      "properties": {
+        "version_id": {
+          "type": "string",
+          "pattern": "^v[0-9]+$"
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "parent_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^v[0-9]+$"
+          }
+        },
+        "status": {
+          "enum": [
+            "baseline",
+            "kept",
+            "reverted",
+            "submitted"
+          ]
+        },
+        "stage": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "artifact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "locator",
+            "tree_sha256"
+          ],
+          "properties": {
+            "type": {
+              "enum": [
+                "directory",
+                "file"
+              ]
+            },
+            "locator": {
+              "$ref": "#/$defs/locator"
+            },
+            "tree_sha256": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        },
+        "log": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "line"
+          ],
+          "properties": {
+            "line": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "visible": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "score",
+            "recorded_in"
+          ],
+          "properties": {
+            "score": {
+              "type": "number"
+            },
+            "recorded_in": {
+              "enum": [
+                "experiment_log",
+                "result_file"
+              ]
+            },
+            "result_locator": {
+              "$ref": "#/$defs/locator"
+            },
+            "result_sha256": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        },
+        "trace_event_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      }
+    }
+  }
+}

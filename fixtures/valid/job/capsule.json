@@ -1,0 +1,109 @@
+{
+  "benchmark": {
+    "name": "RSI-Exam",
+    "release": "0.1@bc36dadb405b",
+    "task_id": "autoresearch-arena/fixture_2048_policy_search"
+  },
+  "capsule_id": "fixture-rollout-001",
+  "final_submission": {
+    "tree_sha256": "e4752c0c45ae49e6a32201008643907b029fb284d0e656f4134b0e96da27d58a",
+    "version_id": "v3"
+  },
+  "freeze": {
+    "grader_digest": "6494a4d613035ed2a35ff20e5fd4a3576c5e7d35e94a653758157ecba0dcf7c5",
+    "task_digest": "aad537e3265627abd0edf6ba491a6448e3f6ce7a10370bf6ed70e1f161113a2d"
+  },
+  "hidden_evaluation": {
+    "binding": {
+      "basis": "job_directory",
+      "job_id": "job"
+    },
+    "reward": 0.41273418,
+    "reward_locator": "verifier/reward.json",
+    "reward_sha256": "aa31ef772a54a1cca5e9f66544a9eeeca911f52bd820a5b0dbc5f22523b628b1",
+    "score_details_locator": "verifier/score_details.json",
+    "score_details_sha256": "32ba65c9aaa03e7f01f63d5deffeff2cfabe13386c75b30dd6a50297432e2108"
+  },
+  "rollout": {
+    "budget_hours": 12.0,
+    "config_digest": "3afb4d967419210fa6071126b4616566aae48a0afb8ce5cea833c5662e90d38d",
+    "harness": "claude-code",
+    "id": "job",
+    "model": "fixture-model"
+  },
+  "schema_version": "proofpress/rsi-exam-trajectory/v2",
+  "source": {
+    "experiment_log": {
+      "locator": "artifacts/app/methods/experiment_log.md",
+      "sha256": "0ddfa3ec10b799335b36aae1a816cd69bc12012a776664ee3c3351a9e27ca7be"
+    },
+    "trajectory": {
+      "format": "ATIF",
+      "locator": "agent/trajectory.json",
+      "sha256": "d98ee930ec247ae5dcdb994886203ab71b994b8cd951bda8dcc0670c56b83c45"
+    },
+    "versions_root": {
+      "locator": "artifacts/app/methods/versions"
+    }
+  },
+  "versions": [
+    {
+      "artifact": {
+        "locator": "artifacts/app/methods/versions/v1",
+        "tree_sha256": "bcc59289cf7ca59278d72552f685cb059f41c62041ffa627f28b35257bf8e623",
+        "type": "directory"
+      },
+      "log": {
+        "line": 3
+      },
+      "ordinal": 1,
+      "parent_ids": [],
+      "status": "kept",
+      "version_id": "v1",
+      "visible": {
+        "recorded_in": "experiment_log",
+        "score": 1180.0
+      }
+    },
+    {
+      "artifact": {
+        "locator": "artifacts/app/methods/versions/v2",
+        "tree_sha256": "01431930bc36f33cef01283148a9cf53db355d9b25a27670d2babddbcf1cb5d2",
+        "type": "directory"
+      },
+      "log": {
+        "line": 4
+      },
+      "ordinal": 2,
+      "parent_ids": [
+        "v1"
+      ],
+      "status": "reverted",
+      "version_id": "v2",
+      "visible": {
+        "recorded_in": "experiment_log",
+        "score": 940.0
+      }
+    },
+    {
+      "artifact": {
+        "locator": "artifacts/app/methods/versions/v3",
+        "tree_sha256": "e4752c0c45ae49e6a32201008643907b029fb284d0e656f4134b0e96da27d58a",
+        "type": "directory"
+      },
+      "log": {
+        "line": 5
+      },
+      "ordinal": 3,
+      "parent_ids": [
+        "v1"
+      ],
+      "status": "submitted",
+      "version_id": "v3",
+      "visible": {
+        "recorded_in": "experiment_log",
+        "score": 1560.0
+      }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": "ATIF-v1.8",
+  "session_id": "fixture-session-001",
+  "agent": {
+    "name": "claude-code",
+    "version": "0.fixture",
+    "model_name": "fixture-model"
+  },
+  "steps": [
+    {"step_id": 1, "source": "user", "message": "Improve the policy in /app/methods/main/."},
+    {"step_id": 2, "source": "agent", "message": "Trying a corner heuristic, then a search depth change."}
+  ]
+}
