@@ -4,7 +4,10 @@ A decision gate and a verifiable provenance record for [RSI-Exam](https://github
 
 RSI-Exam lets an agent improve a weak method for up to twelve hours, logging every version it
 keeps or reverts and snapshotting each one, and then scores the final version on sealed seeds.
-Every keep-or-revert decision the agent makes rests on one visible number. This repository adds:
+Every keep-or-revert decision the agent makes rests on one visible number over eight reused
+seeds, and a version kept on a lucky number becomes the parent of everything after it. Nothing in
+the job directory records why a keep was made or how sure the measurement was. This repository
+adds:
 
 - **A decision gate** (`gate/decide.py`, standard library only). It pairs the parent's and the
   candidate's per-seed scores, computes a bootstrap interval on the mean difference, applies a
@@ -23,14 +26,40 @@ Nothing in RSI-Exam's harness, prompt, task containers, or grader changes for of
 rollout that runs the gate adds one step to the program text and is recorded as a modified-program
 run; the record and verifier work on any rollout.
 
+## How it attaches to a rollout
+
+![What this repository adds and how it attaches to a rollout](docs/figures/components.svg)
+
+Inside the loop, on gated rollouts only, the gate reads two per-seed result files and writes one
+line per decision. After any rollout, the producer builds the record from the job directory, the
+verifier checks it offline, the converter writes the TRACE document, and ProofPress imports it.
+The gate writes numbers and digests only: no prompts, transcripts, or reasoning. Result files
+live under `methods/results/<version>/`, never inside a snapshot or `main/`, because the grader
+rejects any non-Python file there and scores the submission 0.0.
+
+## The gate's rule
+
+![The gate rule: screen on the visible seeds, freeze, confirm on fresh seeds](docs/figures/gate-rule.svg)
+
+The interval on the eight visible seeds is screening evidence, because those seeds are reused for
+every candidate across the whole search. An interval entirely below zero reverts. Anything else
+freezes the candidate (its method digest is recorded), derives fresh seeds from that digest, and
+confirms parent against candidate on 16 or more seeds the search never touched; only a
+confirmation that clears the task's positive minimum effect keeps. The verdict (`clears`, `below`,
+`inconclusive`) is the statistics and the disposition (`keep`, `revert`, `provisional`) is the
+action; they are recorded separately, so a revert on inconclusive evidence is never read as proof
+the change hurt. The interval is never the probability the decision was right and never a
+statement about the sealed reward.
+
 ## Status
 
 Fixture-verified, no real rollout yet. The gate and converter have 31 tests, the profile has a
 38-case conformance suite, and `docs/RUN_REPORT.md` records a full run on a demo lineage: gate
 decisions, `trace-mcp validate` passing, a byte-equal typed TRACE round-trip, and a successful
-`proofpress evidence import`. Next: the task profile and confirmation policy flag, deterministic
-fresh-seed derivation, evaluation receipts, the verifier's decision checks, the decision-evidence
-report, then the first real rollout on `game2048_policy_search`.
+`proofpress evidence import`. What comes next, milestone by milestone, is in `docs/ROADMAP.md`:
+the task profile and confirmation policy, deterministic fresh-seed derivation, evaluation
+receipts, the verifier's decision checks, the decision-evidence report, then the first real
+rollout on `game2048_policy_search`.
 
 ## Quick start
 
@@ -44,9 +73,23 @@ python3 profile/verify_capsule.py /tmp/capsule.json --artifact-root fixtures/val
 ```
 
 The gate expects the task's per-seed result files under `methods/results/<version>/` (never inside
-a snapshot or `main/`: the grader rejects non-Python files there). See
-`docs/decision-log-contract.md` for the log line, the rule, and the TRACE mapping, and
-`docs/profile-v2.md` for the record.
+a snapshot or `main/`: the grader rejects non-Python files there).
+
+## Documentation
+
+- `docs/overview.md`: the exam in the detail that matters (protocol, visible versus sealed
+  evaluation, the reward mapping, the 2048 task, the grader facts, contribution tracks), the
+  problem, every component and what it attaches to, the gate's rule with a worked example, a
+  gated rollout step by step, the evaluation ladder, the upstream offer and asks, how it fits
+  ProofPress and TRACE, limits, and a glossary. Five figures.
+- `docs/decision-log-contract.md`: the contract every component implements: the log line and its
+  rules, the bootstrap algorithm, the TRACE `confidence` block and event mapping, the record's
+  per-version decisions, and the verifier codes.
+- `docs/profile-v2.md`: the provenance record's profile text.
+- `docs/ROADMAP.md`: status, milestones, how the three repositories fit, the version-pin path,
+  and the changes to propose in ProofPress.
+- `docs/RUN_REPORT.md`: the last verified end-to-end run on fixture data, commands and outputs.
+- `CLAUDE.md`: the working rules for agentic sessions in this repository.
 
 ## Upstream
 

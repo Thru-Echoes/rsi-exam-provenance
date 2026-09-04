@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 452" role="img" aria-label="What this repository adds and how it attaches">
+<style>
+text { font: 9pt -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1f2933; }
+.lbl { font-size: 8.5pt; } .small { font-size: 7.5pt; fill: #5f6b7a; } .title { font-size: 8.5pt; font-weight: 600; }
+.rsi { fill: #eceff3; stroke: #6B7684; stroke-width: 1.3; }
+.ours { fill: #dbe6fb; stroke: #3B6FD4; stroke-width: 1.5; }
+.pp { fill: #fbe9d3; stroke: #C2731B; stroke-width: 1.5; }
+.keep { fill: #ddf1e6; stroke: #1B7F5A; stroke-width: 1.5; }
+.revert { fill: #f6dfd8; stroke: #B7472A; stroke-width: 1.5; }
+.panel { fill: #fff; stroke: #d9dee5; }
+.arrow { stroke: #1f2933; stroke-width: 1.2; fill: none; marker-end: url(#ah); }
+.arrowd { stroke: #5f6b7a; stroke-width: 1; fill: none; stroke-dasharray: 3 3; marker-end: url(#ahm); }
+</style>
+<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f2933"/></marker><marker id="ahm" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5f6b7a"/></marker></defs>
+<rect x="0" y="0" width="700" height="452" fill="#ffffff"/>
+<rect x="10" y="14" width="680" height="162" rx="6" class="panel"/>
+<text x="20" y="32" class="title">Inside the loop (gated rollouts only): the decision gate</text>
+<rect x="24" y="46" width="140" height="46" rx="4" class="rsi"/>
+<text x="94.0" y="64" text-anchor="middle" class="lbl">results/vP/</text>
+<text x="94.0" y="78" text-anchor="middle" class="small">parent's per-seed scores</text>
+<rect x="24" y="110" width="140" height="46" rx="4" class="rsi"/>
+<text x="94.0" y="128" text-anchor="middle" class="lbl">results/vN/</text>
+<text x="94.0" y="142" text-anchor="middle" class="small">candidate's per-seed scores</text>
+<rect x="190" y="58" width="180" height="82" rx="4" class="ours"/>
+<text x="280.0" y="76" text-anchor="middle" class="lbl">decide.py (the gate)</text>
+<text x="280.0" y="90" text-anchor="middle" class="small">pair by seed, bootstrap interval,</text>
+<text x="280.0" y="103" text-anchor="middle" class="small">rule: keep, revert, or confirm first</text>
+<text x="280.0" y="116" text-anchor="middle" class="small">standard library, no network</text>
+<path d="M164,69 L188,88" class="arrow"/><path d="M164,133 L188,112" class="arrow"/>
+<rect x="396" y="58" width="180" height="82" rx="4" class="ours"/>
+<text x="486.0" y="76" text-anchor="middle" class="lbl">decisions.jsonl</text>
+<text x="486.0" y="90" text-anchor="middle" class="small">one line per decision: version,</text>
+<text x="486.0" y="103" text-anchor="middle" class="small">parent, interval, verdict, action,</text>
+<text x="486.0" y="116" text-anchor="middle" class="small">digests of both result files</text>
+<path d="M370,99 L394,99" class="arrow"/>
+<rect x="600" y="58" width="88" height="82" rx="4" class="rsi"/>
+<text x="644.0" y="76" text-anchor="middle" class="lbl">experiment_log</text>
+<text x="644.0" y="90" text-anchor="middle" class="small">the agent logs</text>
+<text x="644.0" y="103" text-anchor="middle" class="small">the gate's action</text>
+<path d="M576,99 L598,99" class="arrowd"/>
+<rect x="10" y="192" width="680" height="238" rx="6" class="panel"/>
+<text x="20" y="210" class="title">After the run (any rollout): record, verify, report, share</text>
+<rect x="24" y="226" width="140" height="64" rx="4" class="rsi"/>
+<text x="94.0" y="244" text-anchor="middle" class="lbl">job directory</text>
+<text x="94.0" y="258" text-anchor="middle" class="small">snapshots, log, results,</text>
+<text x="94.0" y="271" text-anchor="middle" class="small">decisions.jsonl, reward.json</text>
+<rect x="190" y="226" width="160" height="64" rx="4" class="ours"/>
+<text x="270.0" y="244" text-anchor="middle" class="lbl">build_capsule.py</text>
+<text x="270.0" y="258" text-anchor="middle" class="small">the provenance record: every</text>
+<text x="270.0" y="271" text-anchor="middle" class="small">version and decision, by digest</text>
+<rect x="376" y="226" width="160" height="64" rx="4" class="ours"/>
+<text x="456.0" y="244" text-anchor="middle" class="lbl">verify_capsule.py</text>
+<text x="456.0" y="258" text-anchor="middle" class="small">offline: digests, lineage,</text>
+<text x="456.0" y="271" text-anchor="middle" class="small">coverage, recomputed intervals</text>
+<rect x="562" y="226" width="126" height="64" rx="4" class="ours"/>
+<text x="625.0" y="244" text-anchor="middle" class="lbl">evidence report</text>
+<text x="625.0" y="258" text-anchor="middle" class="small">one table per rollout</text>
+<text x="625.0" y="271" text-anchor="middle" class="small">for a human auditor</text>
+<path d="M164,258 L188,258" class="arrow"/><path d="M350,258 L374,258" class="arrow"/><path d="M536,258 L560,258" class="arrow"/>
+<rect x="190" y="322" width="160" height="64" rx="4" class="ours"/>
+<text x="270.0" y="340" text-anchor="middle" class="lbl">trace_from_decisions.py</text>
+<text x="270.0" y="354" text-anchor="middle" class="small">the log as a TRACE session:</text>
+<text x="270.0" y="367" text-anchor="middle" class="small">one decision event per line</text>
+<rect x="376" y="322" width="160" height="64" rx="4" class="ours"/>
+<text x="456.0" y="340" text-anchor="middle" class="lbl">TRACE document</text>
+<text x="456.0" y="354" text-anchor="middle" class="small">agent proposes, gate resolves,</text>
+<text x="456.0" y="367" text-anchor="middle" class="small">confidence block per decision</text>
+<rect x="562" y="322" width="126" height="64" rx="4" class="pp"/>
+<text x="625.0" y="340" text-anchor="middle" class="lbl">ProofPress</text>
+<text x="625.0" y="354" text-anchor="middle" class="small">evidence import keeps</text>
+<text x="625.0" y="367" text-anchor="middle" class="small">four fields</text>
+<path d="M94,290 L94,354 L188,354" class="arrow"/><path d="M350,354 L374,354" class="arrow"/><path d="M536,354 L560,354" class="arrow"/>
+<text x="20" y="416" class="small">Dashed: the agent copies the gate's action into the experiment log RSI-Exam already requires.</text>
+<rect x="20" y="433" width="11" height="11" rx="2" class="rsi"/>
+<text x="36" y="442" class="small">RSI-Exam, unchanged</text>
+<rect x="164" y="433" width="11" height="11" rx="2" class="ours"/>
+<text x="180" y="442" class="small">This repository (standard library)</text>
+<rect x="392" y="433" width="11" height="11" rx="2" class="pp"/>
+<text x="408" y="442" class="small">ProofPress</text>
+</svg>

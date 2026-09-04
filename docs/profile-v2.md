@@ -80,11 +80,11 @@ published digest per job directory.
 
 Build a record from a job directory, then verify it:
 
-    python3 studies/rsi-exam-experiment-provenance/build_capsule.py \
+    python3 profile/build_capsule.py \
       --job-dir JOB_DIR --task-dir TASK_DIR \
       --release "0.1@bc36dadb405b" --capsule-id ROLLOUT_ID
 
-    python3 studies/rsi-exam-experiment-provenance/verify_capsule.py \
+    python3 profile/verify_capsule.py \
       JOB_DIR/capsule.json --require-complete --json
 
 The output keeps integrity and coverage as separate fields. A successful
