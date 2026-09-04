@@ -57,29 +57,135 @@ directory.
 - **Writing**: one line per `os.write` on an `O_APPEND` descriptor. `DECIDE_FIXED_TIMESTAMP`
   injects the clock for fixtures.
 
-### Planned additions (same schema id until a real rollout record exists)
+### Gated-mode fields (same schema id)
 
-`profile_sha256` (the task profile that fixed `direction`, `unit`, `min_effect`, level, resamples,
-and the seed-derivation key), `confirm_policy` (`always` or `inconclusive`), `look_index` (count
-of confirmations in the rollout), `candidate_method_tree_sha256` (frozen before confirmation seeds
-are derived), `suite {locator, sha256, derivation}` for confirmation and audit suites, and receipt
-digests in `evidence`.
+Every line carries seven more keys. A line written in replay mode (`decide.py --confirm
+inconclusive`, used for shadow replay and fixtures) has `confirm_policy` `inconclusive` and `null`
+in the other six. One log is written in one mode under one profile; a line from the other mode, or
+under another profile, is refused.
+
+- `confirm_policy`: `always` (the gated rule, and the only value a profile may state: a screening
+  that does not revert is `provisional` until a confirmation on fresh seeds resolves it) or
+  `inconclusive` (the replay rule of the disposition table above).
+- `profile_sha256`: the SHA-256 of the task profile file the line was written under, or `null`.
+- `look_index`: the 1-based index of the confirmation look this line belongs to; the provisional
+  line and the confirmation that resolves it carry the same value. `null` on a line that opens no
+  confirmation.
+- `parent_method_tree_sha256`, `candidate_method_tree_sha256`: the method-tree digests of
+  `versions/<parent_id>` and `versions/<version_id>` at gate time (see "Method-tree digest"), or
+  `null` in replay mode. In gated mode `main/` must equal the candidate's digest, at screening and
+  again at confirmation, and a confirmation refuses unless both digests still equal the frozen
+  ones: neither policy can change between being measured and being confirmed.
+- `sizing`: the confirmation plan, `{rule, size, planned, floor, cap, exploratory, screening_sd,
+  z}`, or `null` on a line that plans no confirmation.
+- `suite`: `null`, or `{locator, sha256, derivation}` for the confirmation suite the screening line
+  derived (`results/<version_id>/replication/seeds.json`, a file of the shape `{"max_moves": N,
+  "seeds": [...]}` that the task evaluator reads), repeated unchanged on the confirmation line.
+  `derivation` records `algorithm` (`rsi-exam-gate/hmac-seeds/1`), `rollout_id`,
+  `candidate_method_tree_sha256`, `look_index`, `size`, and `max_moves`.
+
+**Method-tree digest.** SHA-256 over the lines `<sha256 of file><two spaces><posix relpath>\n`,
+sorted by relpath, over the `.py` files under the directory, skipping any path with a `__pycache__`
+component and any `*.pyc` or `*.pyo` file. A symlink anywhere under the tree is refused, and that
+check runs before the exclusions; a regular file that is not `.py` is refused, because the grader
+refuses it and scores such a submission 0.0. The digest equals the provenance record's full-tree
+digest for a Python-only tree without caches.
+
+**Task profile** (`rsi-exam-gate-profile/v1`, `gate/task_profile.py`). One file per rollout,
+mounted with the gate scripts, never under `main/` or `versions/`. Keys: `schema`, `task`,
+`rollout_id`, `metric`, `unit`, `direction` (`higher` or `lower`), `min_effect` (`{"kind":
+"absolute", "value": V > 0}` or `{"kind": "fraction_of_parent_visible_mean", "fraction": F}` with
+`0 < F < 1`), `level` in `(0, 1)`, `resamples >= 1000`, `bootstrap_seed`, `confirm_policy` (fixed
+to `always`), `confirmation {floor >= 2, max_seeds >= floor, max_moves, cpu_seconds_per_game}`,
+`visible_suite_sha256` (the digest of the task's visible seed file), `replication_key` (64 hex),
+`audit_key_sha256` (64 hex; the audit key itself stays outside the sandbox), and `evaluator`, which
+maps exactly `evaluate.py` and `game2048.py` to 64-hex digests. A fraction is resolved once, at
+screening, against the mean of the parent's visible per-seed scores, which must be positive; the
+resolved absolute number is what the line records under `min_effect` and what its confirmation
+reuses unchanged. In gated mode the command-line flags for direction, unit, minimum effect, level,
+resamples, seed, result locators, and held-out results are refused.
+
+**Fresh suites** (`rsi-exam-gate/hmac-seeds/1`, `gate/seeds.py`). `seed_k` is the first four bytes
+of `HMAC-SHA256(replication_key, "<rollout_id>|<candidate_method_tree_sha256>|<look_index>|<counter>")`
+as a big-endian integer with the top bit cleared, for `counter = 0, 1, 2, ...`, skipping zero,
+repeats, the visible seeds, and every seed of every earlier suite in the log. The claim this
+supports is exact and narrow: the suite is disjoint from the visible suite and from every earlier
+suite, and anyone holding the key can re-derive it from the log. The key is mounted with the
+profile and is readable inside the sandbox, so the seeds are auditable, not secret; whether a
+candidate was tuned on them is measured after the fact by the verifier (Milestone 2) and the audit
+suite (Milestone 3), never assumed here.
+
+**Confirmation size.** With `s` the sample standard deviation of the screening deltas and `z` the
+normal quantile for the level, `planned` is the smallest `n` with `z s / sqrt(n) < min_effect / 2`,
+at least `floor`; `size = min(planned, max_seeds)`; `exploratory` is `true` when the cap binds. It
+is a normal-approximation planning size computed from screening data, not a statement about the
+interval the confirmation will produce. An exploratory plan never keeps: the gate reverts the
+candidate on the screening line, records the plan, and derives no suite.
+
+**Receipts** (`rsi-exam-gate-receipt/v1`, written by `gate/evaluate_suite.py` next to each result as
+`<name>.receipt.json`): `schema`, `metric`, `profile_sha256`, `policy_method_tree_sha256`,
+`suite_sha256`, `max_moves`, `result_sha256`, `evaluator`, `games`, `cpu_seconds`,
+`cpu_budget_per_game`, `python`, `timestamp`. The gate requires a receipt beside every result it
+reads and compares `profile_sha256`, `suite_sha256`, `result_sha256`, `policy_method_tree_sha256`,
+`evaluator`, `metric`, `cpu_budget_per_game`, `max_moves`, and `games` against the profile, the
+suite file, the result on disk, and the frozen snapshot digest for that role; at screening the
+suite compared is the profile's `visible_suite_sha256`, at confirmation the derived suite's. All
+four receipts of a confirmed decision must share a Python major.minor version. `cpu_seconds` and
+`timestamp` are recorded, never compared. Receipts enter `evidence` under `receipt-parent` and
+`receipt-candidate`.
+
+**Confirmation line.** Before it resolves a provisional line the gate re-verifies that line from
+its evidence: both snapshot digests unchanged, every screening evidence file still at its recorded
+digest, the minimum effect re-resolved from the profile and the parent's visible result, the plan
+recomputed from the screening deltas and not exploratory, the exclusion set rebuilt from the lines
+before it, the suite re-derived from the key, the frozen candidate digest, and the look index, and
+the derivation record equal to what those inputs imply.
+`results/<version_id>/replication/{parent,candidate}_result.json` must cover exactly the suite's
+seeds; `min_effect` is the provisional line's value; `keep` on `clears`, otherwise `revert`.
+
+**Restore.** A reverted candidate is put back with `gate/restore.py --methods <methods dir>
+--version v<K>`, which stages the snapshot's Python files beside `main/`, replaces `main/` in one
+rename, and checks that the restored tree's digest equals the snapshot's. The literal `cp -r
+versions/v<K> main` nests the snapshot inside `main/` instead, leaves the reverted policy running,
+and makes every later gate call refuse.
+
+**Further limits of Milestone 1.** The evaluation child runs as the same user as the agent, so policy
+code could write to files the agent can write to; the grader's own sandbox drops privileges to an
+unprivileged user, and Milestone 3 adds the same drop (and the per-move time limit) to the runner
+before the first gated rollout. The runner publishes the result and then the receipt as two files; a
+crash between them leaves a result the next run refuses to overwrite, which the operator removes by
+hand. The gate accepts whichever profile path it is given; the post-rollout verifier's comparison of
+`profile_sha256` with the operator's mounted digest is the check that the intended profile was used.
+
+**Limits.** Coverage is per candidate: each interval holds at its own level for its own decision,
+and no error rate is controlled across the many decisions of a rollout. `look_index` is recorded so
+a multiple-look schedule can be added later; it is not one yet. The profile, the gate scripts, and
+the replication key are all reachable by the agent inside the sandbox, so a substituted profile is
+possible; what makes it visible is that every line and every receipt records `profile_sha256`,
+which the post-rollout verifier compares with the digest of the profile the operator mounted. The
+record is tamper-evident relative to the exported job directory and that operator-held digest,
+never tamper-proof. `DECIDE_FIXED_TIMESTAMP` is a fixture hook, and timestamps are not evidence
+anywhere in this contract. `audit_key_sha256` is recorded now and used by the audit suite in
+Milestone 3.
 
 ## 2. The `confidence` block on a TRACE decision
 
 Keys in this order: `interval`, `method`, `sample_size`, `evidence_digests` (the four keys the
 ProofPress evidence adapter reads and keeps), then `contract` (this schema id), `statistic`, `unit`,
-`direction`, `estimate`, `min_effect`, `verdict`, `evidence`, `holdout`. Unknown keys are ignored
-by ProofPress. The generic measurement keys (`interval`, `method`, `sample_size`,
-`evidence_digests`, `contract`, `statistic`, `unit`, `direction`, `estimate`, `evidence`) are the
-part TRACE types, in exactly this nested shape, when its typed model ships; until then the
-document is a valid 0.5.0 session carrying an additive extension. The rule-state keys
-(`min_effect`, `verdict`, `holdout`, and the planned `confirm_policy`) remain an identified
-extension that TRACE preserves but does not interpret. TRACE's own checks on the block are
-structural only: ordered interval bounds, a level in the open unit interval, a positive sample
-size, finite numbers, well-formed digests, a role on every evidence entry, and `evidence_digests`
-keys equal to the evidence roles. The verdict and disposition rules are checked by the profile
-verifier (section 4), never by TRACE.
+`direction`, `estimate`, `min_effect`, `verdict`, `evidence`, `holdout`, `confirm_policy`,
+`profile_sha256`, `look_index`, `parent_method_tree_sha256`, `candidate_method_tree_sha256`,
+`sizing`, `suite`. Unknown keys are ignored by ProofPress. The generic measurement keys
+(`interval`, `method`, `sample_size`, `evidence_digests`, `contract`, `statistic`, `unit`,
+`direction`, `estimate`, `evidence`) are the part TRACE types, in exactly this nested shape, when
+its typed model ships; until then the document is a valid 0.5.0 session carrying an additive
+extension. The rule-state keys (`min_effect`, `verdict`, `holdout`) and the gated keys
+(`confirm_policy`, `profile_sha256`, `look_index`, `parent_method_tree_sha256`,
+`candidate_method_tree_sha256`, `sizing`, `suite`) remain an identified extension that TRACE
+preserves but does not interpret. TRACE's own checks on the block are structural only: ordered
+interval bounds, a level in the open unit interval, a positive sample size, finite numbers,
+well-formed digests, a role on every evidence entry, and `evidence_digests` keys equal to the
+evidence roles. The verdict and disposition rules are checked by the gate on write and the
+converter on read, and by the profile verifier (section 4), never by TRACE.
 
 Event mapping: one `decision` event per line; `proposed_by` = the rollout agent
 (`{"type": "ai", "id": "<harness>:<model>", "role": "rollout-agent"}`); `resolved_by` = the gate

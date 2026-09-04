@@ -53,18 +53,19 @@ statement about the sealed reward.
 
 ## Status
 
-Fixture-verified, no real rollout yet. The gate and converter have 31 tests, the profile has a
-38-case conformance suite, and `docs/RUN_REPORT.md` records a full run on a demo lineage: gate
-decisions, `trace-mcp validate` passing, a byte-equal typed TRACE round-trip, and a successful
-`proofpress evidence import`. What comes next, milestone by milestone, is in `docs/ROADMAP.md`:
-the task profile and confirmation policy, deterministic fresh-seed derivation, evaluation
-receipts, the verifier's decision checks, the decision-evidence report, then the first real
-rollout on `game2048_policy_search`.
+Fixture-verified, no real rollout yet. The gate, its modules, and the converter have 110 tests, the
+profile has a 38-case conformance suite, and `docs/RUN_REPORT.md` records a full run on a demo
+lineage: gate decisions, `trace-mcp validate` passing, a byte-equal typed TRACE round-trip, and a
+successful `proofpress evidence import`. What comes next, milestone by milestone, is in
+`docs/ROADMAP.md`: the verifier's decision checks and cache-free digests, the decision-evidence
+report, then the first real rollout on `game2048_policy_search`. A gated rollout waits for
+Milestone 3, which mounts the gate and its profile into the container and adds the trusted driver
+and the program overlay that call it.
 
 ## Quick start
 
 ```
-python3 -m unittest discover -s tests -t .          # 70 tests
+python3 -m unittest discover -s tests -t .          # 148 tests
 python3 gate/decide.py --help
 python3 gate/trace_from_decisions.py --help
 python3 profile/build_capsule.py --job-dir fixtures/valid/job --task-dir fixtures/valid/task \
