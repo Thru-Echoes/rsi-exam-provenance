@@ -18,7 +18,7 @@ adds:
   the record offline: digests, lineage, coverage, recomputed intervals, and whether the gate's
   rules were followed. Integrity failures, protocol failures, and coverage downgrades are reported
   separately.
-- **A TRACE converter** (`gate/trace_from_decisions.py`). The decision log becomes a TRACE 0.5.0
+- **A TRACE converter** (`gate/trace_from_decisions.py`). The decision log becomes a TRACE 0.5.1
   session document: one decision event per line, the agent as proposer and the gate as resolver,
   and a `confidence` block per decision that ProofPress's evidence adapter imports unchanged.
 
@@ -105,7 +105,8 @@ non-Python file in `main/`.
 ## Derivation pins
 
 RSI-Exam repository `aiming-lab/RSI-Exam` @ `bc36dadb405b` (MIT); dataset `RSI-Exam/RSI-Exam` @
-`956025d7ecf6` on Hugging Face; ATIF v1.8 trajectories; TRACE schema 0.5.0.
+`956025d7ecf6` on Hugging Face; ATIF v1.8 trajectories; TRACE schema 0.5.1 (release `v0.5.1`,
+commit `a97d4e81fb3b4ec5134e992882d28a6cf97fac04`).
 
 ## License
 

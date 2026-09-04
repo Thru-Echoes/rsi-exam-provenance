@@ -203,7 +203,7 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(doc["metadata"]["experiment_id"], "game2048__abc123")
         self.assertEqual(doc["metadata"]["custom"]["source"], "rsi-exam-decision-log/v1")
         self.assertEqual(doc["status"], "completed")
-        self.assertEqual(doc["trace_version"], "0.5.0")
+        self.assertEqual(doc["trace_version"], "0.5.1")
         self.assertEqual(doc["summary"], "RSI-Exam rollout game2048__abc123 (game2048_policy_search, claude-code, "
                                          "claude-opus-5): 1 kept, 1 reverted, 1 provisional, 0 replicated.")
 

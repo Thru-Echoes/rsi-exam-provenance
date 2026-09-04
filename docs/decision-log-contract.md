@@ -176,9 +176,9 @@ ProofPress evidence adapter reads and keeps), then `contract` (this schema id), 
 `profile_sha256`, `look_index`, `parent_method_tree_sha256`, `candidate_method_tree_sha256`,
 `sizing`, `suite`. Unknown keys are ignored by ProofPress. The generic measurement keys
 (`interval`, `method`, `sample_size`, `evidence_digests`, `contract`, `statistic`, `unit`,
-`direction`, `estimate`, `evidence`) are the part TRACE types, in exactly this nested shape, when
-its typed model ships; until then the document is a valid 0.5.0 session carrying an additive
-extension. The rule-state keys (`min_effect`, `verdict`, `holdout`) and the gated keys
+`direction`, `estimate`, `evidence`) are the part TRACE types, in exactly this nested shape, as of
+TRACE 0.5.1; a document is a valid 0.5.1 session whose measurement is typed and whose remaining
+keys are a preserved extension. The rule-state keys (`min_effect`, `verdict`, `holdout`) and the gated keys
 (`confirm_policy`, `profile_sha256`, `look_index`, `parent_method_tree_sha256`,
 `candidate_method_tree_sha256`, `sizing`, `suite`) remain an identified extension that TRACE
 preserves but does not interpret. TRACE's own checks on the block are structural only: ordered
@@ -197,8 +197,8 @@ replication event revises it (`revises_event_id`), after which the original is r
 template; `tags` = `["rsi-exam", "decision-gate", "<version_id>"]`. Session metadata: `project`,
 `project_key`, `experiment_id` = rollout id, `participants` = both actors, `custom` = `{source,
 importer, rollout_id, task, harness, model, decision_log_sha256, locator_base}`; `trace_version`
-`0.5.0` (the document is valid under the shipped TRACE 0.5.0 schema; `confidence` is an additive
-property there).
+`0.5.1` (the document is valid under the TRACE 0.5.1 schema, which types the measurement keys of
+`confidence` and preserves the rest).
 
 ## 3. The record's `decisions[]` per version
 

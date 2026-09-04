@@ -24,7 +24,7 @@ gate/task_profile.py           the per-rollout task profile (rsi-exam-gate-profi
 gate/seeds.py                  fresh confirmation suites (rsi-exam-gate/hmac-seeds/1) and the planning rule
 gate/evaluate_suite.py         the evaluation runner that writes receipts (rsi-exam-gate-receipt/v1)
 gate/restore.py                put a snapshot back into main/ without nesting it
-gate/trace_from_decisions.py   decision log -> TRACE 0.5.0 session document
+gate/trace_from_decisions.py   decision log -> TRACE 0.5.1 session document
 profile/schema.json            the provenance record's JSON Schema (profile v2)
 profile/build_capsule.py       job directory -> provenance record
 profile/verify_capsule.py      offline verifier for a record
