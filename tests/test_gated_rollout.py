@@ -148,7 +148,7 @@ class GatedRollout(unittest.TestCase):
         doc = conv.build_session(self.lines(), project="rsi-exam-provenance", rollout_id="e2e-rollout",
                                  task="game2048_policy_search", harness="test", model="none",
                                  decision_log_sha256=conv.sha256_of(log))
-        self.assertEqual(doc["trace_version"], "0.5.0")
+        self.assertEqual(doc["trace_version"], "0.5.1")
         decision = doc["events"][0]["decision"]
         self.assertEqual(decision["disposition"], "rejected")
         self.assertEqual(decision["revision_note"],

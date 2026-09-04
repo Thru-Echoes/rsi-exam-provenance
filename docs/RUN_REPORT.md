@@ -1,9 +1,16 @@
-# Run report: gate, converter, and ProofPress import on a demo lineage (2026-09-02)
+# Run report: gate, converter, and ProofPress import on a demo lineage (2026-09-04)
 
-Scope: a local proof that the decision gate, the decision-log to TRACE converter, TRACE 0.5.0
+Scope: a local proof that the decision gate, the decision-log to TRACE converter, TRACE 0.5.1
 validation, and the ProofPress evidence adapter fit together. Everything below ran on one machine
 against fixture data; no RSI-Exam rollout was executed, and nothing here shows that the gate improves
 rollout outcomes.
+
+This re-runs the chain first recorded on 2026-09-02, on the same lineage, after three pins moved:
+TRACE released the typed `confidence` model as 0.5.1, ProofPress widened its exact version pin to
+accept 0.5.0 and 0.5.1, and this converter now stamps `0.5.1`. Every interval, disposition, and
+digest below reproduces the earlier run; what changed is the declared version and what the consumer
+accepts. The gate also now requires an explicit `--confirm inconclusive` in replay mode, which the
+earlier commands predate.
 
 ## What this report does and does not establish
 
@@ -11,29 +18,34 @@ Establishes:
 - the gate applies the keep / revert / provisional rule and refuses to build on an unreplicated
   provisional decision;
 - a replication on fresh evidence resolves the provisional decision;
-- the converter's output validates under the published TRACE 0.5.0 schema and survives a typed
-  round-trip through the TRACE models with the `confidence` block unchanged;
-- ProofPress `main` at `e911b34` imports the document, projects the four confidence fields its
-  adapter reads (`interval`, `method`, `sample_size`, `evidence_digests`), refuses a malformed
-  interval, refuses a document declaring `trace_version` `0.5.1`, and is idempotent on re-import.
+- the converter's output validates under TRACE 0.5.1, both through `trace-mcp validate` and through
+  a typed round-trip that leaves every `confidence` block byte-equal;
+- ProofPress imports the 0.5.1 document, projects the four confidence fields its adapter reads
+  (`interval`, `method`, `sample_size`, `evidence_digests`), records the wire version as `0.5.1`,
+  refuses a malformed interval, refuses an unpinned version, and is idempotent on re-import;
+- ProofPress fails closed when a session it has already imported comes back under a different
+  version stamp with the same session and event identities.
 
 Does not establish:
 - that the interval has its nominal coverage on adaptively reused visible seeds (it is a screening
   statistic; acceptance rests on fresh-seed replication);
 - that ProofPress verifies digests, recomputes intervals, or reads `estimate`, `verdict`,
   `min_effect`, locators, or `holdout` (its projection drops them);
-- that TRACE has adopted a typed `confidence` field (the block is an additive extra under 0.5.0);
+- that TRACE interprets the rule-state keys (0.5.1 types the measurement only and preserves the
+  rest without reading them);
 - anything about hidden-set performance.
 
 ## Environment
 
 - Python 3.12.10, standard library only for the gate and converter.
-- TRACE at `~/Developer/TRACE` (`origin/main` `f5e60fa`), invoked with `uv run trace-mcp validate`.
-- ProofPress `origin/main` `e911b34` extracted with `git archive` and used via
-  `PYTHONPATH=<tree>/src python3 -m proofpress.cli`.
-- Repository state: commits `00fd7ca` (seed), `f1e1c13` (gate and converter), and the evidence-location fix; `python3 -m unittest
-  discover -s tests -t .` prints `Ran 70 tests` and `OK`; `pyright` on `gate/` and the two new test
-  files reports 0 errors.
+- TRACE at release `v0.5.1`, commit `a97d4e81fb3b4ec5134e992882d28a6cf97fac04`, whose
+  `trace-v0.5.json` has SHA-256
+  `ce7b5bf03b31ab669d12018b0d64fa2421d03b7e7ab2da156f98581e4d62c544`.
+- ProofPress at `feature/trace-version-acceptance` (pull request 122), commit `56494d0`, used via
+  `PYTHONPATH=<tree>/src python3 -m proofpress.cli`. That branch is what adds 0.5.1 to the adapter's
+  accepted versions; the import below is refused by ProofPress `main` until it merges.
+- Repository state: `9f48fa0` plus the version-stamp change; `python3 -m unittest discover -s tests
+  -t .` prints `Ran 148 tests` and `OK`; `pyright` on the changed files reports 0 errors.
 
 ## Lineage
 
@@ -49,18 +61,21 @@ Result files in the exact shape of the task's `selfcheck.py` output (`instances[
 ## Commands and outputs
 
 ```
-$ DECIDE_FIXED_TIMESTAMP=2026-09-03T18:01:00+00:00 python3 gate/decide.py --methods $M --version v2 --parent v1
-verdict below, disposition revert, interval {lower: -382.5, upper: -258.75, level: 0.9}
+$ DECIDE_FIXED_TIMESTAMP=2026-09-04T21:01:00+00:00 python3 gate/decide.py --methods $M \
+    --version v2 --parent v1 --confirm inconclusive
+verdict below, disposition revert, interval {level: 0.9, lower: -382.5, upper: -258.75}
 
-$ DECIDE_FIXED_TIMESTAMP=2026-09-03T18:02:00+00:00 python3 gate/decide.py --methods $M --version v3 --parent v1
-verdict inconclusive, disposition provisional, interval {lower: -30.0, upper: 583.75, level: 0.9}
+$ DECIDE_FIXED_TIMESTAMP=2026-09-04T21:02:00+00:00 python3 gate/decide.py --methods $M \
+    --version v3 --parent v1 --confirm inconclusive
+verdict inconclusive, disposition provisional, interval {level: 0.9, lower: -30.0, upper: 583.75}
 
-$ python3 gate/decide.py --methods $M --version v4 --parent v3
+$ python3 gate/decide.py --methods $M --version v4 --parent v3 --confirm inconclusive
 gate refused: parent v3 carries an unreplicated provisional decision (line 2); replicate it before building on it
 exit=3
 
-$ DECIDE_FIXED_TIMESTAMP=2026-09-03T18:03:00+00:00 python3 gate/decide.py --methods $M --version v3 --parent v1 --replicates v3
-verdict clears, disposition keep, interval {lower: 467.5, upper: 575.0, level: 0.9}, replicates v3
+$ DECIDE_FIXED_TIMESTAMP=2026-09-04T21:03:00+00:00 python3 gate/decide.py --methods $M \
+    --version v3 --parent v1 --replicates v3 --confirm inconclusive
+verdict clears, disposition keep, interval {level: 0.9, lower: 467.5, upper: 575.0}, replicates v3
 
 $ python3 -c "..."   # dispositions in decisions.jsonl
 ['revert', 'provisional', 'keep']
@@ -68,42 +83,44 @@ $ python3 -c "..."   # dispositions in decisions.jsonl
 $ python3 gate/trace_from_decisions.py $M/decisions.jsonl --project rsi-exam-provenance \
     --rollout demo-rollout --task game2048_policy_search --harness claude-code --model claude-opus-5 \
     --output trace_session.json
-evt_001 rejected  Revert v2 (parent v1)                       revises None     note "Interval entirely below zero."
-evt_002 accepted  Keep v3 provisionally (parent v1)           revises None     note "Resolved by replication evt_003."
-evt_003 accepted  Replication of v3 on fresh seeds (parent v1) revises evt_002  note None
+
+$ python3 -c "..."   # the document's decision events
+trace_version: 0.5.1 | events: 3
+evt_001 rejected  revises None     note "Interval entirely below zero."
+evt_002 accepted  revises None     note "Resolved by replication evt_003."
+evt_003 accepted  revises evt_002  note None
 summary: RSI-Exam rollout demo-rollout (game2048_policy_search, claude-code, claude-opus-5): 0 kept, 1 reverted, 1 provisional, 1 replicated.
 
-$ (cd ~/Developer/TRACE && uv run trace-mcp validate trace_session.json)
+$ python3 -m trace_mcp.server validate trace_session.json      # TRACE at v0.5.1
+  PASS  trace_session.json
 1/1 files valid.
 
-$ (cd ~/Developer/TRACE && uv run python - trace_session.json)   # Session.model_validate -> model_dump_json
+$ python3 - trace_session.json   # Session.model_validate -> model_dump_json, TRACE at v0.5.1
 confidence present after typed round-trip: [True, True, True] | byte-equal blocks: [True, True, True]
 
 $ PYTHONPATH=$PP python3 -m proofpress.cli evidence import trace_session.json      # inside a fresh git repository
-{'ok': True, 'events_added': 6, 'evidence': ['evd_0b475c066a0bddb1', 'evd_1995585e077ce309', 'evd_ab770d77d63315df']}
+{'ok': True, 'events_added': 6, 'evidence': ['evd_641cbeb88d420f1a', 'evd_697ed809289483a0', 'evd_f405c76327dfa4b4']}
+
+$ PYTHONPATH=$PP python3 -m proofpress.cli evidence import trace_session.json      # second import
+events_added 6 | evidence 3        # the ledger does not grow
 
 $ PYTHONPATH=$PP python3 - <<'PY'   # proofpress.kernel.operations.v2_projection()
-decision source rows: 3 | schema: {'0.5.0'}
+decision source rows: 3 | schema: {'0.5.1'}
 evt_001 rejected | revises None | confidence: {"evidence_digests": {...}, "interval": {"level": 0.9, "lower": -382.5, "upper": -258.75}, "method": {"name": "percentile_bootstrap", "resamples": 5000}, "sample_size": 8}
 evt_002 accepted | revises None | confidence: {..., "interval": {"level": 0.9, "lower": -30.0, "upper": 583.75}, ...}
 evt_003 accepted | revises trace:rsiexam_demo-rollout#evt_002 | confidence: {..., "interval": {"level": 0.9, "lower": 467.5, "upper": 575.0}, ...}
 conclusions: {} | admissions: {}
+history envelopes: True | ledger events: 6
 PY
 
 $ PYTHONPATH=$PP python3 -m proofpress.cli evidence import malformed.json      # interval.lower set above upper
 proofpress: error: TRACE decision confidence interval.lower must not exceed interval.upper
-exit=2
 
-$ PYTHONPATH=$PP python3 -m proofpress.cli evidence import v051.json           # trace_version "0.5.1"
-proofpress: error: unsupported TRACE trace_version: 0.5.1
-exit=2
+$ PYTHONPATH=$PP python3 -m proofpress.cli evidence import v052.json           # trace_version "0.5.2"
+proofpress: error: unsupported TRACE trace_version: 0.5.2; accepted: 0.5.0, 0.5.1
 
-$ PYTHONPATH=$PP python3 -m proofpress.cli evidence import trace_session.json  # third import
-events before 6 after 6 | evidence ids ['evd_0b475c066a0bddb1', 'evd_1995585e077ce309', 'evd_ab770d77d63315df']
-
-$ PYTHONPATH=$PP python3 - <<'PY'   # verify_history_envelopes
-{'ok': True, 'events': 6, 'head': 'sha256:05e134bf...'}
-PY
+$ PYTHONPATH=$PP python3 -m proofpress.cli evidence import restamped.json      # same session, stamped 0.5.0 after the 0.5.1 import
+proofpress: error: immutable source_recorded conflict for src_8156a6c441184e3c
 ```
 
 ## Observations worth carrying forward
@@ -113,8 +130,15 @@ PY
    `holdout` are dropped from the evidence record. Anyone reading the ProofPress ledger alone sees an
    interval and digests, not the rule that produced the decision. The TRACE document and the
    rollout record carry the rest.
-2. The `trace_version` pin is exact (`0.5.0`). A document stamped `0.5.1` is refused before any
-   field is read. Coordination item, not a defect in either repository.
-3. The gate's worked example reproduces `[-30.0, 583.75]` (rounded `583.8` in the planning notes) with
-   `seed 20260902`, `5000` resamples, and the index-floor quantile rule now named
+2. The `trace_version` pin is still exact; it is now a two-entry allowlist rather than one value,
+   and each entry names the upstream release commit and that release's schema digest. An unpinned
+   version is refused before any event field is projected. The next TRACE release needs the same
+   coordination, in the same order: consumer first, producer second.
+3. A session already imported under one `trace_version` cannot be re-imported under another. The
+   identities are unchanged but the recorded content is not, so the immutable source rule refuses
+   it. This is the right behavior and it means the version stamp is a property of a converted
+   document, not something to be revised in place: sessions converted before this change keep the
+   stamp they were imported with, and only new conversions carry `0.5.1`.
+4. The gate's worked example reproduces `[-30.0, 583.75]` (rounded `583.8` in the planning notes) with
+   `seed 20260902`, `5000` resamples, and the index-floor quantile rule named
    `rsi-exam-gate/percentile-bootstrap/1`.

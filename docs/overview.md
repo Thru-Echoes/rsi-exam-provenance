@@ -293,9 +293,10 @@ trial.
 
 - **TRACE** is the record of the decisions: who proposed (the agent), who resolved (the gate),
   disposition, and the confidence block. A decision awaiting confirmation stays "proposed"; the
-  confirmation is a second event that revises it. The converter's output is a valid TRACE 0.5.0
-  document today; TRACE types the generic measurement part of the block, in this contract's
-  shape, when its typed model ships (`decision-log-contract.md`, section 2).
+  confirmation is a second event that revises it. The converter's output is a valid TRACE 0.5.1
+  document; TRACE 0.5.1 types the generic measurement part of the block in this contract's
+  nested shape, and preserves the rule-state keys without interpreting them
+  (`decision-log-contract.md`, section 2).
 - **ProofPress** imports the TRACE document as evidence. The adapter keeps four fields (interval,
   method, sample size, evidence digests) and drops the rest; it creates no claim or admission.
   The profile verifier is the authority on whether the numbers check out; ProofPress is where a
