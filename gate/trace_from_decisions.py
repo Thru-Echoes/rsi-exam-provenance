@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert an RSI-Exam decision log into a TRACE 0.5.0 session document.
+"""Convert an RSI-Exam decision log into a TRACE 0.5.1 session document.
 
 One ``decision`` event per log line: the rollout agent proposes, the gate resolves; ``keep`` is
 ``accepted``, ``revert`` is ``rejected``, ``provisional`` stays ``proposed`` until its replication
@@ -30,7 +30,7 @@ import unicodedata
 from pathlib import Path
 from typing import Any
 
-TRACE_VERSION = "0.5.0"
+TRACE_VERSION = "0.5.1"
 CONTEXT = "https://trace-protocol.org/v0.3"
 SOURCE_SCHEMA = "rsi-exam-decision-log/v1"
 IMPORTER = "rsi-exam-provenance/trace_from_decisions.py 0.2"
