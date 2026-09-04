@@ -86,7 +86,7 @@ a snapshot or `main/`: the grader rejects non-Python files there).
 - `docs/decision-log-contract.md`: the contract every component implements: the log line and its
   rules, the bootstrap algorithm, the TRACE `confidence` block and event mapping, the record's
   per-version decisions, and the verifier codes.
-- `docs/profile-v2.md`: the provenance record's profile text.
+- `docs/profile-v3.md`: the provenance record's profile text.
 - `docs/ROADMAP.md`: status, milestones, how the three repositories fit, the version-pin path,
   and the changes to propose in ProofPress.
 - `docs/RUN_REPORT.md`: the last verified end-to-end run on fixture data, commands and outputs.

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Offline integrity and coverage checks for RSI-Exam rollout provenance records.
 
-Schema version: proofpress/rsi-exam-trajectory/v2.
+Schema version: proofpress/rsi-exam-trajectory/v3.
 
-What this verifier establishes: the record's shape conforms to the v2 schema
+What this verifier establishes: the record's shape conforms to the v3 schema
 (structural rules are enforced here, without third-party dependencies), the
 supplied files match their declared digests, the version lineage is a single
 rooted DAG (one root, every parent present with a smaller ordinal, which by
@@ -33,13 +33,18 @@ import re
 from pathlib import Path
 from typing import Any, Callable
 
-SCHEMA_VERSION = "proofpress/rsi-exam-trajectory/v2"
+SCHEMA_VERSION = "proofpress/rsi-exam-trajectory/v3"
 DIGEST = re.compile(r"^[0-9a-f]{64}$")
 VERSION_ID = re.compile(r"^v[0-9]+$")
 MAX_STRING = 2000
 
 Errors = list[str]
 Checker = Callable[[Any, str, Errors], None]
+
+
+EXCLUDED_DIR = "__pycache__"
+EXCLUDED_SUFFIXES = (".pyc", ".pyo")
+EXPECTED_EXCLUSIONS = ["__pycache__/", "*.pyc", "*.pyo"]
 
 
 def _add(errors: Errors, code: str) -> None:
@@ -86,6 +91,44 @@ def tree_digest(path: Path) -> str:
 # ---------------------------------------------------------------------------
 # Structural validation (mirrors schema.json; keep the two in step)
 # ---------------------------------------------------------------------------
+
+def method_files(path: Path) -> list[str]:
+    """Sorted POSIX relpaths of the ``.py`` files a method-tree digest covers.
+
+    Mirrors the producer: files the grader would not stage are skipped, and the cases where the
+    staged set cannot be known are refused (a symlink, anything that is not a regular file, and a
+    ``.py`` file under ``__pycache__``). Raises ValueError; no side effects.
+    """
+    if path.is_symlink():
+        raise ValueError(f"symlink:{path.name}")
+    rels: list[str] = []
+    for child in path.rglob("*"):
+        rel = child.relative_to(path)
+        if child.is_symlink():
+            raise ValueError(f"symlink:{rel.as_posix()}")
+        if child.is_dir():
+            continue
+        cached = EXCLUDED_DIR in rel.parts
+        if cached and child.suffix == ".py":
+            raise ValueError(f"source_in_cache_dir:{rel.as_posix()}")
+        if cached or child.suffix in EXCLUDED_SUFFIXES:
+            continue
+        if not child.is_file():
+            raise ValueError(f"not_a_regular_file:{rel.as_posix()}")
+        if child.suffix != ".py":
+            continue
+        rels.append(rel.as_posix())
+    return sorted(rels)
+
+
+def method_tree_digest(path: Path) -> str:
+    """Cache-free digest of a method tree, in the same line format as tree_digest."""
+    try:
+        lines = [f"{file_digest(path / rel)}  {rel}\n" for rel in method_files(path)]
+    except OSError as exc:
+        raise ValueError(f"unreadable:{exc.__class__.__name__}")
+    return hashlib.sha256("".join(lines).encode("utf-8")).hexdigest()
+
 
 def _string(min_len: int = 1, max_len: int = MAX_STRING,
             pattern: re.Pattern[str] | None = None) -> Checker:
@@ -211,6 +254,7 @@ CAPSULE_SPEC: Checker = _obj({
     "source": (True, _obj({
         "experiment_log": (True, _BOUND_FILE),
         "versions_root": (True, _obj({"locator": (True, _locator)})),
+        "exclusions": (True, _array(_string(1, 200), unique=True, min_items=1)),
         "trajectory": (False, _obj({
             "locator": (True, _locator),
             "sha256": (True, _digest_checker),
@@ -239,6 +283,7 @@ CAPSULE_SPEC: Checker = _obj({
             "type": (True, _enum("directory", "file")),
             "locator": (True, _locator),
             "tree_sha256": (True, _digest_checker),
+            "method_tree_sha256": (True, _digest_checker),
         })),
         "log": (True, _obj({"line": (True, _integer(minimum=1))})),
         "visible": (False, _obj({
@@ -252,7 +297,10 @@ CAPSULE_SPEC: Checker = _obj({
     }), min_items=1)),
     "final_submission": (True, _obj({
         "version_id": (True, _version_ref),
+        "locator": (True, _locator),
         "tree_sha256": (True, _digest_checker),
+        "method_tree_sha256": (True, _digest_checker),
+        "version_ids": (True, _array(_version_ref, unique=True, min_items=1)),
     })),
     "hidden_evaluation": (True, _obj({
         "reward_locator": (True, _locator),
@@ -272,6 +320,16 @@ CAPSULE_SPEC: Checker = _obj({
 # ---------------------------------------------------------------------------
 # Semantic validation
 # ---------------------------------------------------------------------------
+
+def expected_main_locator(versions_root: str) -> str:
+    """The submitted tree's locator: the sibling of the versions root named ``main``.
+
+    Derived rather than trusted, so a record cannot point the verifier at a directory other than
+    the one the grader read. Pure function.
+    """
+    parent, separator, _ = versions_root.rstrip("/").rpartition("/")
+    return f"{parent}/main" if separator else "main"
+
 
 def _check_semantics(data: dict[str, Any], errors: Errors) -> None:
     versions: list[dict[str, Any]] = data["versions"]
@@ -312,8 +370,27 @@ def _check_semantics(data: dict[str, Any], errors: Errors) -> None:
         chosen = submitted[0]
         if final["version_id"] != chosen["version_id"]:
             _add(errors, "semantic:final:submitted_mismatch")
-        if final["tree_sha256"] != chosen["artifact"]["tree_sha256"]:
-            _add(errors, "semantic:final:digest_mismatch")
+        if final["method_tree_sha256"] != chosen["artifact"]["method_tree_sha256"]:
+            _add(errors, "semantic:final:method_tree_mismatch")
+        # The full trees may legitimately differ: main/ picks up bytecode caches the snapshot was
+        # taken without, which is why identity is decided on the method tree. Both full-tree
+        # digests are still recomputed from disk, so neither is unchecked.
+        klass = sorted((v for v in versions
+                        if v["artifact"]["method_tree_sha256"] == final["method_tree_sha256"]),
+                       key=lambda v: v["ordinal"])
+        if [v["version_id"] for v in klass] != list(final["version_ids"]):
+            _add(errors, "semantic:final:class_mismatch")
+        elif klass and final["version_id"] != klass[0]["version_id"]:
+            _add(errors, "semantic:final:not_canonical")
+
+    if data["final_submission"]["locator"] != expected_main_locator(
+            data["source"]["versions_root"]["locator"]):
+        # Without this the record chooses which directory the verifier recomputes, and a record
+        # pointing at a snapshot would never have main/ read at all.
+        _add(errors, "semantic:final:locator_convention")
+
+    if sorted(data["source"]["exclusions"]) != sorted(EXPECTED_EXCLUSIONS):
+        _add(errors, "semantic:source:exclusions_mismatch")
 
     versions_root = data["source"]["versions_root"]["locator"].rstrip("/")
     for version in versions:
@@ -368,14 +445,67 @@ def _check_artifact(root: Path, version: dict[str, Any], errors: Errors) -> None
             actual = tree_digest(path)
         except ValueError:
             _add(errors, f"file:artifact:{vid}:symlink")
-            return
+            actual = None
+        except OSError as exc:
+            _add(errors, f"file:artifact:{vid}:unreadable:{exc.__class__.__name__}")
+            actual = None
     else:
         if not path.is_file() or path.is_symlink():
             _add(errors, f"file:artifact:{vid}:missing_file")
             return
         actual = file_digest(path)
-    if actual != artifact["tree_sha256"]:
+    if actual is not None and actual != artifact["tree_sha256"]:
         _add(errors, f"file:artifact:{vid}:digest_mismatch")
+    # Independent of the full-tree outcome, so a symlink reported above does not hide which path
+    # the method-tree view objects to.
+    if artifact["type"] == "directory":
+        try:
+            method_actual = method_tree_digest(path)
+        except ValueError as exc:
+            _add(errors, f"file:artifact:{vid}:method_tree_unreadable:{exc}")
+            return
+        if method_actual != artifact["method_tree_sha256"]:
+            _add(errors, f"file:artifact:{vid}:method_tree_mismatch")
+
+
+def _check_final_submission(root: Path, data: dict[str, Any], errors: Errors) -> None:
+    """Recompute the submitted tree's digests from disk.
+
+    Without this the record's final digests are only checked against a snapshot the record itself
+    names, so a `main/` holding something else would pass. Appends to `errors`; no other effects.
+    """
+    final = data["final_submission"]
+    path = _inside(root, final["locator"])
+    if path is None:
+        _add(errors, "file:final_submission:locator_outside_root")
+        return
+    if not path.is_dir():
+        _add(errors, "file:final_submission:missing_file")
+        return
+    try:
+        if tree_digest(path) != final["tree_sha256"]:
+            _add(errors, "file:final_submission:digest_mismatch")
+    except ValueError:
+        _add(errors, "file:final_submission:symlink")
+    except OSError as exc:
+        _add(errors, f"file:final_submission:unreadable:{exc.__class__.__name__}")
+    # Not chained to the full-tree result: a symlink reported there must not hide which path the
+    # method-tree view objects to.
+    try:
+        if method_tree_digest(path) != final["method_tree_sha256"]:
+            _add(errors, "file:final_submission:method_tree_mismatch")
+    except ValueError as exc:
+        _add(errors, f"file:final_submission:method_tree_unreadable:{exc}")
+    # The producer refuses to build a record for a tree the grader would score 0.0. Re-check it
+    # here, or that rule would hold only for records this producer wrote.
+    stray = sorted(
+        rel.as_posix() for rel in (c.relative_to(path) for c in path.rglob("*"))
+        if not (path / rel).is_dir()
+        and EXCLUDED_DIR not in rel.parts
+        and (path / rel).suffix not in EXCLUDED_SUFFIXES
+        and (path / rel).suffix != ".py")
+    if stray:
+        _add(errors, f"protocol:submission_not_stageable:{stray[0]}")
 
 
 def _check_log_lines(log_path: Path, versions: list[dict[str, Any]],
@@ -440,6 +570,9 @@ def _check_files(root: Path, data: dict[str, Any], errors: Errors) -> None:
         _check_bound_file(root, export["locator"], export["sha256"],
                           f"trace_export:{index}", errors)
 
+    _check_final_submission(root, data, errors)
+    _check_unrecorded_matches(root, data, errors)
+
     for version in data["versions"]:
         _check_artifact(root, version, errors)
         visible = version.get("visible")
@@ -465,6 +598,28 @@ def _check_files(root: Path, data: dict[str, Any], errors: Errors) -> None:
 # ---------------------------------------------------------------------------
 # Coverage (anchored on the harness-preserved snapshot directories)
 # ---------------------------------------------------------------------------
+
+def _check_unrecorded_matches(root: Path, data: dict[str, Any], errors: Errors) -> None:
+    """Flag a snapshot on disk that shares the submitted method tree and is not in the record.
+
+    The record's equivalence class is only as honest as the set of snapshots it lists, so the class
+    is re-derived from the job directory. Appends to `errors`; no other effects.
+    """
+    path = _inside(root, data["source"]["versions_root"]["locator"])
+    if path is None or not path.is_dir():
+        return
+    recorded = {v["version_id"] for v in data["versions"]}
+    final_digest = data["final_submission"]["method_tree_sha256"]
+    for child in sorted(path.iterdir()):
+        if not child.is_dir() or child.name in recorded or not VERSION_ID.fullmatch(child.name):
+            continue
+        try:
+            if method_tree_digest(child) == final_digest:
+                _add(errors, f"identity:unrecorded_match:{child.name}")
+        except ValueError as exc:
+            # Skipping it silently would let an unreadable directory hide a member of the class.
+            _add(errors, f"identity:unscannable_snapshot:{child.name}:{exc}")
+
 
 def _coverage(root: Path, data: dict[str, Any], errors: Errors) -> str:
     locator = data["source"]["versions_root"]["locator"]

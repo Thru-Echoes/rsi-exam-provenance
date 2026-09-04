@@ -12,7 +12,7 @@ official runs.
 
 Start with `README.md`, then `docs/overview.md` (the exam, the gate's rule, the components, and
 the limits, with figures), `docs/decision-log-contract.md` (the contract every component
-implements), `docs/profile-v2.md` (the provenance record), `docs/ROADMAP.md` (status and
+implements), `docs/profile-v3.md` (the provenance record), `docs/ROADMAP.md` (status and
 milestones), and `docs/RUN_REPORT.md` (the last verified end-to-end run on fixture data).
 
 ## Layout
@@ -25,7 +25,7 @@ gate/seeds.py                  fresh confirmation suites (rsi-exam-gate/hmac-see
 gate/evaluate_suite.py         the evaluation runner that writes receipts (rsi-exam-gate-receipt/v1)
 gate/restore.py                put a snapshot back into main/ without nesting it
 gate/trace_from_decisions.py   decision log -> TRACE 0.5.0 session document
-profile/schema.json            the provenance record's JSON Schema (profile v2)
+profile/schema.json            the provenance record's JSON Schema (profile v3)
 profile/build_capsule.py       job directory -> provenance record
 profile/verify_capsule.py      offline verifier for a record
 fixtures/valid/                a harbor-shaped job directory with its golden record

@@ -6,8 +6,13 @@
   },
   "capsule_id": "fixture-rollout-001",
   "final_submission": {
+    "locator": "artifacts/app/methods/main",
+    "method_tree_sha256": "e4752c0c45ae49e6a32201008643907b029fb284d0e656f4134b0e96da27d58a",
     "tree_sha256": "e4752c0c45ae49e6a32201008643907b029fb284d0e656f4134b0e96da27d58a",
-    "version_id": "v3"
+    "version_id": "v3",
+    "version_ids": [
+      "v3"
+    ]
   },
   "freeze": {
     "grader_digest": "6494a4d613035ed2a35ff20e5fd4a3576c5e7d35e94a653758157ecba0dcf7c5",
@@ -31,8 +36,13 @@
     "id": "job",
     "model": "fixture-model"
   },
-  "schema_version": "proofpress/rsi-exam-trajectory/v2",
+  "schema_version": "proofpress/rsi-exam-trajectory/v3",
   "source": {
+    "exclusions": [
+      "__pycache__/",
+      "*.pyc",
+      "*.pyo"
+    ],
     "experiment_log": {
       "locator": "artifacts/app/methods/experiment_log.md",
       "sha256": "0ddfa3ec10b799335b36aae1a816cd69bc12012a776664ee3c3351a9e27ca7be"
@@ -50,6 +60,7 @@
     {
       "artifact": {
         "locator": "artifacts/app/methods/versions/v1",
+        "method_tree_sha256": "bcc59289cf7ca59278d72552f685cb059f41c62041ffa627f28b35257bf8e623",
         "tree_sha256": "bcc59289cf7ca59278d72552f685cb059f41c62041ffa627f28b35257bf8e623",
         "type": "directory"
       },
@@ -68,6 +79,7 @@
     {
       "artifact": {
         "locator": "artifacts/app/methods/versions/v2",
+        "method_tree_sha256": "01431930bc36f33cef01283148a9cf53db355d9b25a27670d2babddbcf1cb5d2",
         "tree_sha256": "01431930bc36f33cef01283148a9cf53db355d9b25a27670d2babddbcf1cb5d2",
         "type": "directory"
       },
@@ -88,6 +100,7 @@
     {
       "artifact": {
         "locator": "artifacts/app/methods/versions/v3",
+        "method_tree_sha256": "e4752c0c45ae49e6a32201008643907b029fb284d0e656f4134b0e96da27d58a",
         "tree_sha256": "e4752c0c45ae49e6a32201008643907b029fb284d0e656f4134b0e96da27d58a",
         "type": "directory"
       },

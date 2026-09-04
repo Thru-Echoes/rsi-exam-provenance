@@ -1,6 +1,6 @@
 # RSI-Exam experiment provenance profile
 
-Profile identifier: proofpress/rsi-exam-trajectory/v2
+Profile identifier: proofpress/rsi-exam-trajectory/v3
 
 This profile is an interpretation layer over what an RSI-Exam rollout already
 produces. It is passive and black-box at rollout time: it does not gate the

@@ -18,7 +18,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "proofpress/rsi-exam-trajectory/v2"
+      "const": "proofpress/rsi-exam-trajectory/v3"
     },
     "capsule_id": {
       "type": "string",
@@ -114,7 +114,8 @@
       "additionalProperties": false,
       "required": [
         "experiment_log",
-        "versions_root"
+        "versions_root",
+        "exclusions"
       ],
       "properties": {
         "experiment_log": {
@@ -176,6 +177,16 @@
               }
             }
           }
+        },
+        "exclusions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "description": "Path patterns excluded from every method-tree digest in this record."
         }
       }
     },
@@ -217,16 +228,39 @@
       "additionalProperties": false,
       "required": [
         "version_id",
-        "tree_sha256"
+        "version_ids",
+        "locator",
+        "tree_sha256",
+        "method_tree_sha256"
       ],
       "properties": {
         "version_id": {
           "type": "string",
           "minLength": 1,
-          "maxLength": 200
+          "maxLength": 200,
+          "description": "The lowest-ordinal member of version_ids. When version_ids holds more than one snapshot this is a canonical representative, not a claim about which snapshot was restored: the grader cannot tell them apart either."
         },
         "tree_sha256": {
           "$ref": "#/$defs/digest"
+        },
+        "method_tree_sha256": {
+          "$ref": "#/$defs/digest",
+          "description": "Method-tree digest of methods/main/ at the end of the rollout."
+        },
+        "locator": {
+          "$ref": "#/$defs/locator",
+          "description": "The submitted tree itself (methods/main), so its digests can be recomputed."
+        },
+        "version_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "description": "Every snapshot whose method tree equals the submitted tree, in ordinal order."
         }
       }
     },
@@ -343,7 +377,8 @@
             "kept",
             "reverted",
             "submitted"
-          ]
+          ],
+          "description": "'submitted' marks the canonical representative of the submitted tree, the lowest-ordinal member of final_submission.version_ids. When that class holds more than one snapshot the others are indistinguishable to the grader and the record does not claim which was restored."
         },
         "stage": {
           "type": "string",
@@ -356,7 +391,8 @@
           "required": [
             "type",
             "locator",
-            "tree_sha256"
+            "tree_sha256",
+            "method_tree_sha256"
           ],
           "properties": {
             "type": {
@@ -370,6 +406,10 @@
             },
             "tree_sha256": {
               "$ref": "#/$defs/digest"
+            },
+            "method_tree_sha256": {
+              "$ref": "#/$defs/digest",
+              "description": "Digest of the .py files only, bytecode caches excluded per source.exclusions; the view the grader stages, and the digest that decides identity."
             }
           }
         },
