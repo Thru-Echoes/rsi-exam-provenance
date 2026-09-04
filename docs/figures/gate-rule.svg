@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 292" role="img" aria-label="The gate rule: screening and confirmation">
+<style>
+text { font: 9pt -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #1f2933; }
+.lbl { font-size: 8.5pt; } .small { font-size: 7.5pt; fill: #5f6b7a; } .title { font-size: 8.5pt; font-weight: 600; }
+.rsi { fill: #eceff3; stroke: #6B7684; stroke-width: 1.3; }
+.ours { fill: #dbe6fb; stroke: #3B6FD4; stroke-width: 1.5; }
+.pp { fill: #fbe9d3; stroke: #C2731B; stroke-width: 1.5; }
+.keep { fill: #ddf1e6; stroke: #1B7F5A; stroke-width: 1.5; }
+.revert { fill: #f6dfd8; stroke: #B7472A; stroke-width: 1.5; }
+.panel { fill: #fff; stroke: #d9dee5; }
+.arrow { stroke: #1f2933; stroke-width: 1.2; fill: none; marker-end: url(#ah); }
+.arrowd { stroke: #5f6b7a; stroke-width: 1; fill: none; stroke-dasharray: 3 3; marker-end: url(#ahm); }
+</style>
+<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f2933"/></marker><marker id="ahm" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5f6b7a"/></marker></defs>
+<rect x="0" y="0" width="700" height="292" fill="#ffffff"/>
+<rect x="10" y="20" width="186" height="62" rx="4" class="rsi"/>
+<text x="103.0" y="38" text-anchor="middle" class="lbl">Screen on the 8 visible seeds</text>
+<text x="103.0" y="52" text-anchor="middle" class="small">paired deltas, bootstrap interval,</text>
+<text x="103.0" y="65" text-anchor="middle" class="small">compared with the minimum effect</text>
+<rect x="228" y="20" width="130" height="62" rx="4" class="ours"/>
+<text x="293.0" y="48" text-anchor="middle" class="lbl">Interval entirely</text>
+<text x="293.0" y="62" text-anchor="middle" class="small">below zero?</text>
+<path d="M196,51 L226,51" class="arrow"/>
+<rect x="410" y="20" width="150" height="62" rx="4" class="revert"/>
+<text x="485.0" y="38" text-anchor="middle" class="lbl">REVERT</text>
+<text x="485.0" y="52" text-anchor="middle" class="small">an action, not proof of harm</text>
+<path d="M358,51 L408,51" class="arrow"/><text x="383" y="44" text-anchor="middle" class="small">yes</text>
+<rect x="228" y="116" width="170" height="62" rx="4" class="ours"/>
+<text x="313.0" y="134" text-anchor="middle" class="lbl">Freeze the candidate</text>
+<text x="313.0" y="148" text-anchor="middle" class="small">record its method digest;</text>
+<text x="313.0" y="161" text-anchor="middle" class="small">derive fresh seeds from it</text>
+<path d="M293,82 L293,114" class="arrow"/><text x="306" y="101" class="small">no</text>
+<rect x="228" y="200" width="170" height="58" rx="4" class="ours"/>
+<text x="313.0" y="218" text-anchor="middle" class="lbl">Confirm on fresh seeds</text>
+<text x="313.0" y="232" text-anchor="middle" class="small">parent vs candidate, paired,</text>
+<text x="313.0" y="245" text-anchor="middle" class="small">16 or more seeds</text>
+<path d="M313,178 L313,198" class="arrow"/>
+<rect x="430" y="200" width="124" height="58" rx="4" class="keep"/>
+<text x="492.0" y="218" text-anchor="middle" class="lbl">KEEP</text>
+<text x="492.0" y="232" text-anchor="middle" class="small">clears the minimum effect</text>
+<rect x="576" y="200" width="114" height="58" rx="4" class="revert"/>
+<text x="633.0" y="218" text-anchor="middle" class="lbl">REVERT</text>
+<text x="633.0" y="232" text-anchor="middle" class="small">inconclusive or below</text>
+<path d="M398,229 L428,229" class="arrow"/><text x="413" y="222" text-anchor="middle" class="small">clears</text>
+<path d="M554,229 L574,229" class="arrow"/><text x="564" y="222" text-anchor="middle" class="small">else</text>
+<rect x="20" y="273" width="11" height="11" rx="2" class="rsi"/>
+<text x="36" y="282" class="small">RSI-Exam, unchanged</text>
+<rect x="164" y="273" width="11" height="11" rx="2" class="ours"/>
+<text x="180" y="282" class="small">This repository (standard library)</text>
+<rect x="392" y="273" width="11" height="11" rx="2" class="keep"/>
+<text x="408" y="282" class="small">Keep</text>
+<rect x="452" y="273" width="11" height="11" rx="2" class="revert"/>
+<text x="468" y="282" class="small">Revert</text>
+</svg>

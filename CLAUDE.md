@@ -10,9 +10,10 @@ record. A converter turns the decision log into a TRACE session document that Pr
 import as evidence. Nothing in RSI-Exam's harness, prompt, task containers, or grader changes for
 official runs.
 
-Start with `README.md`, then `docs/decision-log-contract.md` (the contract every component
-implements), `docs/profile-v2.md` (the provenance record), and `docs/RUN_REPORT.md` (the last
-verified end-to-end run on fixture data).
+Start with `README.md`, then `docs/overview.md` (the exam, the gate's rule, the components, and
+the limits, with figures), `docs/decision-log-contract.md` (the contract every component
+implements), `docs/profile-v2.md` (the provenance record), `docs/ROADMAP.md` (status and
+milestones), and `docs/RUN_REPORT.md` (the last verified end-to-end run on fixture data).
 
 ## Layout
 
@@ -24,7 +25,8 @@ profile/build_capsule.py       job directory -> provenance record
 profile/verify_capsule.py      offline verifier for a record
 fixtures/valid/                a harbor-shaped job directory with its golden record
 tests/                         unittest suites (run: python3 -m unittest discover -s tests -t .)
-docs/                          contract, profile, run report
+docs/                          overview, contract, profile, roadmap, run report
+docs/figures/                  the SVG figures and make_figures.py, which regenerates them
 report/                        the decision-evidence report generator (planned)
 ```
 

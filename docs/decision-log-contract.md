@@ -70,8 +70,16 @@ digests in `evidence`.
 Keys in this order: `interval`, `method`, `sample_size`, `evidence_digests` (the four keys the
 ProofPress evidence adapter reads and keeps), then `contract` (this schema id), `statistic`, `unit`,
 `direction`, `estimate`, `min_effect`, `verdict`, `evidence`, `holdout`. Unknown keys are ignored
-by ProofPress; the generic measurement keys are what TRACE would type first; the rule-state keys
-remain an identified extension until then.
+by ProofPress. The generic measurement keys (`interval`, `method`, `sample_size`,
+`evidence_digests`, `contract`, `statistic`, `unit`, `direction`, `estimate`, `evidence`) are the
+part TRACE types, in exactly this nested shape, when its typed model ships; until then the
+document is a valid 0.5.0 session carrying an additive extension. The rule-state keys
+(`min_effect`, `verdict`, `holdout`, and the planned `confirm_policy`) remain an identified
+extension that TRACE preserves but does not interpret. TRACE's own checks on the block are
+structural only: ordered interval bounds, a level in the open unit interval, a positive sample
+size, finite numbers, well-formed digests, a role on every evidence entry, and `evidence_digests`
+keys equal to the evidence roles. The verdict and disposition rules are checked by the profile
+verifier (section 4), never by TRACE.
 
 Event mapping: one `decision` event per line; `proposed_by` = the rollout agent
 (`{"type": "ai", "id": "<harness>:<model>", "role": "rollout-agent"}`); `resolved_by` = the gate
