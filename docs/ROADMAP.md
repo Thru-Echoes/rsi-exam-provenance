@@ -10,13 +10,18 @@ one branch and pull request per task, tests and pyright clean before every push.
 | Piece | Status | Notes |
 | --- | --- | --- |
 | Provenance record: schema, producer, verifier, fixture, 38-case suite (`profile/`) | Built | Derived from the published RSI-Exam materials. Cache-free method-tree digests and the decision checks are the next changes. |
-| Decision gate (`gate/decide.py`) | Built, 21 tests | Screening, one open provisional at a time, replication, evidence-location refusal. Task profile, confirmation policy, freeze, seed derivation, and receipts are next. |
-| TRACE converter (`gate/trace_from_decisions.py`) | Built, 10 tests | Output validates under TRACE 0.5.0 and round-trips through TRACE's typed models unchanged. |
+| Decision gate (`gate/decide.py`) and its modules | Built, 91 tests | Gated mode with a task profile, freezing, confirmation planning, fresh-suite derivation (`gate/seeds.py`), the evaluation runner with receipts (`gate/evaluate_suite.py`), cache-free method-tree digests (`gate/treedigest.py`), and the restore helper (`gate/restore.py`). Replay mode for shadow replay and fixtures. |
+| TRACE converter (`gate/trace_from_decisions.py`) | Built, 17 tests | Re-checks every contract rule, including the gated ones, and carries the gated fields as extras. Output validates under TRACE 0.5.0 and round-trips through TRACE's typed models unchanged. |
 | ProofPress import | Verified on fixture data | The evidence adapter accepts the document, keeps four fields, refuses a malformed interval, and is idempotent (`docs/RUN_REPORT.md`). |
 | Decision-evidence report (`report/`) | Planned | Consumes the verifier's output. |
 | Real rollout | Not yet | Needs Docker and a model key in the harness; first a short baseline run to observe the real job layout. |
 
-## Milestone 1: preflight, then finish the gate (target: early September 2026)
+## Milestone 1: the gate, the runner, receipts, and the restore helper (built)
+
+Status: Milestone 1 delivers the gate, the runner, receipts, and the restore helper. Mounting them
+into the container, the trusted driver that runs the gate between snapshots, and the program overlay
+that tells the agent to call it are Milestone 3, so no gated rollout runs before then. The preflight
+observation is recorded in `docs/PREFLIGHT.md` once it has been made.
 
 **Preflight (first engineering task).** Docker up; a model key in the harness environment; a
 short-budget `harbor` run of `game2048_policy_search`; observe the real job layout (where the

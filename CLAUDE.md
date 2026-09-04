@@ -18,12 +18,18 @@ milestones), and `docs/RUN_REPORT.md` (the last verified end-to-end run on fixtu
 ## Layout
 
 ```
-gate/decide.py                 the decision gate (screen, confirm, keep or revert)
+gate/decide.py                 the decision gate (gated mode with a task profile; replay mode)
+gate/treedigest.py             cache-free, Python-only method-tree digests
+gate/task_profile.py           the per-rollout task profile (rsi-exam-gate-profile/v1)
+gate/seeds.py                  fresh confirmation suites (rsi-exam-gate/hmac-seeds/1) and the planning rule
+gate/evaluate_suite.py         the evaluation runner that writes receipts (rsi-exam-gate-receipt/v1)
+gate/restore.py                put a snapshot back into main/ without nesting it
 gate/trace_from_decisions.py   decision log -> TRACE 0.5.0 session document
 profile/schema.json            the provenance record's JSON Schema (profile v2)
 profile/build_capsule.py       job directory -> provenance record
 profile/verify_capsule.py      offline verifier for a record
 fixtures/valid/                a harbor-shaped job directory with its golden record
+fixtures/task2048/             the 2048 task's evaluator, engine, seed file, and starter policy at the pinned revision (MIT; see NOTICE), plus a variant policy
 tests/                         unittest suites (run: python3 -m unittest discover -s tests -t .)
 docs/                          overview, contract, profile, roadmap, run report
 docs/figures/                  the SVG figures and make_figures.py, which regenerates them
