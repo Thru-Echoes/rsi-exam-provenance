@@ -2090,7 +2090,7 @@ if __name__ == "__main__":
 - [ ] **Step 4: Run the tests to verify they pass**
 
 Run: `python3 -m unittest tests.test_restore -v`
-Expected: `Ran 3 tests`, `OK`.
+Expected: `Ran 4 tests`, `OK`.
 
 - [ ] **Step 5: Type-check, run the whole suite, commit, open pull request A**
 
@@ -4022,7 +4022,7 @@ if __name__ == "__main__":
 - [ ] **Step 2: Run the tests to verify they fail**
 
 Run: `python3 -m unittest tests.test_trace_from_decisions -v`
-Expected: FAIL. The current converter has no gated keys in `CONFIDENCE_KEYS` and no gated rules, so the new tests raise `KeyError` on the block and the rule-violation cases do not raise.
+Expected: FAIL at import with `AttributeError: module 'trace_from_decisions' has no attribute 'SEEDS_ALGORITHM'`. The current converter has neither that constant nor the gated keys and rules the new tests exercise.
 
 - [ ] **Step 3: Replace the converter**
 
@@ -4449,7 +4449,7 @@ if __name__ == "__main__":
 - [ ] **Step 4: Run the tests to verify they pass**
 
 Run: `python3 -m unittest tests.test_trace_from_decisions -v`
-Expected: `Ran 17 tests`, `OK`.
+Expected: `Ran 19 tests`, `OK`.
 
 Run: `python3 -m unittest discover -s tests -t . 2>&1 | tail -3`
 Expected: `Ran 146 tests`, `OK`.
