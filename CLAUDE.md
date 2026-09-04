@@ -12,7 +12,7 @@ official runs.
 
 Start with `README.md`, then `docs/overview.md` (the exam, the gate's rule, the components, and
 the limits, with figures), `docs/decision-log-contract.md` (the contract every component
-implements), `docs/profile-v2.md` (the provenance record), `docs/ROADMAP.md` (status and
+implements), `docs/profile-v3.md` (the provenance record), `docs/ROADMAP.md` (status and
 milestones), and `docs/RUN_REPORT.md` (the last verified end-to-end run on fixture data).
 
 ## Layout

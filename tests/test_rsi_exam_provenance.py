@@ -9,6 +9,7 @@ the committed golden capsule byte for byte.
 
 import importlib.util
 import json
+import os
 import shutil
 import tempfile
 import unittest
@@ -405,6 +406,214 @@ class ProducerTests(FixtureCase):
         result = self.verify(job, require_complete=True)
         self.assertEqual(result["errors"], [])
         self.assertTrue(result["ok"])
+
+
+class MethodTreeIdentityTests(FixtureCase):
+    """Identity is the grader's view of the tree, and indistinguishable snapshots stay a class."""
+
+    def build(self, job, task, **overrides):
+        kwargs = dict(release="0.1@bc36dadb405b", capsule_id="fixture-rollout-001",
+                      model=None, harness=None, trace_exports=[])
+        kwargs.update(overrides)
+        return PRODUCER.build_capsule(job, task, kwargs["release"],
+                                      kwargs["capsule_id"], kwargs["model"],
+                                      kwargs["harness"], kwargs["trace_exports"])
+
+    def assert_producer_error(self, code, job, task):
+        with self.assertRaises(SystemExit) as caught:
+            self.build(job, task)
+        self.assertEqual(str(caught.exception), f"producer_error: {code}")
+
+    def build_and_verify(self, job, task, **kwargs):
+        capsule = self.build(job, task)
+        (job / "capsule.json").write_text(
+            json.dumps(capsule, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        return capsule, self.verify(job, **kwargs)
+
+    def alias_v2_to_v3(self, job):
+        """Give v2 the method tree v3 and main already share, so two snapshots are the same tree."""
+        source = (job / METHODS / "versions/v3/policy.py").read_text(encoding="utf-8")
+        (job / METHODS / "versions/v2/policy.py").write_text(source, encoding="utf-8")
+
+    @staticmethod
+    def add_cache(target):
+        cache = target / "__pycache__"
+        cache.mkdir(exist_ok=True)
+        (cache / "policy.cpython-312.pyc").write_bytes(b"\x00bytecode")
+
+    def test_the_three_method_tree_implementations_agree(self):
+        job, _ = self.materialize()
+        gate = _load("rsi_exam_treedigest", REPO_ROOT / "gate/treedigest.py")
+        for relative in ("versions/v1", "versions/v2", "versions/v3", "main"):
+            target = job / METHODS / relative
+            expected = gate.method_tree_sha256(target)
+            self.assertEqual(PRODUCER.method_tree_digest(target), expected, relative)
+            self.assertEqual(VERIFIER.method_tree_digest(target), expected, relative)
+
+    def test_bytecode_caches_move_the_full_digest_but_not_the_method_digest(self):
+        job, _ = self.materialize()
+        target = job / METHODS / "versions/v2"
+        before_full = PRODUCER.tree_digest(target)
+        before_method = PRODUCER.method_tree_digest(target)
+        self.add_cache(target)
+        self.assertNotEqual(PRODUCER.tree_digest(target), before_full)
+        self.assertEqual(PRODUCER.method_tree_digest(target), before_method)
+        self.assertEqual(VERIFIER.method_tree_digest(target), before_method)
+
+    def test_an_imported_submission_still_produces_a_record_that_verifies(self):
+        """The case the change exists for: importing main/ leaves a cache there and not in the
+        snapshot it was copied from, so the two full trees differ and only the method trees match."""
+        job, task = self.materialize()
+        self.add_cache(job / METHODS / "main")
+        capsule, result = self.build_and_verify(job, task, require_complete=True)
+        self.assertEqual(capsule["final_submission"]["version_ids"], ["v3"])
+        self.assertNotEqual(capsule["final_submission"]["tree_sha256"],
+                            capsule["versions"][2]["artifact"]["tree_sha256"])
+        self.assertEqual(capsule["final_submission"]["method_tree_sha256"],
+                         capsule["versions"][2]["artifact"]["method_tree_sha256"])
+        self.assertEqual(result["errors"], [])
+
+    def test_a_note_left_in_a_snapshot_is_recorded_rather_than_fatal(self):
+        """A snapshot the grader would refuse is still a fact about the rollout. Only the tree that
+        was actually submitted has to be stageable."""
+        job, task = self.materialize()
+        (job / METHODS / "versions/v1/notes.txt").write_text("scratch", encoding="utf-8")
+        capsule, result = self.build_and_verify(job, task, require_complete=True)
+        v1 = next(v for v in capsule["versions"] if v["version_id"] == "v1")
+        self.assertNotEqual(v1["artifact"]["tree_sha256"], v1["artifact"]["method_tree_sha256"])
+        self.assertEqual(result["errors"], [])
+
+    def test_a_non_python_file_in_the_submitted_tree_is_refused(self):
+        job, task = self.materialize()
+        (job / METHODS / "main/visible_result.json").write_text("{}", encoding="utf-8")
+        self.assert_producer_error("non_python_in_submission:visible_result.json", job, task)
+
+    def test_a_submission_with_no_python_is_refused(self):
+        job, task = self.materialize()
+        (job / METHODS / "main/policy.py").unlink()
+        self.assert_producer_error("empty_submission", job, task)
+
+    def test_python_source_under_a_cache_directory_is_refused(self):
+        """Bytecode there is ignored, but source there may or may not be staged, and a digest must
+        not silently drop a file that might be."""
+        job, task = self.materialize()
+        cache = job / METHODS / "versions/v2/__pycache__"
+        cache.mkdir()
+        (cache / "shim.py").write_text("x = 1\n", encoding="utf-8")
+        self.assert_producer_error("source_in_cache_dir:v2/__pycache__/shim.py", job, task)
+
+    def test_a_file_that_is_not_a_regular_file_is_refused(self):
+        job, task = self.materialize()
+        os.mkfifo(job / METHODS / "versions/v2/pipe.py")
+        self.assert_producer_error("not_a_regular_file:v2/pipe.py", job, task)
+
+    def test_indistinguishable_snapshots_are_recorded_as_a_class(self):
+        job, task = self.materialize()
+        self.alias_v2_to_v3(job)
+        capsule, result = self.build_and_verify(job, task, require_complete=True)
+        final = capsule["final_submission"]
+        self.assertEqual(final["version_ids"], ["v2", "v3"])
+        self.assertEqual(final["version_id"], "v2")
+        submitted = [v["version_id"] for v in capsule["versions"] if v["status"] == "submitted"]
+        self.assertEqual(submitted, ["v2"])
+        self.assertEqual(result["errors"], [])
+
+    def test_the_verifier_recomputes_the_submitted_tree(self):
+        job, _ = self.materialize()
+        main = job / METHODS / "main/policy.py"
+        main.write_text(main.read_text(encoding="utf-8") + "\n# drifted\n", encoding="utf-8")
+        errors = self.verify(job)["errors"]
+        self.assertIn("file:final_submission:digest_mismatch", errors)
+        self.assertIn("file:final_submission:method_tree_mismatch", errors)
+
+    def test_the_submitted_locator_cannot_point_away_from_main(self):
+        """Otherwise the record chooses what the verifier recomputes and main/ is never read."""
+        job, _ = self.materialize()
+        data = self.load(job)
+        data["final_submission"]["locator"] = "artifacts/app/methods/versions/v3"
+        self.save(job, data)
+        self.assertIn("semantic:final:locator_convention", self.verify(job)["errors"])
+
+    def test_a_class_that_omits_a_member_is_flagged(self):
+        job, _ = self.materialize()
+        data = self.load(job)
+        shared = data["final_submission"]["method_tree_sha256"]
+        for version in data["versions"]:
+            if version["version_id"] == "v2":
+                version["artifact"]["method_tree_sha256"] = shared
+        self.save(job, data)
+        self.assertIn("semantic:final:class_mismatch", self.verify(job)["errors"])
+
+    def test_a_representative_that_is_not_the_lowest_ordinal_is_flagged(self):
+        job, _ = self.materialize()
+        data = self.load(job)
+        shared = data["final_submission"]["method_tree_sha256"]
+        for version in data["versions"]:
+            if version["version_id"] == "v2":
+                version["artifact"]["method_tree_sha256"] = shared
+        data["final_submission"]["version_ids"] = ["v2", "v3"]
+        self.save(job, data)
+        self.assertIn("semantic:final:not_canonical", self.verify(job)["errors"])
+
+    def test_a_matching_snapshot_left_out_of_the_record_is_flagged(self):
+        job, _ = self.materialize()
+        extra = job / METHODS / "versions/v9"
+        extra.mkdir()
+        (extra / "policy.py").write_text(
+            (job / METHODS / "main/policy.py").read_text(encoding="utf-8"), encoding="utf-8")
+        self.assertIn("identity:unrecorded_match:v9", self.verify(job)["errors"])
+
+    def test_a_tampered_snapshot_is_caught_by_recomputation(self):
+        job, _ = self.materialize()
+        target = job / METHODS / "versions/v2/policy.py"
+        target.write_text("# swapped\n", encoding="utf-8")
+        errors = self.verify(job)["errors"]
+        self.assertIn("file:artifact:v2:digest_mismatch", errors)
+        self.assertIn("file:artifact:v2:method_tree_mismatch", errors)
+
+    def test_a_final_digest_matching_no_snapshot_is_flagged(self):
+        job, _ = self.materialize()
+        data = self.load(job)
+        data["final_submission"]["method_tree_sha256"] = "0" * 64
+        self.save(job, data)
+        errors = self.verify(job)["errors"]
+        self.assertIn("semantic:final:method_tree_mismatch", errors)
+        self.assertIn("semantic:final:class_mismatch", errors)
+        self.assertIn("file:final_submission:method_tree_mismatch", errors)
+
+    def test_the_verifier_refuses_a_submitted_tree_the_grader_would_reject(self):
+        """The producer will not build such a record; the verifier must not accept one either,
+        or the rule holds only for records this producer wrote."""
+        job, _ = self.materialize()
+        (job / METHODS / "main/visible_result.json").write_text("{}", encoding="utf-8")
+        self.assertIn("protocol:submission_not_stageable:visible_result.json",
+                      self.verify(job)["errors"])
+
+    def test_an_unscannable_snapshot_is_reported_rather_than_skipped(self):
+        """Skipping it would let an unreadable directory hide a member of the class."""
+        job, _ = self.materialize()
+        extra = job / METHODS / "versions/v9"
+        extra.mkdir()
+        (extra / "policy.py").symlink_to(job / METHODS / "main/policy.py")
+        errors = self.verify(job)["errors"]
+        self.assertTrue(any(e.startswith("identity:unscannable_snapshot:v9") for e in errors), errors)
+
+    def test_the_submitted_locator_is_derived_for_any_versions_root(self):
+        """A record with a flatter layout than the fixture's must still resolve to its own main."""
+        for versions_root, expected in (
+            ("artifacts/app/methods/versions", "artifacts/app/methods/main"),
+            ("artifacts/app/methods/versions/", "artifacts/app/methods/main"),
+            ("methods/versions", "methods/main"),
+            ("versions", "main"),
+        ):
+            self.assertEqual(VERIFIER.expected_main_locator(versions_root), expected, versions_root)
+
+    def test_a_record_declaring_other_exclusions_is_flagged(self):
+        job, _ = self.materialize()
+        data = self.load(job)
+        data["source"]["exclusions"] = ["*.pyc"]
+        self.save(job, data)
+        self.assertIn("semantic:source:exclusions_mismatch", self.verify(job)["errors"])
 
 
 if __name__ == "__main__":

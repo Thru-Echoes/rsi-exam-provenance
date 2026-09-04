@@ -5,7 +5,7 @@ Inputs: a harbor job directory (the layout RSI-Exam publishes:
 agent/trajectory.json, artifacts/app/methods/{main,versions,experiment_log.md},
 verifier/reward.json) and the task directory the rollout ran against (for the
 frozen task and grader digests). Output: a capsule JSON conforming to
-proofpress/rsi-exam-trajectory/v2, written inside the job directory by default
+proofpress/rsi-exam-trajectory/v3, written inside the job directory by default
 so every locator is relative to the capsule's parent.
 
 The producer is strict and fails closed: a version snapshot that cannot be
@@ -28,7 +28,12 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = "proofpress/rsi-exam-trajectory/v2"
+SCHEMA_VERSION = "proofpress/rsi-exam-trajectory/v3"
+# Bytecode caches drift on every import, so they are outside the digest that decides identity.
+# Recorded in the record as source.exclusions so a verifier applies the same rule.
+EXCLUSIONS = ("__pycache__/", "*.pyc", "*.pyo")
+EXCLUDED_DIR = "__pycache__"
+EXCLUDED_SUFFIXES = (".pyc", ".pyo")
 VERSION_DIR = re.compile(r"^v[0-9]+$")
 VERSION_TOKEN = re.compile(r"\bv[0-9]+\b")
 SCORE_TOKEN = re.compile(r"scores?\s*[:=]?\s*(-?[0-9]+(?:\.[0-9]+)?)", re.IGNORECASE)
@@ -60,8 +65,82 @@ def tree_digest(path: Path) -> str:
             raise ProducerError(f"symlink:{child.name}")
         if child.is_file():
             entries.append(child.relative_to(path).as_posix())
-    lines = [f"{file_digest(path / rel)}  {rel}\n" for rel in sorted(entries)]
+    try:
+        lines = [f"{file_digest(path / rel)}  {rel}\n" for rel in sorted(entries)]
+    except OSError as exc:
+        raise ProducerError(f"unreadable:{path.name}:{exc.__class__.__name__}")
     return hashlib.sha256("".join(lines).encode("utf-8")).hexdigest()
+
+
+def method_files(path: Path) -> list[str]:
+    """Sorted POSIX relpaths of the ``.py`` files a method-tree digest covers.
+
+    This is digest construction, not submission validation: files the grader would not stage are
+    skipped, not refused, so a snapshot that carries a note is still recordable. Refused instead
+    are the cases where the staged set cannot be known: a symlink, anything that is not a regular
+    file, and a ``.py`` file under ``__pycache__`` (bytecode there is ignored, but source there
+    may or may not be staged, and a digest must not silently drop a file that might be).
+
+    ``assert_stageable`` carries the rule that decides whether a tree is a valid submission.
+    Raises ProducerError; no side effects.
+    """
+    if path.is_symlink():
+        raise ProducerError(f"symlink:{path.name}")
+    rels: list[str] = []
+    for child in path.rglob("*"):
+        rel = child.relative_to(path)
+        if child.is_symlink():
+            raise ProducerError(f"symlink:{rel.as_posix()}")
+        if child.is_dir():
+            continue
+        cached = EXCLUDED_DIR in rel.parts
+        if cached and child.suffix == ".py":
+            raise ProducerError(f"source_in_cache_dir:{path.name}/{rel.as_posix()}")
+        if cached or child.suffix in EXCLUDED_SUFFIXES:
+            continue
+        if not child.is_file():
+            raise ProducerError(f"not_a_regular_file:{path.name}/{rel.as_posix()}")
+        if child.suffix != ".py":
+            continue
+        rels.append(rel.as_posix())
+    return sorted(rels)
+
+
+def method_tree_digest(path: Path) -> str:
+    """Cache-free digest of a method tree, in the same line format as tree_digest.
+
+    A Python-only tree with no caches therefore digests identically under both functions. This is
+    the digest that decides which snapshots the submission is, because it is the view the grader
+    stages. Raises ProducerError; no side effects.
+    """
+    try:
+        lines = [f"{file_digest(path / rel)}  {rel}\n" for rel in method_files(path)]
+    except OSError as exc:
+        raise ProducerError(f"unreadable:{path.name}:{exc.__class__.__name__}")
+    return hashlib.sha256("".join(lines).encode("utf-8")).hexdigest()
+
+
+def assert_stageable(path: Path) -> None:
+    """Refuse a tree the grader would not accept as a submission.
+
+    The grader stages ``.py`` files only and scores a submission carrying any other regular file
+    0.0, so such a tree has no digest it would honour. Applied to ``main/`` alone: a snapshot that
+    is not stageable is still a fact worth recording. Raises ProducerError; no side effects.
+    """
+    stray = []
+    found_python = False
+    for child in path.rglob("*"):
+        rel = child.relative_to(path)
+        if child.is_dir() or EXCLUDED_DIR in rel.parts or child.suffix in EXCLUDED_SUFFIXES:
+            continue
+        if child.suffix == ".py":
+            found_python = True
+        else:
+            stray.append(rel.as_posix())
+    if stray:
+        raise ProducerError(f"non_python_in_submission:{sorted(stray)[0]}")
+    if not found_python:
+        raise ProducerError("empty_submission")
 
 
 def get_log_reference(log_lines: list[str], version_id: str) -> tuple[int, str]:
@@ -171,6 +250,7 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
                 "type": "directory",
                 "locator": f"artifacts/app/methods/versions/{vid}",
                 "tree_sha256": digests[vid],
+                "method_tree_sha256": method_tree_digest(child),
             },
             "log": {"line": line_no},
         }
@@ -179,11 +259,20 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
             version["visible"] = visible
         versions.append(version)
 
+    # Identity is decided by the method tree, the view the grader stages: bytecode caches drift on
+    # every import and would otherwise make a snapshot stop matching the tree it is. Two snapshots
+    # can hold the same method tree, and then the reward cannot tell them apart either, so the
+    # record names the whole class rather than guessing which one was restored.
+    assert_stageable(main_dir)
     main_tree = tree_digest(main_dir)
-    matches = [v for v in versions if v["artifact"]["tree_sha256"] == main_tree]
+    main_method_tree = method_tree_digest(main_dir)
+    matches = [v for v in versions
+               if v["artifact"]["method_tree_sha256"] == main_method_tree]
     if not matches:
         raise ProducerError("submitted_not_snapshotted")
-    chosen = max(matches, key=lambda v: v["ordinal"])
+    matches.sort(key=lambda v: v["ordinal"])
+    # The lowest ordinal is a canonical representative, not a claim about which was restored.
+    chosen = matches[0]
     chosen["status"] = "submitted"
 
     try:
@@ -213,6 +302,7 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
             "sha256": file_digest(log_path),
         },
         "versions_root": {"locator": "artifacts/app/methods/versions"},
+        "exclusions": list(EXCLUSIONS),
     }
     if trajectory is not None:
         source["trajectory"] = trajectory
@@ -244,7 +334,10 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
         "versions": versions,
         "final_submission": {
             "version_id": chosen["version_id"],
+            "locator": "artifacts/app/methods/main",
             "tree_sha256": main_tree,
+            "method_tree_sha256": main_method_tree,
+            "version_ids": [v["version_id"] for v in matches],
         },
         "hidden_evaluation": hidden,
     }
