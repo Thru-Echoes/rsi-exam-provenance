@@ -1,0 +1,7 @@
+The files under environment/ and policy_weak/ are copied unchanged from the RSI-Exam task
+materials, dataset RSI-Exam/RSI-Exam on Hugging Face at revision 956025d7ecf6, task
+game2048_policy_search (environment/evaluate.py, environment/game2048.py,
+environment/visible_seeds.json, environment/methods/main/policy.py). They are distributed under
+the MIT License of that dataset. They are test fixtures for the evaluation runner and the gate;
+nothing in this repository modifies them, and the gate never ships them into a rollout.
+policy_variant/policy.py is written here for tests and is Apache-2.0 like the rest of this repository.
