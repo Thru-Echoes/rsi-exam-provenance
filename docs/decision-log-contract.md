@@ -224,7 +224,12 @@ excluded from method-tree digests.
 algorithm), `receipt:missing` and `receipt:mismatch` (integrity failures on gated runs, coverage
 notes on official-protocol rollouts), `protocol:stacked_provisional`,
 `protocol:unresolved_provisional_submitted`, `protocol:kept_against_verdict`,
-`protocol:unconfirmed_keep`, `protocol:action_contradiction` (experiment-log status or final tree
-contradicts the resolved decision), `identity:ambiguous` (more than one snapshot matches `main/`
-and no selection receipt names one), and `log:score_mismatch` (a parseable experiment-log score
+`protocol:unconfirmed_keep`, `protocol:action_contradiction` (experiment-log prose contradicts the
+resolved decision), and `log:score_mismatch` (a parseable experiment-log score
 differs from the bound result's mean by more than half a unit of its last printed decimal).
+
+Snapshots that share a method tree are not disambiguated here. The grader cannot tell them apart
+either, so the record names the whole class in `final_submission.version_ids` and the verifier
+checks that class rather than a guess: `semantic:final:class_mismatch`,
+`semantic:final:not_canonical`, and `identity:unrecorded_match` for a snapshot on disk that shares
+the submitted method tree and is missing from the record.

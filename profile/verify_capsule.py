@@ -412,6 +412,66 @@ DISPOSITION_STATUS = {"keep": "kept", "revert": "reverted", "provisional": "prov
 # and saying so is better than reporting a decision as verified when its interval was never redone.
 INTERVAL_ALGORITHM = "rsi-exam-gate/percentile-bootstrap/1"
 RECEIPT_ROLES = frozenset({"receipt-parent", "receipt-candidate"})
+RECEIPT_SCHEMA = "rsi-exam-gate-receipt/v1"
+# The receipt for a result sits beside it: results/v2/visible_result.json ->
+# results/v2/visible_result.receipt.json, the convention the runner and the gate both use.
+RECEIPT_SUFFIX = ".receipt.json"
+
+
+def _check_receipts(root: Path, methods: str, vid: str, entry: dict[str, Any],
+                    errors: Errors) -> None:
+    """On a gated decision, every result must carry the runner receipt that produced it.
+
+    Receipts are what tie a result file to the policy tree and suite it was evaluated on, so on a
+    gated run their absence is an integrity failure rather than a note. In replay mode, which is
+    what shadow replay and the fixtures use, the runner is not in the loop and there is nothing to
+    require. Appends to `errors`; reads only.
+    """
+    gated = entry["confirm_policy"] == "always"
+    by_role = {reference["role"]: reference for reference in entry["evidence"]}
+    for result_role, receipt_role in (("parent", "receipt-parent"),
+                                      ("candidate", "receipt-candidate")):
+        result = by_role.get(result_role)
+        receipt = by_role.get(receipt_role)
+        if receipt is None:
+            # Required only on a gated run, where the runner is in the loop.
+            if gated and result is not None:
+                _add(errors, f"receipt:missing:{vid}:{entry['log_line']}:{receipt_role}")
+            continue
+        if result is None:
+            # A receipt for a result the decision does not rest on says nothing about it.
+            _add(errors, f"receipt:mismatch:{vid}:{entry['log_line']}:{receipt_role}:orphan")
+            continue
+        expected_locator = result["locator"][: -len(".json")] + RECEIPT_SUFFIX
+        if receipt["locator"] != expected_locator:
+            _add(errors, f"receipt:mismatch:{vid}:{entry['log_line']}:{receipt_role}:locator")
+            continue
+        path = _inside(root, f"{methods}/{receipt['locator']}" if methods else receipt["locator"])
+        if path is None or not path.is_file():
+            continue      # already reported by the evidence walk
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            _add(errors, f"receipt:mismatch:{vid}:{entry['log_line']}:{receipt_role}:unreadable")
+            continue
+        if not isinstance(payload, dict) or payload.get("schema") != RECEIPT_SCHEMA:
+            _add(errors, f"receipt:mismatch:{vid}:{entry['log_line']}:{receipt_role}:schema")
+            continue
+        if payload.get("result_sha256") != result["sha256"]:
+            # The receipt says it evaluated a different file than the decision rests on.
+            _add(errors, f"receipt:mismatch:{vid}:{entry['log_line']}:{receipt_role}:result")
+        expected_tree = entry["parent_method_tree_sha256" if result_role == "parent"
+                              else "candidate_method_tree_sha256"]
+        if expected_tree is not None and payload.get("policy_method_tree_sha256") != expected_tree:
+            _add(errors, f"receipt:mismatch:{vid}:{entry['log_line']}:{receipt_role}:policy")
+        if (entry["profile_sha256"] is not None
+                and payload.get("profile_sha256") != entry["profile_sha256"]):
+            _add(errors, f"receipt:mismatch:{vid}:{entry['log_line']}:{receipt_role}:profile")
+        suite = entry.get("suite")
+        if isinstance(suite, dict) and suite.get("sha256") is not None:
+            # A receipt for the right policy on the wrong suite measures something else entirely.
+            if payload.get("suite_sha256") != suite["sha256"]:
+                _add(errors, f"receipt:mismatch:{vid}:{entry['log_line']}:{receipt_role}:suite")
 
 
 def read_scores(path: Path) -> dict[int, float]:
@@ -719,6 +779,7 @@ def _resolve_evidence(root: Path, methods: str, vid: str, line: int,
 def _check_one_decision(root: Path, methods: str, vid: str, entry: dict[str, Any],
                         errors: Errors) -> None:
     line = entry["log_line"]
+    _check_receipts(root, methods, vid, entry, errors)
     scores = _resolve_evidence(root, methods, vid, line, entry, errors)
     if scores is None:
         return
@@ -820,6 +881,129 @@ def _candidate_scores(root: Path, methods: str,
     return None
 
 
+def expected_verdict(interval: dict[str, Any], min_effect: float) -> str:
+    """The verdict the interval gives: clears above the minimum effect, below when entirely under
+    zero, otherwise inconclusive. An interval wholly positive but under the minimum effect is
+    inconclusive, not a win.
+
+    The two conditions can only overlap for a negative minimum effect, which the contract forbids
+    and both the schema and the structural check reject before this runs. Pure function.
+    """
+    if interval["lower"] > min_effect:
+        return "clears"
+    if interval["upper"] < 0:
+        return "below"
+    return "inconclusive"
+
+
+def expected_disposition(entry: dict[str, Any]) -> str:
+    """The action the contract's table gives for a decision. Pure function.
+
+    A confirmation keeps only on a clearing interval whose held-out replicate also clears, and
+    reverts otherwise; it is never provisional. A screening reverts on `below`, is provisional on
+    `inconclusive`, and on `clears` keeps unless confirmation is required or a held-out replicate
+    fails to clear.
+    """
+    verdict = entry["verdict"]
+    holdout = entry.get("holdout")
+    holdout_clears = (holdout.get("verdict") == "clears") if isinstance(holdout, dict) else None
+    if entry["kind"] == "confirmation":
+        if verdict == "clears" and holdout_clears is not False:
+            return "keep"
+        return "revert"
+    if verdict == "below":
+        return "revert"
+    if verdict == "inconclusive":
+        return "provisional"
+    if entry["confirm_policy"] == "always" or holdout_clears is False:
+        return "provisional"
+    return "keep"
+
+
+def _check_decision_rules(data: dict[str, Any], errors: Errors) -> None:
+    """Re-apply the gate's own rules to the decisions the record carries.
+
+    The gate decided; this asks whether it decided the way its contract says. The verdict must
+    follow from the interval and the minimum effect, the disposition must follow from the verdict,
+    no two provisionals may be open at once, a keep under a confirmation policy of `always` must
+    have been confirmed, and a version the gate reverted must not be the one that was handed in.
+    Appends to `errors`; no other effects.
+    """
+    entries: list[tuple[str, dict[str, Any]]] = sorted(
+        ((version["version_id"], entry)
+         for version in data["versions"] for entry in version.get("decisions", [])),
+        key=lambda pair: pair[1]["log_line"])
+    if not entries:
+        return
+
+    open_line: int | None = None
+    for vid, entry in entries:
+        line = entry["log_line"]
+        if entry["verdict"] != expected_verdict(entry["interval"], entry["min_effect"]):
+            _add(errors, f"decision:verdict_inconsistent:{vid}:{line}")
+        elif entry["disposition"] != expected_disposition(entry):
+            # Only meaningful once the verdict itself holds; otherwise this restates that finding.
+            _add(errors, f"decision:disposition_inconsistent:{vid}:{line}")
+        if (entry["kind"] == "screening" and entry["disposition"] == "keep"
+                and entry["confirm_policy"] == "always"):
+            _add(errors, f"protocol:unconfirmed_keep:{vid}:{line}")
+        if entry["kind"] == "confirmation":
+            # Cleared only by the confirmation that resolves this provisional. Clearing on any
+            # confirmation would let a second, unrelated one hide a still-open decision.
+            if entry.get("resolves_log_line") == open_line:
+                open_line = None
+        elif entry["disposition"] == "provisional":
+            if open_line is not None:
+                # The contract allows one open provisional at a time; a second means the gate built
+                # on a version whose decision had not been resolved.
+                _add(errors, f"protocol:stacked_provisional:{vid}:{line}")
+            open_line = line
+
+    for version in data["versions"]:
+        decisions = version.get("decisions")
+        if not decisions:
+            if version["parent_ids"] and version["status"] in ("kept", "submitted"):
+                # The gate ran, and a version it never decided was kept anyway.
+                _add(errors, f"decision:missing_for_kept_version:{version['version_id']}")
+            continue
+        last = max(decisions, key=lambda entry: entry["log_line"])
+        if last["disposition"] == "revert" and version["status"] == "submitted":
+            _add(errors, f"protocol:kept_against_verdict:{version['version_id']}")
+
+
+def _check_action_contradiction(root: Path, data: dict[str, Any], errors: Errors) -> None:
+    """Flag an experiment-log line whose prose contradicts the decision the gate recorded.
+
+    The prose is what the agent said it did; the decision is what the gate measured. Disagreement
+    is worth surfacing on its own, because the record carries both. Appends to `errors`; reads only.
+    """
+    log_path = _inside(root, data["source"]["experiment_log"]["locator"])
+    if log_path is None or not log_path.is_file():
+        return
+    try:
+        lines = log_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return
+    for version in data["versions"]:
+        decisions = version.get("decisions")
+        if not decisions:
+            continue
+        number = version["log"]["line"]
+        if not 1 <= number <= len(lines):
+            continue
+        # The closing word only, and only when it is unambiguous: "not reverted" and "keeps the
+        # lookahead" are prose, not a status, and a false contradiction is worse than none.
+        words = re.findall(r"[a-z]+", lines[number - 1].lower())
+        closing = words[-1] if words else ""
+        said_revert = closing in ("revert", "reverted")
+        said_keep = closing in ("keep", "kept")
+        decided = DISPOSITION_STATUS.get(decisions[-1]["disposition"])
+        if decided == "reverted" and said_keep and not said_revert:
+            _add(errors, f"protocol:action_contradiction:{version['version_id']}")
+        elif decided == "kept" and said_revert and not said_keep:
+            _add(errors, f"protocol:action_contradiction:{version['version_id']}")
+
+
 def expected_main_locator(versions_root: str) -> str:
     """The submitted tree's locator: the sibling of the versions root named ``main``.
 
@@ -889,6 +1073,7 @@ def _check_semantics(data: dict[str, Any], errors: Errors) -> None:
         _add(errors, "semantic:final:locator_convention")
 
     _check_decision_consistency(data, errors)
+    _check_decision_rules(data, errors)
 
     if sorted(data["source"]["exclusions"]) != sorted(EXPECTED_EXCLUSIONS):
         _add(errors, "semantic:source:exclusions_mismatch")
@@ -1079,6 +1264,7 @@ def _check_files(root: Path, data: dict[str, Any], errors: Errors) -> None:
     _check_decisions_match_log(root, data, errors)
     _check_decision_evidence(root, data, errors)
     _check_logged_scores(root, data, errors)
+    _check_action_contradiction(root, data, errors)
     _check_final_submission(root, data, errors)
     _check_unrecorded_matches(root, data, errors)
 
