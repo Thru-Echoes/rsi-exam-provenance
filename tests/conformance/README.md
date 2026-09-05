@@ -78,3 +78,11 @@ split is the point of having both.
 `non_canonical_locator` was the first thing this matrix found. The converter refused a locator with
 dot segments and the profile verifier accepted it, because resolving the path reached the same file
 and the digest matched. One document, two readings. The verifier now applies the same rule.
+
+## Changing an expectation
+
+An expectation is a record of what was decided, not a description of current behaviour. Changing one
+to match a change in an implementation is a contract decision, and the pull request that does it
+should say which implementation changed and why the new outcome is the right one. A test refuses a
+vector that every implementation accepts, because relaxing an expectation until nothing refuses the
+document is the shape this mistake takes.

@@ -1366,6 +1366,15 @@ class DecisionRuleTests(FixtureCase):
         self.save(job, data)
         self.assertNotIn("protocol:action_contradiction:v2", self.verify(job)["errors"])
 
+    def test_a_confirmation_on_fewer_seeds_than_its_screening_is_flagged(self):
+        """Shrinking the suite is the cheapest way to turn an inconclusive screening into a
+        clearing confirmation."""
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        self.version(data, "v3")["decisions"][1]["sample_size"] = 4
+        self.save(job, data)
+        self.assertIn("protocol:replication_reduction:v3:3", self.verify(job)["errors"])
+
     def test_a_kept_version_the_gate_never_decided_is_flagged(self):
         job, _ = self.materialize_gated()
         data = self.load(job)

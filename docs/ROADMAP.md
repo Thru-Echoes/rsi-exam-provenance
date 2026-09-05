@@ -9,11 +9,11 @@ one branch and pull request per task, tests and pyright clean before every push.
 
 | Piece | Status | Notes |
 | --- | --- | --- |
-| Provenance record: schema, producer, verifier, fixture, 38-case suite (`profile/`) | Built | Derived from the published RSI-Exam materials. Cache-free method-tree digests and the decision checks are the next changes. |
+| Provenance record: schema, producer, verifier, fixtures (`profile/`) | Built, profile v3 | Cache-free method-tree identity, the decision log carried and checked against its own bytes, every interval recomputed from its evidence, and all fourteen of the contract's section 4 checks. |
 | Decision gate (`gate/decide.py`) and its modules | Built, 91 tests | Gated mode with a task profile, freezing, confirmation planning, fresh-suite derivation (`gate/seeds.py`), the evaluation runner with receipts (`gate/evaluate_suite.py`), cache-free method-tree digests (`gate/treedigest.py`), and the restore helper (`gate/restore.py`). Replay mode for shadow replay and fixtures. |
 | TRACE converter (`gate/trace_from_decisions.py`) | Built, 17 tests | Re-checks every contract rule, including the gated ones, and carries the gated fields as extras. Output validates under the TRACE 0.5.1 typed models and schema and round-trips with every producer key preserved. |
 | ProofPress import | Verified on fixture data | The evidence adapter accepts the document, keeps four fields, refuses a malformed interval, and is idempotent (`docs/RUN_REPORT.md`). |
-| Decision-evidence report (`report/`) | Planned | Consumes the verifier's output. |
+| Decision-evidence report (`report/`) | Built | One row per decision from the record and the verifier's output, with the limits printed beside the table. |
 | Real rollout | Not yet | Needs Docker and a model key in the harness; first a short baseline run to observe the real job layout. |
 
 ## Milestone 1: the gate, the runner, receipts, and the restore helper (built)
@@ -51,7 +51,11 @@ rollouts.
 Acceptance: end-to-end tests on the fixture lineage for every flag and refusal; the contract
 document updated in the same pull request; pyright clean.
 
-## Milestone 2: the record, the verifier, the report (target: mid September 2026)
+## Milestone 2: the record, the verifier, the report (built)
+
+Status: the producer, the verifier's checks, the golden fixtures, the conformance matrix and
+the report are built. What remains for a real rollout belongs to Milestone 3: a gated-mode
+fixture whose gated fields are not null, and the run report regenerated on a real record.
 
 **Producer** (`profile/build_capsule.py`): method-tree digest per snapshot and for `main/`
 excluding `__pycache__/`, `*.pyc`, `*.pyo` (`source.exclusions` recorded; full tree digest

@@ -122,6 +122,16 @@ class ConformanceMatrixTests(unittest.TestCase):
                     self.assertEqual(RUNNERS[implementation](vector["lines"]), expected,
                                      f"{name}: {vector['why']}")
 
+    def test_every_vector_except_the_baseline_separates_something(self):
+        """An expectation quietly relaxed to all-accept is how a matrix stops catching regressions.
+        A vector that nothing refuses is not adversarial, and this is the shape of that mistake."""
+        for name, vector in self.vectors():
+            if name == "valid_baseline":
+                continue
+            with self.subTest(vector=name):
+                self.assertIn("reject", vector["expect"].values(),
+                              f"{name} is accepted by every implementation")
+
     def test_the_baseline_is_accepted_by_everything_in_this_repository(self):
         baseline = json.loads((VECTORS / "valid_baseline.json").read_text(encoding="utf-8"))
         for implementation in IN_REPO:
