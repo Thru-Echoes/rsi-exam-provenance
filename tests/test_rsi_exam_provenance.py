@@ -18,6 +18,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 STUDY = REPO_ROOT / "profile"
 FIXTURE_ROOT = REPO_ROOT / "fixtures/valid"
+GATED_ROOT = REPO_ROOT / "fixtures/gated"
 
 
 def _load(name, path):
@@ -614,6 +615,318 @@ class MethodTreeIdentityTests(FixtureCase):
         data["source"]["exclusions"] = ["*.pyc"]
         self.save(job, data)
         self.assertIn("semantic:source:exclusions_mismatch", self.verify(job)["errors"])
+
+
+class DecisionRecordTests(FixtureCase):
+    """The record carries the gate's decision log, and the log outranks the experiment-log prose."""
+
+    def materialize_gated(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name)
+        shutil.copytree(GATED_ROOT, root, dirs_exist_ok=True)
+        return root / "job", root / "task"
+
+    def build(self, job, task):
+        return PRODUCER.build_capsule(job, task, "0.1@bc36dadb405b", "fixture-gated-001",
+                                      None, None, [])
+
+    def assert_producer_error(self, code, job, task):
+        with self.assertRaises(SystemExit) as caught:
+            self.build(job, task)
+        self.assertEqual(str(caught.exception), f"producer_error: {code}")
+
+    @staticmethod
+    def log_path(job):
+        return job / METHODS / "decisions.jsonl"
+
+    def rewrite_log(self, job, lines):
+        self.log_path(job).write_text(
+            "".join(json.dumps(line) + "\n" for line in lines), encoding="utf-8")
+
+    def log_lines(self, job):
+        return [json.loads(text) for text in
+                self.log_path(job).read_text(encoding="utf-8").splitlines()]
+
+    def test_the_gated_fixture_verifies_with_complete_coverage(self):
+        job, _ = self.materialize_gated()
+        result = self.verify(job, require_complete=True)
+        self.assertEqual(result["errors"], [])
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["coverage"], "complete")
+
+    def test_the_producer_regenerates_the_committed_gated_capsule(self):
+        job, task = self.materialize_gated()
+        golden = (GATED_ROOT / "job/capsule.json").read_text(encoding="utf-8")
+        regenerated = json.dumps(self.build(job, task), indent=2, sort_keys=True) + "\n"
+        self.assertEqual(regenerated, golden)
+
+    def test_the_decision_log_decides_the_status_not_the_experiment_log(self):
+        """The experiment log calls v3 kept in prose. The record's status comes from the gate's own
+        line, and a provisional resolved by a confirmation carries the confirmation's outcome."""
+        job, task = self.materialize_gated()
+        capsule = self.build(job, task)
+        by_id = {v["version_id"]: v for v in capsule["versions"]}
+        self.assertEqual(by_id["v2"]["status"], "reverted")
+        self.assertEqual([(d["log_line"], d["kind"], d["disposition"])
+                          for d in by_id["v3"]["decisions"]],
+                         [(2, "screening", "provisional"), (3, "confirmation", "keep")])
+        self.assertEqual(by_id["v3"]["decisions"][1]["resolves_log_line"], 2)
+        self.assertNotIn("decisions", by_id["v1"])
+        self.assertEqual(by_id["v1"]["status"], "kept")
+
+    def test_an_unresolved_provisional_is_a_status(self):
+        job, task = self.materialize_gated()
+        lines = self.log_lines(job)
+        self.rewrite_log(job, lines[:2])                     # drop the confirmation
+        (job / METHODS / "main/policy.py").write_text(
+            (job / METHODS / "versions/v2/policy.py").read_text(encoding="utf-8"), encoding="utf-8")
+        capsule = self.build(job, task)
+        by_id = {v["version_id"]: v for v in capsule["versions"]}
+        self.assertEqual(by_id["v3"]["status"], "provisional")
+
+    def test_the_measurement_is_hoisted_and_the_log_is_bound(self):
+        job, task = self.materialize_gated()
+        capsule = self.build(job, task)
+        self.assertEqual(capsule["benchmark"]["statistic"], "mean_paired_delta")
+        self.assertEqual(capsule["benchmark"]["unit"], "game_score")
+        bound = capsule["source"]["decision_log"]
+        self.assertEqual(bound["locator"], "artifacts/app/methods/decisions.jsonl")
+        self.assertEqual(bound["sha256"], VERIFIER.file_digest(self.log_path(job)))
+        for decision in capsule["versions"][1]["decisions"]:
+            self.assertNotIn("statistic", decision)
+            self.assertNotIn("unit", decision)
+
+    def test_a_rollout_without_a_gate_still_produces_a_record(self):
+        job, task = self.materialize_gated()
+        self.log_path(job).unlink()
+        capsule = self.build(job, task)
+        self.assertNotIn("decision_log", capsule["source"])
+        self.assertNotIn("statistic", capsule["benchmark"])
+        self.assertTrue(all("decisions" not in v for v in capsule["versions"]))
+
+    def test_a_malformed_decision_log_is_refused(self):
+        cases = {
+            "decision_log_blank_line:2": lambda lines, job: self.log_path(job).write_text(
+                json.dumps(lines[0]) + "\n\n" + json.dumps(lines[1]) + "\n", encoding="utf-8"),
+            "decision_log_malformed:2": lambda lines, job: self.log_path(job).write_text(
+                json.dumps(lines[0]) + "\nnot json\n", encoding="utf-8"),
+            "decision_log_foreign_schema:1": lambda lines, job: self.rewrite_log(
+                job, [{**lines[0], "schema": "other/v1"}] + lines[1:]),
+            "decision_log_line_number:1": lambda lines, job: self.rewrite_log(
+                job, [{**lines[0], "line": 7}] + lines[1:]),
+            "decision_log_missing_field:1:verdict": lambda lines, job: self.rewrite_log(
+                job, [{k: v for k, v in lines[0].items() if k != "verdict"}] + lines[1:]),
+            "decision_log_mixed_measurement": lambda lines, job: self.rewrite_log(
+                job, [{**lines[0], "unit": "seconds"}] + lines[1:]),
+            "decision_log_confirmation_without_provisional:2": lambda lines, job: self.rewrite_log(
+                job, [lines[0], {**lines[2], "line": 2}]),
+            "decision_log_unknown_version:v9": lambda lines, job: self.rewrite_log(
+                job, [{**lines[0], "version_id": "v9"}] + lines[1:]),
+        }
+        for code, mutate in cases.items():
+            with self.subTest(code=code):
+                job, task = self.materialize_gated()
+                mutate(self.log_lines(job), job)
+                self.assert_producer_error(code, job, task)
+
+    def test_a_record_carrying_decisions_must_bind_the_log(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        del data["source"]["decision_log"]
+        self.save(job, data)
+        self.assertIn("semantic:source:decision_log_missing", self.verify(job)["errors"])
+
+    def test_a_decision_filed_under_the_wrong_version_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        version = next(v for v in data["versions"] if v["version_id"] == "v2")
+        version["decisions"][0]["version_id"] = "v1"
+        self.save(job, data)
+        self.assertIn("semantic:decision:version_mismatch:v2:1", self.verify(job)["errors"])
+
+    def test_a_confirmation_resolving_nothing_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        version = next(v for v in data["versions"] if v["version_id"] == "v3")
+        version["decisions"][1]["resolves_log_line"] = 99
+        self.save(job, data)
+        self.assertIn("semantic:decision:resolves_unknown:v3:3", self.verify(job)["errors"])
+
+    def test_a_kind_that_disagrees_with_replicates_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        version = next(v for v in data["versions"] if v["version_id"] == "v2")
+        version["decisions"][0]["kind"] = "confirmation"
+        self.save(job, data)
+        errors = self.verify(job)["errors"]
+        self.assertIn("semantic:decision:kind_mismatch:v2:1", errors)
+
+    def test_a_status_the_decisions_do_not_imply_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        version = next(v for v in data["versions"] if v["version_id"] == "v2")
+        version["status"] = "kept"
+        self.save(job, data)
+        self.assertIn("semantic:version:status_not_decided:v2", self.verify(job)["errors"])
+
+    def test_a_projected_decision_must_say_what_the_bound_log_says(self):
+        """Binding the log by digest proves the file is unchanged; it proves nothing about whether
+        the record's own decisions[] report it faithfully."""
+        for field, value in (("verdict", "clears"),
+                             ("estimate", -318.0),
+                             ("interval", {"lower": 500.0, "upper": 900.0, "level": 0.9}),
+                             ("evidence_digests", {"parent": "sha256:" + "9" * 64,
+                                                   "candidate": "sha256:" + "8" * 64}),
+                             ("disposition", "keep")):
+            with self.subTest(field=field):
+                job, _ = self.materialize_gated()
+                data = self.load(job)
+                version = next(v for v in data["versions"] if v["version_id"] == "v2")
+                version["decisions"][0][field] = value
+                self.save(job, data)
+                self.assertIn(f"decision:log_line_mismatch:v2:1:{field}",
+                              self.verify(job)["errors"])
+
+    def test_a_log_line_the_record_does_not_carry_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        version = next(v for v in data["versions"] if v["version_id"] == "v3")
+        version["decisions"] = version["decisions"][:1]
+        version["status"] = "provisional"
+        self.save(job, data)
+        self.assertIn("decision:log_line_missing:3", self.verify(job)["errors"])
+
+    def test_a_decision_for_a_line_the_log_does_not_have_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        source = next(v for v in data["versions"] if v["version_id"] == "v2")["decisions"][0]
+        version = next(v for v in data["versions"] if v["version_id"] == "v1")
+        version["decisions"] = [dict(source, log_line=9, version_id="v1")]
+        version["status"] = "reverted"
+        self.save(job, data)
+        self.assertIn("decision:log_line_absent:v1:9", self.verify(job)["errors"])
+
+    def rebind_log(self, job, data):
+        data["source"]["decision_log"]["sha256"] = VERIFIER.file_digest(self.log_path(job))
+
+    def test_a_bound_log_that_cannot_be_read_is_a_finding_not_a_crash(self):
+        job, _ = self.materialize_gated()
+        self.log_path(job).write_bytes(b"\xff\n")
+        data = self.load(job)
+        self.rebind_log(job, data)
+        self.save(job, data)
+        self.assertIn("file:decision_log:unreadable:UnicodeDecodeError", self.verify(job)["errors"])
+
+    def test_an_empty_bound_log_is_refused_by_the_verifier_too(self):
+        """The producer calls an empty log invalid; a verifier that accepted one would disagree
+        with the contract the producer enforces."""
+        job, _ = self.materialize_gated()
+        self.log_path(job).write_text("", encoding="utf-8")
+        data = self.load(job)
+        for version in data["versions"]:
+            version.pop("decisions", None)
+        self.rebind_log(job, data)
+        self.save(job, data)
+        self.assertIn("decision:log_empty", self.verify(job)["errors"])
+
+    def test_a_field_the_log_never_stated_cannot_be_carried_as_null(self):
+        job, _ = self.materialize_gated()
+        self.rewrite_log(job, [{k: v for k, v in line.items() if k != "profile_sha256"}
+                               for line in self.log_lines(job)])
+        data = self.load(job)
+        self.rebind_log(job, data)
+        self.save(job, data)
+        self.assertIn("decision:log_line_absent_field:v2:1:profile_sha256",
+                      self.verify(job)["errors"])
+
+    def test_a_log_that_renumbers_itself_is_flagged(self):
+        job, _ = self.materialize_gated()
+        self.rewrite_log(job, [{**line, "line": 9} for line in self.log_lines(job)])
+        data = self.load(job)
+        self.rebind_log(job, data)
+        self.save(job, data)
+        self.assertIn("decision:log_line_number:1", self.verify(job)["errors"])
+
+    def test_a_foreign_schema_in_the_bound_log_is_flagged(self):
+        job, _ = self.materialize_gated()
+        self.rewrite_log(job, [{**line, "schema": "other/v1"} for line in self.log_lines(job)])
+        data = self.load(job)
+        self.rebind_log(job, data)
+        self.save(job, data)
+        self.assertIn("decision:log_foreign_schema:1", self.verify(job)["errors"])
+
+    def test_the_hoisted_measurement_is_checked_against_the_log(self):
+        """Hoisting statistic and unit to the benchmark block is only safe if the hoist is checked."""
+        for field in ("statistic", "unit"):
+            with self.subTest(field=field):
+                job, _ = self.materialize_gated()
+                data = self.load(job)
+                data["benchmark"][field] = "something else"
+                self.save(job, data)
+                self.assertIn(f"decision:log_{field}_mismatch", self.verify(job)["errors"])
+
+    def test_an_unresolved_provisional_cannot_be_the_submission(self):
+        job, _ = self.materialize_gated()
+        self.rewrite_log(job, self.log_lines(job)[:2])
+        data = self.load(job)
+        version = next(v for v in data["versions"] if v["version_id"] == "v3")
+        version["decisions"] = version["decisions"][:1]
+        self.rebind_log(job, data)
+        self.save(job, data)
+        self.assertIn("protocol:unresolved_provisional_submitted:v3", self.verify(job)["errors"])
+
+    def test_a_measurement_that_is_not_a_string_is_a_finding_not_a_crash(self):
+        """statistic and unit are collected into sets to prove the log states one of each; an
+        unhashable or missing value must be reported before it reaches that set."""
+        for mutation, code in (({"statistic": []}, "decision_log_bad_measurement:1:statistic"),
+                               ({"unit": None}, "decision_log_bad_measurement:1:unit")):
+            with self.subTest(mutation=mutation):
+                job, task = self.materialize_gated()
+                self.rewrite_log(job, [{**line, **mutation} for line in self.log_lines(job)])
+                self.assert_producer_error(code, job, task)
+
+        job, _ = self.materialize_gated()
+        self.rewrite_log(job, [{**line, "statistic": []} for line in self.log_lines(job)])
+        data = self.load(job)
+        self.rebind_log(job, data)
+        self.save(job, data)
+        self.assertIn("decision:log_bad_statistic", self.verify(job)["errors"])
+
+    def test_a_non_finite_number_in_the_log_is_refused(self):
+        """json.loads accepts Infinity and NaN; the contract requires every number finite."""
+        job, task = self.materialize_gated()
+        self.log_path(job).write_text(
+            '{"schema": "rsi-exam-decision-log/v1", "line": 1, "estimate": Infinity}\n',
+            encoding="utf-8")
+        self.assert_producer_error("decision_log_malformed:1", job, task)
+        data = self.load(job)
+        self.rebind_log(job, data)
+        self.save(job, data)
+        self.assertIn("decision:log_unparsable:1", self.verify(job)["errors"])
+
+    def test_the_standalone_verifier_matches_the_schema_on_decision_shape(self):
+        """Where the two disagree the record is only as strict as whichever a reader runs."""
+        cases = (
+            (lambda d: d["interval"].__setitem__("level", 1), "interval.level"),
+            (lambda d: d.__setitem__("evidence_digests", {}), "evidence_digests"),
+            (lambda d: d["method"].pop("seed"), "method.seed"),
+        )
+        for mutate, field in cases:
+            with self.subTest(field=field):
+                job, _ = self.materialize_gated()
+                data = self.load(job)
+                mutate(next(v for v in data["versions"]
+                            if v["version_id"] == "v2")["decisions"][0])
+                self.save(job, data)
+                errors = self.verify(job)["errors"]
+                self.assertTrue(any(field in error for error in errors), errors)
+
+    def test_a_tampered_decision_log_breaks_its_binding(self):
+        job, _ = self.materialize_gated()
+        with self.log_path(job).open("a", encoding="utf-8") as stream:
+            stream.write("\n")
+        self.assertIn("file:decision_log:digest_mismatch", self.verify(job)["errors"])
 
 
 if __name__ == "__main__":

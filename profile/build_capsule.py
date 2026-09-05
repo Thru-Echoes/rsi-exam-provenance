@@ -31,6 +31,17 @@ from typing import Any
 SCHEMA_VERSION = "proofpress/rsi-exam-trajectory/v3"
 # Bytecode caches drift on every import, so they are outside the digest that decides identity.
 # Recorded in the record as source.exclusions so a verifier applies the same rule.
+DECISION_LOG = "decisions.jsonl"
+DECISION_SCHEMA = "rsi-exam-decision-log/v1"
+# The section 1 fields the record carries per decision. `statistic` and `unit` are hoisted to the
+# benchmark block because one log states one of each; `schema` and `line` become the record's own
+# `log_line`. Any field a later contract adds under the same schema id is not carried here, which
+# loses nothing: source.decision_log binds the log itself by digest.
+DECISION_KEYS = ("version_id", "parent_id", "replicates", "timestamp", "direction", "estimate",
+                 "interval", "method", "sample_size", "min_effect", "verdict", "disposition",
+                 "evidence", "evidence_digests", "holdout", "confirm_policy", "profile_sha256",
+                 "look_index", "parent_method_tree_sha256", "candidate_method_tree_sha256",
+                 "sizing", "suite")
 EXCLUSIONS = ("__pycache__/", "*.pyc", "*.pyo")
 EXCLUDED_DIR = "__pycache__"
 EXCLUDED_SUFFIXES = (".pyc", ".pyo")
@@ -143,6 +154,99 @@ def assert_stageable(path: Path) -> None:
         raise ProducerError("empty_submission")
 
 
+def _reject_constant(token: str) -> Any:
+    """Refuse the JSON extensions for non-finite numbers; the contract requires every number finite."""
+    raise ValueError(f"non-finite number in the decision log: {token}")
+
+
+def get_decisions(log_path: Path) -> tuple[dict[str, list[dict[str, Any]]], str, str]:
+    """Read the gate's decision log into per-version entries, plus the shared statistic and unit.
+
+    Returns ``({version_id: [entry, ...]}, statistic, unit)`` with entries in log order. Each entry
+    carries ``log_line``, ``kind`` (``screening`` or ``confirmation``), the DECISION_KEYS fields,
+    and ``resolves_log_line`` on a confirmation. A malformed line, a line numbered out of step with
+    its physical position, a log mixing two statistics or units, and a confirmation with no open
+    provisional to resolve are all errors rather than omissions. Raises ProducerError; reads only.
+    """
+    try:
+        raw = log_path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        raise ProducerError("decision_log_unreadable")
+    if not raw:
+        raise ProducerError("decision_log_empty")
+
+    lines: list[dict[str, Any]] = []
+    for position, text in enumerate(raw, start=1):
+        if not text.strip():
+            raise ProducerError(f"decision_log_blank_line:{position}")
+        try:
+            line = json.loads(text, parse_constant=_reject_constant)
+        except (json.JSONDecodeError, ValueError):
+            raise ProducerError(f"decision_log_malformed:{position}")
+        if not isinstance(line, dict):
+            raise ProducerError(f"decision_log_malformed:{position}")
+        if line.get("schema") != DECISION_SCHEMA:
+            raise ProducerError(f"decision_log_foreign_schema:{position}")
+        if isinstance(line.get("line"), bool) or line.get("line") != position:
+            raise ProducerError(f"decision_log_line_number:{position}")
+        missing = [key for key in DECISION_KEYS if key not in line]
+        if missing:
+            raise ProducerError(f"decision_log_missing_field:{position}:{missing[0]}")
+        for key in ("statistic", "unit"):
+            # Checked per line before they are collected: a missing or non-string value would
+            # otherwise raise KeyError or TypeError out of a set comprehension.
+            value = line.get(key)
+            if not isinstance(value, str) or not value:
+                raise ProducerError(f"decision_log_bad_measurement:{position}:{key}")
+        lines.append(line)
+
+    statistics = {line["statistic"] for line in lines}
+    units = {line["unit"] for line in lines}
+    if len(statistics) != 1 or len(units) != 1:
+        raise ProducerError("decision_log_mixed_measurement")
+    statistic, unit = statistics.pop(), units.pop()
+
+    decisions: dict[str, list[dict[str, Any]]] = {}
+    # A confirmation resolves the latest still-open provisional for the version it replicates.
+    open_provisional: dict[str, dict[str, Any]] = {}
+    for line in lines:
+        vid = line["version_id"]
+        entry: dict[str, Any] = {"log_line": line["line"]}
+        entry.update({key: line[key] for key in DECISION_KEYS})
+        if line["replicates"] is not None:
+            if line["replicates"] != vid:
+                raise ProducerError(f"decision_log_replicates_other_version:{line['line']}")
+            resolved = open_provisional.pop(vid, None)
+            if resolved is None:
+                raise ProducerError(f"decision_log_confirmation_without_provisional:{line['line']}")
+            entry["kind"] = "confirmation"
+            entry["resolves_log_line"] = resolved["log_line"]
+        else:
+            entry["kind"] = "screening"
+            if line["disposition"] == "provisional":
+                open_provisional[vid] = entry
+        decisions.setdefault(vid, []).append(entry)
+    return decisions, statistic, unit
+
+
+def get_decided_status(entries: list[dict[str, Any]]) -> str:
+    """The version's status from its resolved decision state.
+
+    A provisional the log never resolved stays ``provisional``; one a confirmation resolved takes
+    that confirmation's disposition, so a provisional resolved by a revert is ``reverted``. Pure
+    function; raises ProducerError on a disposition the contract does not define.
+    """
+    last = entries[-1]
+    disposition = last["disposition"]
+    if disposition == "keep":
+        return "kept"
+    if disposition == "revert":
+        return "reverted"
+    if disposition == "provisional":
+        return "provisional"
+    raise ProducerError(f"decision_log_unknown_disposition:{last['log_line']}")
+
+
 def get_log_reference(log_lines: list[str], version_id: str) -> tuple[int, str]:
     """First 1-based line that names the version. Raises when absent."""
     token = re.compile(rf"\b{re.escape(version_id)}\b")
@@ -219,6 +323,12 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
     if not model or not harness:
         raise ProducerError("missing_model_or_harness")
 
+    decision_log_path = methods / DECISION_LOG
+    decisions: dict[str, list[dict[str, Any]]] = {}
+    statistic = unit = None
+    if decision_log_path.is_file():
+        decisions, statistic, unit = get_decisions(decision_log_path)
+
     log_lines = log_path.read_text(encoding="utf-8", errors="replace").splitlines()
     snapshot_dirs = sorted(
         (child for child in versions_root.iterdir()
@@ -254,6 +364,11 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
             },
             "log": {"line": line_no},
         }
+        entries = decisions.get(vid)
+        if entries:
+            # The gate's own record of what it decided outranks the prose in the experiment log.
+            version["status"] = get_decided_status(entries)
+            version["decisions"] = entries
         visible = get_visible(line)
         if visible is not None:
             version["visible"] = visible
@@ -304,6 +419,14 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
         "versions_root": {"locator": "artifacts/app/methods/versions"},
         "exclusions": list(EXCLUSIONS),
     }
+    if decisions:
+        source["decision_log"] = {
+            "locator": f"artifacts/app/methods/{DECISION_LOG}",
+            "sha256": file_digest(decision_log_path),
+        }
+    unrecorded = sorted(set(decisions) - {v["version_id"] for v in versions})
+    if unrecorded:
+        raise ProducerError(f"decision_log_unknown_version:{unrecorded[0]}")
     if trajectory is not None:
         source["trajectory"] = trajectory
     if trace_exports:
@@ -312,6 +435,12 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
              "sha256": file_digest(job_dir / locator)}
             for session_id, locator in trace_exports
         ]
+
+    benchmark: dict[str, Any] = {"name": "RSI-Exam", "release": release, "task_id": task_id}
+    if statistic is not None and unit is not None:
+        # One log states one measurement, so the decisions inherit these rather than repeating them.
+        benchmark["statistic"] = statistic
+        benchmark["unit"] = unit
 
     rollout: dict[str, Any] = {
         "id": job_dir.name,
@@ -324,7 +453,7 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
     return {
         "schema_version": SCHEMA_VERSION,
         "capsule_id": capsule_id,
-        "benchmark": {"name": "RSI-Exam", "release": release, "task_id": task_id},
+        "benchmark": benchmark,
         "rollout": rollout,
         "freeze": {
             "task_digest": tree_digest(task_dir),
