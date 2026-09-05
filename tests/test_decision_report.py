@@ -93,6 +93,36 @@ class DecisionReportTests(unittest.TestCase):
                 self.assertIn("not the probability a decision was right", text)
                 self.assertIn("says nothing about the sealed reward", text)
 
+    def test_the_visible_score_is_not_repeated_beside_a_confirmation(self):
+        """A confirmation is measured on fresh seeds, so the version's visible score is not its
+        score, and printing it there would name the wrong measurement."""
+        rows, _ = self.report(self.materialize())
+        self.assertEqual(rows[1]["score"], "4380")
+        self.assertEqual(rows[2]["score"], "-")
+
+    def test_numbers_are_printed_as_written(self):
+        """An audit table that rounds 3801.25 to 3801.2 has changed the evidence."""
+        self.assertEqual(REPORT._number(3801.25), "3801.25")
+        self.assertEqual(REPORT._number(4380.0), "4380")
+        self.assertEqual(REPORT._number(0.1 + 0.2), "0.30000000000000004")
+        self.assertEqual(REPORT._number(-382.5), "-382.5")
+        rows, _ = self.report(self.materialize())
+        self.assertEqual(rows[0]["score"], "3801.25")
+
+    def test_a_finding_naming_an_unknown_version_stays_with_the_record(self):
+        """Putting it beside an unrelated decision would be worse than not placing it."""
+        capsule = json.loads((GATED / "job/capsule.json").read_text(encoding="utf-8"))
+        result = {"errors": ["decision:log_line_mismatch:v9:1:verdict"]}
+        rows = REPORT.get_rows(capsule, result)
+        self.assertFalse(any(row["findings"] for row in rows))
+        text = REPORT.render(rows, result, capsule)
+        self.assertIn("## Findings against the record", text)
+
+    def test_the_evidence_column_does_not_claim_to_be_a_check_count(self):
+        _, text = self.report(self.materialize())
+        self.assertIn("counts the files a decision cites", text)
+        self.assertIn("not a count of what the verifier checked", text)
+
     def test_a_pipe_in_a_value_cannot_split_the_table(self):
         capsule = json.loads((GATED / "job/capsule.json").read_text(encoding="utf-8"))
         capsule["rollout"]["id"] = "roll|out"

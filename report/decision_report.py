@@ -32,9 +32,21 @@ LIMITS = (
     "is not the probability a decision was right, and it says nothing about the sealed reward.",
     "A verdict is the statistics; an action is what the gate did about it. They are separate "
     "columns because they answer separate questions.",
-    "`evidence` counts the files behind a decision that the verifier recomputed or bound by "
-    "digest, not the strength of the evidence.",
+    "`evidence` counts the files a decision cites. It is not a measure of how strong they are, "
+    "and it is not a count of what the verifier checked: whether they were checked is the "
+    "integrity line above, and any failure appears beside the decision.",
 )
+
+
+def _number(value: float) -> str:
+    """A number as written, not rounded to a fixed precision.
+
+    An audit table that prints 3801.25 as 3801.2 has changed the evidence. `repr` gives the shortest
+    string that round-trips to the same float, and trims a trailing `.0` so whole numbers read as
+    whole numbers.
+    """
+    text = repr(float(value))
+    return text[:-2] if text.endswith(".0") else text
 
 
 class ReportError(ValueError):
@@ -54,11 +66,15 @@ def get_rows(capsule: dict[str, Any], result: dict[str, Any]) -> list[dict[str, 
     if not rollout:
         raise ReportError("record has no rollout id")
 
+    known = {version["version_id"] for version in capsule.get("versions", [])}
     findings: dict[tuple[str, int], list[str]] = {}
     for error in result.get("errors", []):
         parts = error.split(":")
         for index, part in enumerate(parts):
-            if part.isdigit() and index >= 2:
+            # Only `...:<version>:<log line>:...` attaches to a decision, and only when the segment
+            # really names a version in this record. Anything else stays a finding about the record,
+            # because putting it beside an unrelated decision would be worse than not placing it.
+            if part.isdigit() and index >= 2 and parts[index - 1] in known:
                 findings.setdefault((parts[index - 1], int(part)), []).append(error)
                 break
 
@@ -71,8 +87,11 @@ def get_rows(capsule: dict[str, Any], result: dict[str, Any]) -> list[dict[str, 
     rows: list[dict[str, Any]] = []
     for version in capsule.get("versions", []):
         vid = version["version_id"]
-        score = (version.get("visible") or {}).get("score")
+        visible = (version.get("visible") or {}).get("score")
         for entry in version.get("decisions", []):
+            # The visible score belongs to the version's screening. A confirmation is measured on
+            # fresh seeds, so printing the same number beside it would name the wrong measurement.
+            score = visible if entry["kind"] == "screening" else None
             line = entry["log_line"]
             interval = entry["interval"]
             if entry["kind"] == "confirmation":
@@ -86,9 +105,9 @@ def get_rows(capsule: dict[str, Any], result: dict[str, Any]) -> list[dict[str, 
             rows.append({
                 "rollout / version": f"{rollout} / {vid}",
                 "parent": entry.get("parent_id") or "none",
-                "score": "-" if score is None else f"{score:g}",
-                "interval": (f"[{interval['lower']:g}, {interval['upper']:g}]"
-                             f" at {interval['level']:g}"),
+                "score": "-" if score is None else _number(score),
+                "interval": (f"[{_number(interval['lower'])}, {_number(interval['upper'])}]"
+                             f" at {_number(interval['level'])}"),
                 "verdict": entry["verdict"],
                 "action": entry["disposition"],
                 "confirmed by": confirmed,
