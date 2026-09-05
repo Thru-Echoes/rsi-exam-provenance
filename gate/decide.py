@@ -43,6 +43,7 @@ import json
 import math
 import os
 import random
+from fractions import Fraction
 import sys
 from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
@@ -169,10 +170,12 @@ def bootstrap_interval(deltas: list[float], *, level: float, resamples: int, see
     rng = random.Random(seed)
     n = len(deltas)
     means = sorted(sum(rng.choice(deltas) for _ in range(n)) / n for _ in range(resamples))
-    alpha = (1.0 - level) / 2.0
-    low = means[int(alpha * resamples)]
-    high = means[int((1.0 - alpha) * resamples) - 1]
-    return low, high
+    # The index is computed exactly. Through binary floats (1.0 - 0.9) / 2.0 is a shade under 0.05,
+    # so int(alpha * 5000) yields 249 where the contract's floor(alpha * resamples) is 250: the
+    # implementation would sit one order statistic below its own specification, at the level and
+    # resample count this project actually uses.
+    alpha = (Fraction(1) - Fraction(str(level))) / 2
+    return means[int(alpha * resamples)], means[int((1 - alpha) * resamples) - 1]
 
 
 def get_verdict(interval: tuple[float, float], min_effect: float) -> str:

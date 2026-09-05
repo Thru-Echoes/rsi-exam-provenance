@@ -33,7 +33,13 @@ directory.
   minus parent per seed (negated when `direction` is `lower`, so a positive value always favours
   the candidate); resamples drawn with Python `random.Random(seed).choice` in the reference
   implementation's loop order; `lower = means[floor(alpha * resamples)]`,
-  `upper = means[floor((1 - alpha) * resamples) - 1]` with `alpha = (1 - level) / 2`;
+  `upper = means[floor((1 - alpha) * resamples) - 1]` with `alpha = (1 - level) / 2`. **Both
+  indices are computed in exact arithmetic, not binary floating point.** Through floats
+  `(1.0 - 0.9) / 2.0` is a shade under `0.05`, so `int(alpha * 5000)` is `249` where this rule says
+  `250`: an implementation that indexes in floats sits one order statistic below the specification
+  at the level and resample count this project uses, and on suites of a few dozen seeds that moves
+  the reported lower bound essentially every time. Take `alpha` from the decimal the level is
+  written as (`(Fraction(1) - Fraction(str(level))) / 2`) and index with that.
   `estimate` = the mean of the deltas (recorded, not asserted to lie inside the interval).
 - **Verdict**: `clears` when `interval.lower > min_effect`; `below` when `interval.upper < 0`;
   otherwise `inconclusive` (which includes an interval that is entirely positive but under the

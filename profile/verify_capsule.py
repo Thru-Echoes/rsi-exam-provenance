@@ -29,6 +29,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import random
+from fractions import Fraction
 import re
 from pathlib import Path
 from typing import Any, Callable
@@ -406,6 +408,68 @@ CAPSULE_SPEC: Checker = _obj({
 # ---------------------------------------------------------------------------
 
 DISPOSITION_STATUS = {"keep": "kept", "revert": "reverted", "provisional": "provisional"}
+# The one interval algorithm this contract defines. A record naming another cannot be checked here,
+# and saying so is better than reporting a decision as verified when its interval was never redone.
+INTERVAL_ALGORITHM = "rsi-exam-gate/percentile-bootstrap/1"
+RECEIPT_ROLES = frozenset({"receipt-parent", "receipt-candidate"})
+
+
+def read_scores(path: Path) -> dict[int, float]:
+    """Per-seed scores from a task self-check result file. Raises ValueError; reads only."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"unreadable:{exc.__class__.__name__}")
+    if not isinstance(data, dict) or not isinstance(data.get("instances"), list):
+        raise ValueError("shape")
+    scores: dict[int, float] = {}
+    for instance in data["instances"]:
+        if not isinstance(instance, dict):
+            raise ValueError("shape")
+        seed, score = instance.get("seed"), instance.get("score")
+        if isinstance(seed, bool) or not isinstance(seed, int):
+            raise ValueError("seed")
+        if isinstance(score, bool) or not isinstance(score, (int, float)):
+            raise ValueError("score")
+        if seed in scores:
+            raise ValueError(f"duplicate_seed:{seed}")
+        scores[seed] = float(score)
+    if not scores:
+        raise ValueError("empty")
+    return scores
+
+
+def paired_deltas(parent: dict[int, float], candidate: dict[int, float],
+                  direction: str) -> list[float]:
+    """Per-seed candidate-minus-parent deltas, oriented so a positive value favours the candidate.
+
+    Mirrors the gate: seeds sorted ascending, and the sign flipped when the raw metric is better
+    when smaller. Raises ValueError when the two suites are not the same set of seeds.
+    """
+    if set(parent) != set(candidate):
+        raise ValueError("seed_sets_differ")
+    sign = 1.0 if direction == "higher" else -1.0
+    return [sign * (candidate[seed] - parent[seed]) for seed in sorted(parent)]
+
+
+def bootstrap_interval(deltas: list[float], *, level: float, resamples: int,
+                       seed: int) -> tuple[float, float]:
+    """Percentile bootstrap interval on the mean of `deltas`, deterministic for a given seed.
+
+    The reference implementation of `rsi-exam-gate/percentile-bootstrap/1`, kept in step with the
+    gate's own copy; an enumeration test holds the pair together. Pure function.
+    """
+    if not deltas or not 0.0 < level < 1.0 or resamples < 1:
+        raise ValueError("parameters")
+    rng = random.Random(seed)
+    n = len(deltas)
+    means = sorted(sum(rng.choice(deltas) for _ in range(n)) / n for _ in range(resamples))
+    # The index is computed exactly. Through binary floats (1.0 - 0.9) / 2.0 is a shade under 0.05,
+    # so int(alpha * 5000) yields 249 where the contract's floor(alpha * resamples) is 250: the
+    # implementation would sit one order statistic below its own specification, at the level and
+    # resample count this project actually uses.
+    alpha = (Fraction(1) - Fraction(str(level))) / 2
+    return means[int(alpha * resamples)], means[int((1 - alpha) * resamples) - 1]
 # The fields the record projects from each decision-log line. Mirrors the producer's DECISION_KEYS;
 # the record is only as good as the projection, so every one is compared against the bound log.
 DECISION_SCHEMA = "rsi-exam-decision-log/v1"
@@ -569,6 +633,191 @@ def _check_decision_consistency(data: dict[str, Any], errors: Errors) -> None:
             # The contract is explicit: an unresolved provisional cannot be the submission without
             # a protocol failure. Letting `submitted` mask it would hide exactly that failure.
             _add(errors, f"protocol:unresolved_provisional_submitted:{vid}")
+
+
+def methods_root_locator(versions_root: str) -> str:
+    """The methods directory the decision log's locators are relative to: the versions root's parent."""
+    parent, separator, _ = versions_root.rstrip("/").rpartition("/")
+    return parent if separator else ""
+
+
+def _check_decision_evidence(root: Path, data: dict[str, Any], errors: Errors) -> None:
+    """Recompute each decision's measurement from the files it rests on.
+
+    Until now the record's intervals were numbers nobody had checked: the evidence was named and
+    digested by the gate that produced both, and the verifier only read them back. This binds each
+    evidence file by digest and redoes the interval and the estimate under the recorded algorithm,
+    level, seed and resample count, so a decision either reproduces from its own inputs or is
+    reported. Appends to `errors`; reads only.
+    """
+    methods = methods_root_locator(data["source"]["versions_root"]["locator"])
+    for version in data["versions"]:
+        for entry in version.get("decisions", []):
+            _check_one_decision(root, methods, version["version_id"], entry, errors)
+
+
+def _resolve_evidence(root: Path, methods: str, vid: str, line: int,
+                      entry: dict[str, Any], errors: Errors) -> dict[str, dict[int, float]] | None:
+    """Bind every evidence file by digest and read the score files among them.
+
+    Returns the per-role scores, or None when something was reported. A receipt role is bound but
+    not parsed: it is a record of an evaluation, not a set of scores.
+    """
+    digests = entry["evidence_digests"]
+    scores: dict[str, dict[int, float]] = {}
+    ok = True
+    roles = [reference["role"] for reference in entry["evidence"]]
+    if len(set(roles)) != len(roles):
+        # The contract's roles are unique; a repeat would let one role's digest stand for another.
+        _add(errors, f"decision:evidence_duplicate_role:{vid}:{line}")
+        ok = False
+    for reference in entry["evidence"]:
+        role, locator, expected = reference["role"], reference["locator"], reference["sha256"]
+        if digests.get(role) != f"sha256:{expected}":
+            _add(errors, f"decision:evidence_digest_mismatch:{vid}:{line}:{role}")
+            ok = False
+        head = locator.split("/", 1)[0]
+        if head in ("versions", "main"):
+            # A contract rule with teeth behind it: the grader scores a submission carrying any
+            # non-Python file 0.0, so evidence inside the policy tree zeroes the run when a
+            # snapshot is restored.
+            _add(errors, f"decision:evidence_in_policy_tree:{vid}:{line}:{role}")
+            ok = False
+            continue
+        path = _inside(root, f"{methods}/{locator}" if methods else locator)
+        if path is None:
+            _add(errors, f"decision:evidence_locator_outside_root:{vid}:{line}:{role}")
+            ok = False
+            continue
+        if not path.is_file() or path.is_symlink():
+            _add(errors, f"decision:evidence_missing:{vid}:{line}:{role}")
+            ok = False
+            continue
+        try:
+            actual = file_digest(path)
+        except OSError as exc:
+            _add(errors, f"decision:evidence_unreadable:{vid}:{line}:{role}:{exc.__class__.__name__}")
+            ok = False
+            continue
+        if actual != expected:
+            _add(errors, f"decision:evidence_digest_mismatch:{vid}:{line}:{role}")
+            ok = False
+            continue
+        if role in RECEIPT_ROLES:
+            continue      # a record of an evaluation, not a set of scores
+        try:
+            scores[role] = read_scores(path)
+        except ValueError as exc:
+            _add(errors, f"decision:evidence_unparsable:{vid}:{line}:{role}:{exc}")
+            ok = False
+    if set(digests) != set(roles):
+        _add(errors, f"decision:evidence_digest_roles:{vid}:{line}")
+        ok = False
+    return scores if ok else None
+
+
+def _check_one_decision(root: Path, methods: str, vid: str, entry: dict[str, Any],
+                        errors: Errors) -> None:
+    line = entry["log_line"]
+    scores = _resolve_evidence(root, methods, vid, line, entry, errors)
+    if scores is None:
+        return
+    method = entry["method"]
+    if method.get("algorithm") != INTERVAL_ALGORITHM:
+        _add(errors, f"decision:interval_algorithm_unsupported:{vid}:{line}")
+        return
+    _reproduce(vid, line, "", scores, entry, entry["interval"], entry["estimate"],
+               method, "parent", "candidate", errors)
+    holdout = entry.get("holdout")
+    if holdout is None:
+        return
+    if not isinstance(holdout, dict) or "interval" not in holdout or "estimate" not in holdout:
+        # A declared holdout that cannot be recomputed is a finding, not a reason to say nothing.
+        _add(errors, f"decision:holdout_malformed:{vid}:{line}")
+        return
+    _reproduce(vid, line, "holdout:", scores, entry, holdout["interval"], holdout["estimate"],
+               method, "holdout-parent", "holdout-candidate", errors)
+
+
+def _reproduce(vid: str, line: int, prefix: str, scores: dict[str, dict[int, float]],
+               entry: dict[str, Any], interval: dict[str, Any], estimate: float,
+               method: dict[str, Any], parent_role: str, candidate_role: str,
+               errors: Errors) -> None:
+    if parent_role not in scores or candidate_role not in scores:
+        _add(errors, f"decision:{prefix}interval_evidence_incomplete:{vid}:{line}")
+        return
+    try:
+        deltas = paired_deltas(scores[parent_role], scores[candidate_role], entry["direction"])
+        low, high = bootstrap_interval(deltas, level=interval["level"],
+                                       resamples=method["resamples"], seed=method["seed"])
+    except (ValueError, TypeError):
+        # A fixed suffix: an interpolated exception message is not a stable error identifier.
+        _add(errors, f"decision:{prefix}interval_not_reproducible:{vid}:{line}:parameters")
+        return
+    if (low, high) != (interval["lower"], interval["upper"]):
+        _add(errors, f"decision:{prefix}interval_not_reproducible:{vid}:{line}")
+    if sum(deltas) / len(deltas) != estimate:
+        _add(errors, f"decision:{prefix}estimate_not_reproducible:{vid}:{line}")
+
+
+SCORE_TOKEN = re.compile(r"scores?\s*[:=]?\s*(-?[0-9]+(?:\.[0-9]+)?)", re.IGNORECASE)
+
+
+def _check_logged_scores(root: Path, data: dict[str, Any], errors: Errors) -> None:
+    """Compare the score a version claims in the experiment log with its bound result file.
+
+    The experiment log is prose the agent wrote; the result file is what the evaluator produced.
+    A number in the prose that its own evidence does not support is worth knowing about, and the
+    tolerance is half a unit of the last decimal the prose actually printed, so a rounded figure is
+    not read as a contradiction. Appends to `errors`; reads only.
+    """
+    methods = methods_root_locator(data["source"]["versions_root"]["locator"])
+    log_path = _inside(root, data["source"]["experiment_log"]["locator"])
+    if log_path is None or not log_path.is_file():
+        return
+    try:
+        lines = log_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return
+    for version in data["versions"]:
+        visible = version.get("visible")
+        if not visible or visible.get("recorded_in") != "experiment_log":
+            continue
+        number = version["log"]["line"]
+        if not 1 <= number <= len(lines):
+            continue
+        match = SCORE_TOKEN.search(lines[number - 1])
+        if match is None:
+            continue
+        printed = match.group(1)
+        decimals = len(printed.partition(".")[2])
+        tolerance = 0.5 * (10 ** -decimals)
+        candidate = _candidate_scores(root, methods, version)
+        if candidate is None:
+            continue
+        mean = sum(candidate.values()) / len(candidate)
+        if abs(mean - float(printed)) > tolerance:
+            _add(errors, f"log:score_mismatch:{version['version_id']}")
+
+
+def _candidate_scores(root: Path, methods: str,
+                      version: dict[str, Any]) -> dict[int, float] | None:
+    """The scores behind a version's first screening decision, or None when there are none to read."""
+    for entry in version.get("decisions", []):
+        if entry["kind"] != "screening":
+            continue
+        for reference in entry["evidence"]:
+            if reference["role"] != "candidate":
+                continue
+            path = _inside(root, f"{methods}/{reference['locator']}" if methods
+                           else reference["locator"])
+            if path is None or not path.is_file():
+                return None
+            try:
+                return read_scores(path)
+            except ValueError:
+                return None
+    return None
 
 
 def expected_main_locator(versions_root: str) -> str:
@@ -828,6 +1077,8 @@ def _check_files(root: Path, data: dict[str, Any], errors: Errors) -> None:
                           "decision_log", errors)
 
     _check_decisions_match_log(root, data, errors)
+    _check_decision_evidence(root, data, errors)
+    _check_logged_scores(root, data, errors)
     _check_final_submission(root, data, errors)
     _check_unrecorded_matches(root, data, errors)
 
