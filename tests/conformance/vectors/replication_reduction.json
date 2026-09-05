@@ -1,12 +1,12 @@
 {
   "description": "A confirmation run on fewer seeds than the screening it resolves.",
-  "why": "A confirmation on less evidence than the screening cannot resolve it; shrinking the suite is the cheapest way to turn an inconclusive result into a clearing one.",
+  "why": "A confirmation on less evidence than the screening cannot resolve it, and shrinking the suite is the cheapest way to turn an inconclusive result into a clearing one. The contract's replication rule says nothing about sample size, so the gate loader and the converter accept it: this vector is the one that showed nothing anywhere refused it.",
   "expect": {
     "gate_loader": "accept",
     "converter": "accept",
     "trace_mcp_validate": "accept",
     "proofpress_adapter": "accept",
-    "profile_verifier": "accept"
+    "profile_verifier": "reject"
   },
   "lines": [
     {

@@ -949,6 +949,7 @@ def _check_decision_rules(data: dict[str, Any], errors: Errors) -> None:
     if not entries:
         return
 
+    by_line = {entry["log_line"]: entry for _, entry in entries}
     open_line: int | None = None
     for vid, entry in entries:
         line = entry["log_line"]
@@ -961,6 +962,11 @@ def _check_decision_rules(data: dict[str, Any], errors: Errors) -> None:
                 and entry["confirm_policy"] == "always"):
             _add(errors, f"protocol:unconfirmed_keep:{vid}:{line}")
         if entry["kind"] == "confirmation":
+            resolved = by_line.get(entry.get("resolves_log_line"))
+            if resolved is not None and entry["sample_size"] < resolved["sample_size"]:
+                # Shrinking the suite is the cheapest way to turn an inconclusive screening into a
+                # clearing confirmation: fewer seeds, wider spread, a narrower interval on luck.
+                _add(errors, f"protocol:replication_reduction:{vid}:{line}")
             # Cleared only by the confirmation that resolves this provisional. Clearing on any
             # confirmation would let a second, unrelated one hide a still-open decision.
             if entry.get("resolves_log_line") == open_line:
