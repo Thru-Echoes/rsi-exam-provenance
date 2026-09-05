@@ -1139,5 +1139,263 @@ class RecomputedMeasurementTests(FixtureCase):
                     errors)
 
 
+class ReceiptTests(FixtureCase):
+    """On a gated run a result without its runner receipt is an integrity failure, not a note."""
+
+    def materialize_gated(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name)
+        shutil.copytree(GATED_ROOT, root, dirs_exist_ok=True)
+        return root / "job", root / "task"
+
+    def gated_decision(self, job, data, receipts=True, **receipt_overrides):
+        """Turn the fixture's replay-mode v2 screening into a gated one, with receipts beside its
+        results, as gate/evaluate_suite.py writes them."""
+        from tests.gate_fixtures import write_receipt
+        version = next(v for v in data["versions"] if v["version_id"] == "v2")
+        entry = version["decisions"][0]
+        entry["confirm_policy"] = "always"
+        entry["disposition"] = "provisional"
+        entry["verdict"] = "inconclusive"
+        entry["interval"] = {"lower": -400.0, "upper": 100.0, "level": 0.9}
+        version["status"] = "provisional"
+        if not receipts:
+            return entry
+        for role, result_role in (("receipt-parent", "parent"), ("receipt-candidate", "candidate")):
+            reference = next(r for r in entry["evidence"] if r["role"] == result_role)
+            result_path = job / METHODS / reference["locator"]
+            receipt_path = write_receipt(result_path, profile_sha="a" * 64,
+                                         policy_digest="b" * 64, suite_sha="c" * 64, games=8,
+                                         **receipt_overrides)
+            locator = reference["locator"][: -len(".json")] + ".receipt.json"
+            digest = VERIFIER.file_digest(receipt_path)
+            entry["evidence"].append({"role": role, "locator": locator, "sha256": digest})
+            entry["evidence_digests"][role] = "sha256:" + digest
+        return entry
+
+    def test_a_gated_result_without_its_receipt_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        self.gated_decision(job, data, receipts=False)
+        self.save(job, data)
+        errors = self.verify(job)["errors"]
+        self.assertIn("receipt:missing:v2:1:receipt-parent", errors)
+        self.assertIn("receipt:missing:v2:1:receipt-candidate", errors)
+
+    def test_a_replay_mode_decision_needs_no_receipt(self):
+        """The runner is not in the loop in replay mode, so there is nothing to require."""
+        job, _ = self.materialize_gated()
+        errors = self.verify(job)["errors"]
+        self.assertFalse([e for e in errors if e.startswith("receipt:")], errors)
+
+    def test_a_receipt_present_in_replay_mode_is_still_checked(self):
+        """Presence is required only on a gated run; consistency is required whenever it is there."""
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        entry = self.gated_decision(job, data, result_sha256="9" * 64)
+        entry["confirm_policy"] = "inconclusive"
+        entry["disposition"] = "provisional"
+        self.save(job, data)
+        self.assertIn("receipt:mismatch:v2:1:receipt-parent:result", self.verify(job)["errors"])
+
+    def test_a_receipt_for_a_result_the_decision_does_not_rest_on_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        entry = next(v for v in data["versions"] if v["version_id"] == "v2")["decisions"][0]
+        entry["evidence"] = [r for r in entry["evidence"] if r["role"] != "parent"]
+        entry["evidence_digests"].pop("parent")
+        entry["evidence"].append({"role": "receipt-parent",
+                                  "locator": "results/v1/visible_result.receipt.json",
+                                  "sha256": "0" * 64})
+        entry["evidence_digests"]["receipt-parent"] = "sha256:" + "0" * 64
+        self.save(job, data)
+        self.assertIn("receipt:mismatch:v2:1:receipt-parent:orphan", self.verify(job)["errors"])
+
+    def test_a_receipt_for_another_result_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        self.gated_decision(job, data, result_sha256="9" * 64)
+        self.save(job, data)
+        self.assertIn("receipt:mismatch:v2:1:receipt-parent:result", self.verify(job)["errors"])
+
+    def test_a_receipt_for_another_policy_tree_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        entry = self.gated_decision(job, data)
+        entry["candidate_method_tree_sha256"] = "d" * 64
+        self.save(job, data)
+        self.assertIn("receipt:mismatch:v2:1:receipt-candidate:policy", self.verify(job)["errors"])
+
+    def test_a_receipt_written_under_another_profile_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        entry = self.gated_decision(job, data)
+        entry["profile_sha256"] = "e" * 64
+        self.save(job, data)
+        self.assertIn("receipt:mismatch:v2:1:receipt-parent:profile", self.verify(job)["errors"])
+
+    def test_a_receipt_for_another_suite_is_flagged(self):
+        """The right policy measured on the wrong suite measures something else entirely."""
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        entry = self.gated_decision(job, data)
+        entry["suite"] = {"locator": "gate/suites/s1.json", "sha256": "f" * 64,
+                          "derivation": {"algorithm": "rsi-exam-gate/hmac-seeds/1"}}
+        self.save(job, data)
+        self.assertIn("receipt:mismatch:v2:1:receipt-parent:suite", self.verify(job)["errors"])
+
+    def test_a_receipt_that_is_not_a_receipt_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        self.gated_decision(job, data, schema="something-else/v1")
+        self.save(job, data)
+        self.assertIn("receipt:mismatch:v2:1:receipt-parent:schema", self.verify(job)["errors"])
+
+
+class DecisionRuleTests(FixtureCase):
+    """The gate decided; these ask whether it decided the way its contract says."""
+
+    def materialize_gated(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name)
+        shutil.copytree(GATED_ROOT, root, dirs_exist_ok=True)
+        return root / "job", root / "task"
+
+    @staticmethod
+    def version(data, version_id):
+        return next(v for v in data["versions"] if v["version_id"] == version_id)
+
+    def test_the_verdict_table_matches_the_contract(self):
+        cases = (
+            ({"lower": 10.0, "upper": 20.0, "level": 0.9}, 5.0, "clears"),
+            ({"lower": 5.0, "upper": 20.0, "level": 0.9}, 5.0, "inconclusive"),
+            ({"lower": 1.0, "upper": 4.0, "level": 0.9}, 5.0, "inconclusive"),
+            ({"lower": -9.0, "upper": -1.0, "level": 0.9}, 0.0, "below"),
+            ({"lower": -9.0, "upper": 0.0, "level": 0.9}, 0.0, "inconclusive"),
+        )
+        for interval, min_effect, expected in cases:
+            with self.subTest(interval=interval, min_effect=min_effect):
+                self.assertEqual(VERIFIER.expected_verdict(interval, min_effect), expected)
+
+    def test_the_disposition_table_matches_the_contract(self):
+        def entry(**over):
+            base = {"kind": "screening", "verdict": "clears", "confirm_policy": "inconclusive",
+                    "holdout": None}
+            base.update(over)
+            return base
+        clearing = {"verdict": "clears"}
+        failing = {"verdict": "below"}
+        cases = (
+            (entry(verdict="below"), "revert"),
+            (entry(verdict="inconclusive"), "provisional"),
+            (entry(verdict="clears"), "keep"),
+            (entry(verdict="clears", confirm_policy="always"), "provisional"),
+            (entry(verdict="clears", holdout=failing), "provisional"),
+            (entry(verdict="clears", holdout=clearing), "keep"),
+            (entry(kind="confirmation", verdict="clears"), "keep"),
+            (entry(kind="confirmation", verdict="clears", holdout=failing), "revert"),
+            (entry(kind="confirmation", verdict="inconclusive"), "revert"),
+            (entry(kind="confirmation", verdict="below"), "revert"),
+        )
+        for candidate, expected in cases:
+            with self.subTest(entry=candidate):
+                self.assertEqual(VERIFIER.expected_disposition(candidate), expected)
+
+    def test_a_verdict_the_interval_does_not_give_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        self.version(data, "v2")["decisions"][0]["verdict"] = "clears"
+        self.save(job, data)
+        self.assertIn("decision:verdict_inconsistent:v2:1", self.verify(job)["errors"])
+
+    def test_a_disposition_the_verdict_does_not_give_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        self.version(data, "v2")["decisions"][0]["disposition"] = "keep"
+        self.save(job, data)
+        self.assertIn("decision:disposition_inconsistent:v2:1", self.verify(job)["errors"])
+
+    def test_a_keep_that_confirmation_policy_required_to_be_confirmed_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        decision = self.version(data, "v3")["decisions"][0]
+        decision["confirm_policy"] = "always"
+        decision["disposition"] = "keep"
+        decision["verdict"] = "clears"
+        decision["interval"] = {"lower": 100.0, "upper": 500.0, "level": 0.9}
+        self.save(job, data)
+        self.assertIn("protocol:unconfirmed_keep:v3:2", self.verify(job)["errors"])
+
+    def test_a_second_open_provisional_is_flagged(self):
+        """The contract allows one at a time: a second means the gate built on a version whose
+        decision had not been resolved."""
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        decision = self.version(data, "v2")["decisions"][0]
+        decision["disposition"] = "provisional"
+        decision["verdict"] = "inconclusive"
+        self.version(data, "v2")["status"] = "provisional"
+        self.save(job, data)
+        self.assertIn("protocol:stacked_provisional:v3:2", self.verify(job)["errors"])
+
+    def test_an_unrelated_confirmation_does_not_clear_an_open_provisional(self):
+        """Clearing on any confirmation would let a second one hide a decision still open."""
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        v2 = self.version(data, "v2")
+        v2["decisions"][0]["disposition"] = "provisional"
+        v2["decisions"][0]["verdict"] = "inconclusive"
+        v2["status"] = "provisional"
+        confirmation = self.version(data, "v3")["decisions"][1]
+        confirmation["resolves_log_line"] = 2      # resolves v3's, not v2's
+        self.save(job, data)
+        self.assertIn("protocol:stacked_provisional:v3:2", self.verify(job)["errors"])
+
+    def test_prose_that_only_mentions_a_word_is_not_a_contradiction(self):
+        """"not reverted" and "keeps the lookahead" are prose, not a recorded status."""
+        job, _ = self.materialize_gated()
+        log = job / METHODS / "experiment_log.md"
+        log.write_text(log.read_text(encoding="utf-8").replace(
+            "exceeded the per-move budget. score: 3801.25. reverted",
+            "keeps the lookahead but exceeded the budget. score: 3801.25. reverted"),
+            encoding="utf-8")
+        data = self.load(job)
+        self.rebind(job, data, "source.experiment_log.sha256", f"{METHODS}/experiment_log.md")
+        self.save(job, data)
+        self.assertNotIn("protocol:action_contradiction:v2", self.verify(job)["errors"])
+
+    def test_a_kept_version_the_gate_never_decided_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        version = self.version(data, "v3")
+        del version["decisions"]
+        version["status"] = "submitted"
+        self.save(job, data)
+        self.assertIn("decision:missing_for_kept_version:v3", self.verify(job)["errors"])
+
+    def test_a_reverted_version_that_was_submitted_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        version = self.version(data, "v2")
+        version["status"] = "submitted"
+        self.version(data, "v3")["status"] = "reverted"
+        self.save(job, data)
+        self.assertIn("protocol:kept_against_verdict:v2", self.verify(job)["errors"])
+
+    def test_prose_that_contradicts_the_recorded_decision_is_flagged(self):
+        """The record carries both what the agent said it did and what the gate measured."""
+        job, _ = self.materialize_gated()
+        log = job / METHODS / "experiment_log.md"
+        log.write_text(log.read_text(encoding="utf-8").replace(
+            "exceeded the per-move budget. score: 3801.25. reverted",
+            "exceeded the per-move budget. score: 3801.25. kept"), encoding="utf-8")
+        data = self.load(job)
+        self.rebind(job, data, "source.experiment_log.sha256", f"{METHODS}/experiment_log.md")
+        self.save(job, data)
+        self.assertIn("protocol:action_contradiction:v2", self.verify(job)["errors"])
+
+
 if __name__ == "__main__":
     unittest.main()
