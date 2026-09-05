@@ -28,7 +28,10 @@ gate/trace_from_decisions.py   decision log -> TRACE 0.5.1 session document
 profile/schema.json            the provenance record's JSON Schema (profile v2)
 profile/build_capsule.py       job directory -> provenance record
 profile/verify_capsule.py      offline verifier for a record
-fixtures/valid/                a harbor-shaped job directory with its golden record
+fixtures/valid/                a harbor-shaped job directory with its golden record (no gate ran)
+fixtures/gated/                the same lineage with a replay-mode decision log
+fixtures/gated_mode/           a real gated run: derived confirmation suite, runner receipts, no null gated fields
+fixtures/build_gated_mode.py   rebuilds fixtures/gated_mode by running the gate for real
 fixtures/task2048/             the 2048 task's evaluator, engine, seed file, and starter policy at the pinned revision (MIT; see NOTICE), plus a variant policy
 tests/                         unittest suites (run: python3 -m unittest discover -s tests -t .)
 tests/conformance/             the normative vectors that hold the three implementations together

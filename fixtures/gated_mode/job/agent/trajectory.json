@@ -1,0 +1,7 @@
+{
+  "agent": {
+    "name": "fixture-harness",
+    "model_name": "fixture-model"
+  },
+  "steps": []
+}

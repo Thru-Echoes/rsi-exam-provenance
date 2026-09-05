@@ -475,7 +475,8 @@ def _check_receipts(root: Path, methods: str, vid: str, entry: dict[str, Any],
                 and payload.get("profile_sha256") != entry["profile_sha256"]):
             _add(errors, f"receipt:mismatch:{vid}:{entry['log_line']}:{receipt_role}:profile")
         suite = entry.get("suite")
-        if isinstance(suite, dict) and suite.get("sha256") is not None:
+        if (entry["kind"] == "confirmation"
+                and isinstance(suite, dict) and suite.get("sha256") is not None):
             # A receipt for the right policy on the wrong suite measures something else entirely.
             if payload.get("suite_sha256") != suite["sha256"]:
                 _add(errors, f"receipt:mismatch:{vid}:{entry['log_line']}:{receipt_role}:suite")
@@ -963,10 +964,17 @@ def _check_decision_rules(data: dict[str, Any], errors: Errors) -> None:
             _add(errors, f"protocol:unconfirmed_keep:{vid}:{line}")
         if entry["kind"] == "confirmation":
             resolved = by_line.get(entry.get("resolves_log_line"))
-            if resolved is not None and entry["sample_size"] < resolved["sample_size"]:
+            if resolved is not None:
                 # Shrinking the suite is the cheapest way to turn an inconclusive screening into a
                 # clearing confirmation: fewer seeds, wider spread, a narrower interval on luck.
-                _add(errors, f"protocol:replication_reduction:{vid}:{line}")
+                # But a gated screening plans the confirmation's size, and that plan is routinely
+                # smaller than the screening itself, so the plan is what the confirmation owes.
+                sizing = resolved.get("sizing")
+                planned = sizing.get("size") if isinstance(sizing, dict) else None
+                short = (entry["sample_size"] < planned if isinstance(planned, int)
+                         else entry["sample_size"] < resolved["sample_size"])
+                if short:
+                    _add(errors, f"protocol:replication_reduction:{vid}:{line}")
             # Cleared only by the confirmation that resolves this provisional. Clearing on any
             # confirmation would let a second, unrelated one hide a still-open decision.
             if entry.get("resolves_log_line") == open_line:

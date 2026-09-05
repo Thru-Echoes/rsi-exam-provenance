@@ -1,0 +1,271 @@
+{
+  "benchmark": {
+    "name": "RSI-Exam",
+    "release": "0.1@bc36dadb405b",
+    "statistic": "mean_paired_delta",
+    "task_id": "autoresearch-arena/fixture_2048_policy_search",
+    "unit": "game_score"
+  },
+  "capsule_id": "fixture-gated-mode-001",
+  "final_submission": {
+    "locator": "artifacts/app/methods/main",
+    "method_tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+    "tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+    "version_id": "v1",
+    "version_ids": [
+      "v1",
+      "v2"
+    ]
+  },
+  "freeze": {
+    "grader_digest": "6494a4d613035ed2a35ff20e5fd4a3576c5e7d35e94a653758157ecba0dcf7c5",
+    "task_digest": "aad537e3265627abd0edf6ba491a6448e3f6ce7a10370bf6ed70e1f161113a2d"
+  },
+  "hidden_evaluation": {
+    "binding": {
+      "basis": "job_directory",
+      "job_id": "job"
+    },
+    "reward": 0.0,
+    "reward_locator": "verifier/reward.json",
+    "reward_sha256": "054c502572852974715b77ad1c1a39f68402ffccfd62c3395d5b4273e8888435"
+  },
+  "rollout": {
+    "budget_hours": 12.0,
+    "config_digest": "3afb4d967419210fa6071126b4616566aae48a0afb8ce5cea833c5662e90d38d",
+    "harness": "fixture-harness",
+    "id": "job",
+    "model": "fixture-model"
+  },
+  "schema_version": "proofpress/rsi-exam-trajectory/v3",
+  "source": {
+    "decision_log": {
+      "locator": "artifacts/app/methods/decisions.jsonl",
+      "sha256": "83fc33cecd777f4cdbd9c723c35aaf2f08983f8481f0077f89823b2c451d5f42"
+    },
+    "exclusions": [
+      "__pycache__/",
+      "*.pyc",
+      "*.pyo"
+    ],
+    "experiment_log": {
+      "locator": "artifacts/app/methods/experiment_log.md",
+      "sha256": "76c2539821782f9391fda5f365b29622ea408b1a37293593d7ff6039092ba201"
+    },
+    "trajectory": {
+      "format": "ATIF",
+      "locator": "agent/trajectory.json",
+      "sha256": "08253dfd19a840980ef3b2ac870342384fffc7d941a8591239628c84d048a1db"
+    },
+    "versions_root": {
+      "locator": "artifacts/app/methods/versions"
+    }
+  },
+  "versions": [
+    {
+      "artifact": {
+        "locator": "artifacts/app/methods/versions/v1",
+        "method_tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+        "tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+        "type": "directory"
+      },
+      "log": {
+        "line": 3
+      },
+      "ordinal": 1,
+      "parent_ids": [],
+      "status": "submitted",
+      "version_id": "v1",
+      "visible": {
+        "recorded_in": "experiment_log",
+        "score": 2060.0
+      }
+    },
+    {
+      "artifact": {
+        "locator": "artifacts/app/methods/versions/v2",
+        "method_tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+        "tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+        "type": "directory"
+      },
+      "decisions": [
+        {
+          "candidate_method_tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+          "confirm_policy": "always",
+          "direction": "higher",
+          "disposition": "provisional",
+          "estimate": 0.0,
+          "evidence": [
+            {
+              "locator": "results/v1/visible_result.json",
+              "role": "parent",
+              "sha256": "a214509cf893553a9622154567ff2fdfd223513b1e6936911b24951deb7bc63a"
+            },
+            {
+              "locator": "results/v2/visible_result.json",
+              "role": "candidate",
+              "sha256": "a214509cf893553a9622154567ff2fdfd223513b1e6936911b24951deb7bc63a"
+            },
+            {
+              "locator": "results/v1/visible_result.receipt.json",
+              "role": "receipt-parent",
+              "sha256": "4a18f5482de394ff27a68d0115b4dc69faddacd8e4e7939fc826e4ab2bff7c93"
+            },
+            {
+              "locator": "results/v2/visible_result.receipt.json",
+              "role": "receipt-candidate",
+              "sha256": "a244a4a72d750721fbfa21450f63532ebe66139fba11b8b00a0d97b0cc644b4e"
+            }
+          ],
+          "evidence_digests": {
+            "candidate": "sha256:a214509cf893553a9622154567ff2fdfd223513b1e6936911b24951deb7bc63a",
+            "parent": "sha256:a214509cf893553a9622154567ff2fdfd223513b1e6936911b24951deb7bc63a",
+            "receipt-candidate": "sha256:a244a4a72d750721fbfa21450f63532ebe66139fba11b8b00a0d97b0cc644b4e",
+            "receipt-parent": "sha256:4a18f5482de394ff27a68d0115b4dc69faddacd8e4e7939fc826e4ab2bff7c93"
+          },
+          "holdout": null,
+          "interval": {
+            "level": 0.9,
+            "lower": 0.0,
+            "upper": 0.0
+          },
+          "kind": "screening",
+          "log_line": 1,
+          "look_index": 1,
+          "method": {
+            "algorithm": "rsi-exam-gate/percentile-bootstrap/1",
+            "name": "percentile_bootstrap",
+            "resamples": 5000,
+            "seed": 20260902
+          },
+          "min_effect": 51.5,
+          "parent_id": "v1",
+          "parent_method_tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+          "profile_sha256": "16c26c9c2348fcc8a88544aa04a22fdc5e8595ee43709bfc8069c2aea02a1c77",
+          "replicates": null,
+          "sample_size": 8,
+          "sizing": {
+            "cap": 8,
+            "exploratory": false,
+            "floor": 4,
+            "planned": 4,
+            "rule": "normal-approximation planning size from screening SD: smallest n with z*s/sqrt(n) < min_effect/2",
+            "screening_sd": 0.0,
+            "size": 4,
+            "z": 1.6448536269514715
+          },
+          "suite": {
+            "derivation": {
+              "algorithm": "rsi-exam-gate/hmac-seeds/1",
+              "candidate_method_tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+              "look_index": 1,
+              "max_moves": 10000,
+              "rollout_id": "gated-mode-fixture",
+              "size": 4
+            },
+            "locator": "results/v2/replication/seeds.json",
+            "sha256": "f3953e4239fc1d3fc5466297aacf275142c71a31f0e554bc5405fab1b4354e36"
+          },
+          "timestamp": "2026-09-05T12:00:00+00:00",
+          "verdict": "inconclusive",
+          "version_id": "v2"
+        },
+        {
+          "candidate_method_tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+          "confirm_policy": "always",
+          "direction": "higher",
+          "disposition": "revert",
+          "estimate": 0.0,
+          "evidence": [
+            {
+              "locator": "results/v2/replication/parent_result.json",
+              "role": "parent",
+              "sha256": "a20e46596e8eeb8cd883b7be6acc337f5d1997c91b372ea079b9eb386044813a"
+            },
+            {
+              "locator": "results/v2/replication/candidate_result.json",
+              "role": "candidate",
+              "sha256": "a20e46596e8eeb8cd883b7be6acc337f5d1997c91b372ea079b9eb386044813a"
+            },
+            {
+              "locator": "results/v2/replication/parent_result.receipt.json",
+              "role": "receipt-parent",
+              "sha256": "eae5e8d5d95686c43439b1ac2a3986d9f605a53d934dd14dc0db3925e43a13b4"
+            },
+            {
+              "locator": "results/v2/replication/candidate_result.receipt.json",
+              "role": "receipt-candidate",
+              "sha256": "eae5e8d5d95686c43439b1ac2a3986d9f605a53d934dd14dc0db3925e43a13b4"
+            }
+          ],
+          "evidence_digests": {
+            "candidate": "sha256:a20e46596e8eeb8cd883b7be6acc337f5d1997c91b372ea079b9eb386044813a",
+            "parent": "sha256:a20e46596e8eeb8cd883b7be6acc337f5d1997c91b372ea079b9eb386044813a",
+            "receipt-candidate": "sha256:eae5e8d5d95686c43439b1ac2a3986d9f605a53d934dd14dc0db3925e43a13b4",
+            "receipt-parent": "sha256:eae5e8d5d95686c43439b1ac2a3986d9f605a53d934dd14dc0db3925e43a13b4"
+          },
+          "holdout": null,
+          "interval": {
+            "level": 0.9,
+            "lower": 0.0,
+            "upper": 0.0
+          },
+          "kind": "confirmation",
+          "log_line": 2,
+          "look_index": 1,
+          "method": {
+            "algorithm": "rsi-exam-gate/percentile-bootstrap/1",
+            "name": "percentile_bootstrap",
+            "resamples": 5000,
+            "seed": 20260902
+          },
+          "min_effect": 51.5,
+          "parent_id": "v1",
+          "parent_method_tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+          "profile_sha256": "16c26c9c2348fcc8a88544aa04a22fdc5e8595ee43709bfc8069c2aea02a1c77",
+          "replicates": "v2",
+          "resolves_log_line": 1,
+          "sample_size": 4,
+          "sizing": {
+            "cap": 8,
+            "exploratory": false,
+            "floor": 4,
+            "planned": 4,
+            "rule": "normal-approximation planning size from screening SD: smallest n with z*s/sqrt(n) < min_effect/2",
+            "screening_sd": 0.0,
+            "size": 4,
+            "z": 1.6448536269514715
+          },
+          "suite": {
+            "derivation": {
+              "algorithm": "rsi-exam-gate/hmac-seeds/1",
+              "candidate_method_tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+              "look_index": 1,
+              "max_moves": 10000,
+              "rollout_id": "gated-mode-fixture",
+              "size": 4
+            },
+            "locator": "results/v2/replication/seeds.json",
+            "sha256": "f3953e4239fc1d3fc5466297aacf275142c71a31f0e554bc5405fab1b4354e36"
+          },
+          "timestamp": "2026-09-05T12:05:00+00:00",
+          "verdict": "inconclusive",
+          "version_id": "v2"
+        }
+      ],
+      "log": {
+        "line": 4
+      },
+      "ordinal": 2,
+      "parent_ids": [
+        "v1"
+      ],
+      "status": "reverted",
+      "version_id": "v2",
+      "visible": {
+        "recorded_in": "experiment_log",
+        "score": 2060.0
+      }
+    }
+  ]
+}
