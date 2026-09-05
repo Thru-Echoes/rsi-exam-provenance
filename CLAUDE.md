@@ -31,9 +31,10 @@ profile/verify_capsule.py      offline verifier for a record
 fixtures/valid/                a harbor-shaped job directory with its golden record
 fixtures/task2048/             the 2048 task's evaluator, engine, seed file, and starter policy at the pinned revision (MIT; see NOTICE), plus a variant policy
 tests/                         unittest suites (run: python3 -m unittest discover -s tests -t .)
+tests/conformance/             the normative vectors that hold the three implementations together
 docs/                          overview, contract, profile, roadmap, run report
 docs/figures/                  the SVG figures and make_figures.py, which regenerates them
-report/                        the decision-evidence report generator (planned)
+report/decision_report.py     the decision-evidence report: one row per decision, with its limits
 ```
 
 ## Rules that hold everywhere in this repository
