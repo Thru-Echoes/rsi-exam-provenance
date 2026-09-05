@@ -146,17 +146,19 @@ design; see `docs/overview.md`, section 7.
 
 ## Changes to propose in ProofPress
 
+All three are proposed; the version acceptance is merged.
+
 Small, self-contained pull requests, each explaining the failure mode it closes:
 
-1. **Fixture correction.** The adapter's example document
-   (`examples/verified-knowledge-ledger/demo.trace-confidence.json`) predates this contract: it
-   carries an earlier worked-example interval, the method name `paired_bootstrap`, and the
-   labels `parent_results` / `candidate_results`. Regenerating it from this repository's converter
-   makes the de facto example match the producer.
-2. **Additive-tolerance guard.** A test that a `confidence` block carrying the full contract (all
-   thirteen keys) imports and projects to the same four keys, so a future adapter change cannot
-   silently start rejecting the fuller record; one line in the adapter's documentation naming the
-   `contract` key as the extension identifier.
+1. ~~**Fixture correction.** The adapter's example document predates this contract, carrying an
+   earlier worked-example interval, the method name `paired_bootstrap`, and the labels
+   `parent_results` / `candidate_results`.~~ Regenerated from this repository's converter in
+   ProofPress pull request 123.
+2. ~~**Additive-tolerance guard.** A test that a `confidence` block carrying the full contract
+   imports and projects to the same four keys, so a future adapter change cannot silently start
+   rejecting the fuller record; one line in the adapter's documentation naming the `contract` key
+   as the extension identifier.~~ Both in ProofPress pull request 123; the regenerated example
+   carries twenty keys, which is what makes the guard real.
 3. ~~**Version acceptance** for TRACE 0.5.1 alongside 0.5.0, with a per-version release commit
    and schema digest.~~ Merged as `0c6d26f`; `docs/RUN_REPORT.md` records the chain running end to
    end against it.
