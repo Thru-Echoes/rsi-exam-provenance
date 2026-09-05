@@ -68,14 +68,27 @@ class TestMethodTreeDigest(unittest.TestCase):
                 target.unlink()
         self.assertEqual(treedigest.method_files(self.root), ["policy.py", "sub/helper.py"])
 
-    def test_symlinks_are_refused_even_under_excluded_names(self) -> None:
+    def test_a_symlink_is_refused_unless_the_grader_would_have_skipped_it(self) -> None:
+        """The grader's tests/policy_sandbox.py skips __pycache__ paths and .pyc / .pyo files
+        before it tests for a symlink, so a symlink it would never look at is not an error.
+
+        This test previously asserted the opposite, which was written before the grader was read.
+        A symlink named `cache.pyc` is skipped by the grader and is skipped here.
+        """
         os.symlink(self.root / "policy.py", self.root / "link.py")
         with self.assertRaises(treedigest.TreeDigestError):
             treedigest.method_tree_sha256(self.root)
         (self.root / "link.py").unlink()
+
+        before = treedigest.method_tree_sha256(self.root)
         os.symlink(self.root / "policy.py", self.root / "cache.pyc")
-        with self.assertRaises(treedigest.TreeDigestError):
-            treedigest.method_tree_sha256(self.root)
+        self.assertEqual(treedigest.method_tree_sha256(self.root), before)
+        (self.root / "cache.pyc").unlink()
+
+        cache = self.root / "__pycache__"
+        cache.mkdir()
+        os.symlink(self.root / "policy.py", cache / "shim.py")
+        self.assertEqual(treedigest.method_tree_sha256(self.root), before)
 
     def test_missing_and_empty_trees_are_refused(self) -> None:
         with self.assertRaises(treedigest.TreeDigestError):

@@ -47,6 +47,7 @@ Checker = Callable[[Any, str, Errors], None]
 EXCLUDED_DIR = "__pycache__"
 EXCLUDED_SUFFIXES = (".pyc", ".pyo")
 EXPECTED_EXCLUSIONS = ["__pycache__/", "*.pyc", "*.pyo"]
+MAX_SOURCE_BYTES = 10_000_000      # the grader's cap on the total staged policy source
 
 
 def _add(errors: Errors, code: str) -> None:
@@ -97,23 +98,21 @@ def tree_digest(path: Path) -> str:
 def method_files(path: Path) -> list[str]:
     """Sorted POSIX relpaths of the ``.py`` files a method-tree digest covers.
 
-    Mirrors the producer: files the grader would not stage are skipped, and the cases where the
-    staged set cannot be known are refused (a symlink, anything that is not a regular file, and a
-    ``.py`` file under ``__pycache__``). Raises ValueError; no side effects.
+    Mirrors the producer, which mirrors the grader's own ``tests/policy_sandbox.py``: anything
+    under ``__pycache__`` and anything suffixed ``.pyc`` or ``.pyo`` is skipped before any other
+    test, so a ``.py`` file there is not staged and not an error; a symlink and anything that is
+    not a regular file are refused. Raises ValueError; no side effects.
     """
     if path.is_symlink():
         raise ValueError(f"symlink:{path.name}")
     rels: list[str] = []
     for child in path.rglob("*"):
         rel = child.relative_to(path)
+        if EXCLUDED_DIR in rel.parts or child.suffix in EXCLUDED_SUFFIXES:
+            continue
         if child.is_symlink():
             raise ValueError(f"symlink:{rel.as_posix()}")
         if child.is_dir():
-            continue
-        cached = EXCLUDED_DIR in rel.parts
-        if cached and child.suffix == ".py":
-            raise ValueError(f"source_in_cache_dir:{rel.as_posix()}")
-        if cached or child.suffix in EXCLUDED_SUFFIXES:
             continue
         if not child.is_file():
             raise ValueError(f"not_a_regular_file:{rel.as_posix()}")
@@ -1219,6 +1218,12 @@ def _check_final_submission(root: Path, data: dict[str, Any], errors: Errors) ->
         and (path / rel).suffix != ".py")
     if stray:
         _add(errors, f"protocol:submission_not_stageable:{stray[0]}")
+    staged = sum((path / rel).stat().st_size
+                 for rel in (c.relative_to(path) for c in path.rglob("*"))
+                 if (path / rel).is_file() and (path / rel).suffix == ".py"
+                 and EXCLUDED_DIR not in rel.parts)
+    if staged > MAX_SOURCE_BYTES:
+        _add(errors, f"protocol:submission_too_large:{staged}")
 
 
 def _check_log_lines(log_path: Path, versions: list[dict[str, Any]],
