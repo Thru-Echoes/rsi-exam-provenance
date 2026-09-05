@@ -1,4 +1,4 @@
-# Run report: gate, converter, and ProofPress import on a demo lineage (2026-09-04)
+# Run report: gate, converter, and ProofPress import on a demo lineage (2026-09-05)
 
 Scope: a local proof that the decision gate, the decision-log to TRACE converter, TRACE 0.5.1
 validation, and the ProofPress evidence adapter fit together. Everything below ran on one machine
@@ -10,7 +10,11 @@ TRACE released the typed `confidence` model as 0.5.1, ProofPress widened its exa
 accept 0.5.0 and 0.5.1, and this converter now stamps `0.5.1`. Every interval, disposition, and
 digest below reproduces the earlier run; what changed is the declared version and what the consumer
 accepts. The gate also now requires an explicit `--confirm inconclusive` in replay mode, which the
-earlier commands predate.
+2026-09-02 commands predate.
+
+The 2026-09-04 run recorded here previously was made against the ProofPress branch that carried the
+version acceptance, because it had not merged yet. It has now: this run is against ProofPress
+`main`, and it is the first time the three repositories have run end to end at the same pins.
 
 ## What this report does and does not establish
 
@@ -41,11 +45,11 @@ Does not establish:
 - TRACE at release `v0.5.1`, commit `a97d4e81fb3b4ec5134e992882d28a6cf97fac04`, whose
   `trace-v0.5.json` has SHA-256
   `ce7b5bf03b31ab669d12018b0d64fa2421d03b7e7ab2da156f98581e4d62c544`.
-- ProofPress at `feature/trace-version-acceptance` (pull request 122), commit `56494d0`, used via
-  `PYTHONPATH=<tree>/src python3 -m proofpress.cli`. That branch is what adds 0.5.1 to the adapter's
-  accepted versions; the import below is refused by ProofPress `main` until it merges.
-- Repository state: `9f48fa0` plus the version-stamp change; `python3 -m unittest discover -s tests
-  -t .` prints `Ran 148 tests` and `OK`; `pyright` on the changed files reports 0 errors.
+- ProofPress `main` at `0c6d26f`, the merge of pull request 122, used via
+  `PYTHONPATH=<tree>/src python3 -m proofpress.cli`. That is the commit that added 0.5.1 to the
+  adapter's accepted versions.
+- Repository state: `346ec53`; `python3 -m unittest discover -s tests -t .` prints `Ran 255
+  tests` and `OK`; `pyright` on `profile/`, `report/` and the tests reports 0 errors.
 
 ## Lineage
 
@@ -61,11 +65,11 @@ Result files in the exact shape of the task's `selfcheck.py` output (`instances[
 ## Commands and outputs
 
 ```
-$ DECIDE_FIXED_TIMESTAMP=2026-09-04T21:01:00+00:00 python3 gate/decide.py --methods $M \
+$ DECIDE_FIXED_TIMESTAMP=2026-09-05T04:01:00+00:00 python3 gate/decide.py --methods $M \
     --version v2 --parent v1 --confirm inconclusive
 verdict below, disposition revert, interval {level: 0.9, lower: -382.5, upper: -258.75}
 
-$ DECIDE_FIXED_TIMESTAMP=2026-09-04T21:02:00+00:00 python3 gate/decide.py --methods $M \
+$ DECIDE_FIXED_TIMESTAMP=2026-09-05T04:02:00+00:00 python3 gate/decide.py --methods $M \
     --version v3 --parent v1 --confirm inconclusive
 verdict inconclusive, disposition provisional, interval {level: 0.9, lower: -30.0, upper: 583.75}
 
@@ -73,7 +77,7 @@ $ python3 gate/decide.py --methods $M --version v4 --parent v3 --confirm inconcl
 gate refused: parent v3 carries an unreplicated provisional decision (line 2); replicate it before building on it
 exit=3
 
-$ DECIDE_FIXED_TIMESTAMP=2026-09-04T21:03:00+00:00 python3 gate/decide.py --methods $M \
+$ DECIDE_FIXED_TIMESTAMP=2026-09-05T04:03:00+00:00 python3 gate/decide.py --methods $M \
     --version v3 --parent v1 --replicates v3 --confirm inconclusive
 verdict clears, disposition keep, interval {level: 0.9, lower: 467.5, upper: 575.0}, replicates v3
 
@@ -99,7 +103,7 @@ $ python3 - trace_session.json   # Session.model_validate -> model_dump_json, TR
 confidence present after typed round-trip: [True, True, True] | byte-equal blocks: [True, True, True]
 
 $ PYTHONPATH=$PP python3 -m proofpress.cli evidence import trace_session.json      # inside a fresh git repository
-{'ok': True, 'events_added': 6, 'evidence': ['evd_641cbeb88d420f1a', 'evd_697ed809289483a0', 'evd_f405c76327dfa4b4']}
+{'ok': True, 'events_added': 6, 'evidence': ['evd_39b12bb5b91a6c50', 'evd_3fddc6c91e67c9f0', 'evd_48169c64cf58d481']}
 
 $ PYTHONPATH=$PP python3 -m proofpress.cli evidence import trace_session.json      # second import
 events_added 6 | evidence 3        # the ledger does not grow
@@ -133,7 +137,10 @@ proofpress: error: immutable source_recorded conflict for src_8156a6c441184e3c
 2. The `trace_version` pin is still exact; it is now a two-entry allowlist rather than one value,
    and each entry names the upstream release commit and that release's schema digest. An unpinned
    version is refused before any event field is projected. The next TRACE release needs the same
-   coordination, in the same order: consumer first, producer second.
+   coordination, in the same order: consumer first, producer second. That order was not held on this
+   one. The converter's stamp merged before the consumer's acceptance did, so for part of a day this
+   repository emitted documents ProofPress `main` refused. Nothing was lost, because no rollout was
+   running, but the window was real and the next release should not have one.
 3. A session already imported under one `trace_version` cannot be re-imported under another. The
    identities are unchanged but the recorded content is not, so the immutable source rule refuses
    it. This is the right behavior and it means the version stamp is a property of a converted

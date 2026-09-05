@@ -12,7 +12,7 @@ one branch and pull request per task, tests and pyright clean before every push.
 | Provenance record: schema, producer, verifier, fixtures (`profile/`) | Built, profile v3 | Cache-free method-tree identity, the decision log carried and checked against its own bytes, every interval recomputed from its evidence, and all fourteen of the contract's section 4 checks. |
 | Decision gate (`gate/decide.py`) and its modules | Built, 91 tests | Gated mode with a task profile, freezing, confirmation planning, fresh-suite derivation (`gate/seeds.py`), the evaluation runner with receipts (`gate/evaluate_suite.py`), cache-free method-tree digests (`gate/treedigest.py`), and the restore helper (`gate/restore.py`). Replay mode for shadow replay and fixtures. |
 | TRACE converter (`gate/trace_from_decisions.py`) | Built, 17 tests | Re-checks every contract rule, including the gated ones, and carries the gated fields as extras. Output validates under the TRACE 0.5.1 typed models and schema and round-trips with every producer key preserved. |
-| ProofPress import | Verified on fixture data | The evidence adapter accepts the document, keeps four fields, refuses a malformed interval, and is idempotent (`docs/RUN_REPORT.md`). |
+| ProofPress import | Verified on fixture data against `main` | The evidence adapter accepts the 0.5.1 document, keeps four fields, refuses a malformed interval and an unpinned version, and is idempotent (`docs/RUN_REPORT.md`). |
 | Decision-evidence report (`report/`) | Built | One row per decision from the record and the verifier's output, with the limits printed beside the table. |
 | Real rollout | Not yet | Needs Docker and a model key in the harness; first a short baseline run to observe the real job layout. |
 
@@ -131,10 +131,13 @@ design; see `docs/overview.md`, section 7.
 - **Version pin path.** TRACE released the typed model as 0.5.1 (release `v0.5.1`, commit
   `a97d4e81fb3b4ec5134e992882d28a6cf97fac04`, schema digest
   `ce7b5bf03b31ab669d12018b0d64fa2421d03b7e7ab2da156f98581e4d62c544`), ProofPress widened its exact
-  version pin to accept 0.5.0 and 0.5.1 with a per-version release commit and schema digest, and
-  the converter now stamps `0.5.1`. That order is load-bearing: ProofPress refuses an unpinned
-  version before projecting any event field, so a producer that stamps ahead of the consumer stops
-  importing.
+  version pin to accept 0.5.0 and 0.5.1 with a per-version release commit and schema digest
+  (`chenmingtang830/proofpress` `0c6d26f`), and the converter now stamps `0.5.1`. That order is
+  load-bearing: ProofPress refuses an unpinned version before projecting any event field, so a
+  producer that stamps ahead of the consumer stops importing. On this release the order was not
+  held. The converter's stamp merged before the consumer's acceptance did, and for part of a day
+  this repository emitted documents ProofPress `main` refused. Nothing was lost because no rollout
+  was running; the next release should have no such window.
 - **Re-emitting a session under a changed stamp.** ProofPress records an imported session by
   identity and fails closed when the same session and event identities come back with changed
   content, so a document already imported under one `trace_version` cannot be re-imported under
@@ -154,8 +157,9 @@ Small, self-contained pull requests, each explaining the failure mode it closes:
    thirteen keys) imports and projects to the same four keys, so a future adapter change cannot
    silently start rejecting the fuller record; one line in the adapter's documentation naming the
    `contract` key as the extension identifier.
-3. **Version acceptance** for TRACE 0.5.1 alongside 0.5.0, with a per-version release commit
-   and schema digest (see the pin path above).
+3. ~~**Version acceptance** for TRACE 0.5.1 alongside 0.5.0, with a per-version release commit
+   and schema digest.~~ Merged as `0c6d26f`; `docs/RUN_REPORT.md` records the chain running end to
+   end against it.
 
 ## Upstream
 
