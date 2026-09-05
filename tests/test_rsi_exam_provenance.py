@@ -495,14 +495,30 @@ class MethodTreeIdentityTests(FixtureCase):
         (job / METHODS / "main/policy.py").unlink()
         self.assert_producer_error("empty_submission", job, task)
 
-    def test_python_source_under_a_cache_directory_is_refused(self):
-        """Bytecode there is ignored, but source there may or may not be staged, and a digest must
-        not silently drop a file that might be."""
+    def test_python_source_under_a_cache_directory_is_skipped_as_the_grader_skips_it(self):
+        """The grader's tests/policy_sandbox.py skips anything with __pycache__ in its path parts
+        before it tests anything else, so a .py file there is never staged. An earlier version of
+        this refused such a tree, which was a guess made before the grader was read."""
         job, task = self.materialize()
-        cache = job / METHODS / "versions/v2/__pycache__"
+        target = job / METHODS / "versions/v2"
+        before = PRODUCER.method_tree_digest(target)
+        cache = target / "__pycache__"
         cache.mkdir()
         (cache / "shim.py").write_text("x = 1\n", encoding="utf-8")
-        self.assert_producer_error("source_in_cache_dir:v2/__pycache__/shim.py", job, task)
+        self.assertEqual(PRODUCER.method_tree_digest(target), before)
+        self.assertEqual(VERIFIER.method_tree_digest(target), before)
+        capsule = self.build(job, task)          # and the record still builds
+        self.assertEqual(capsule["final_submission"]["version_ids"], ["v3"])
+
+    def test_a_submission_over_the_graders_size_cap_is_refused(self):
+        """tests/policy_sandbox.py refuses to stage more than ten megabytes of source, so such a
+        tree has no score to record."""
+        job, task = self.materialize()
+        (job / METHODS / "main/bulk.py").write_text("# " + "x" * 10_000_001, encoding="utf-8")
+        with self.assertRaises(SystemExit) as caught:
+            self.build(job, task)
+        self.assertTrue(str(caught.exception).startswith("producer_error: submission_too_large:"),
+                        caught.exception)
 
     def test_a_file_that_is_not_a_regular_file_is_refused(self):
         job, task = self.materialize()

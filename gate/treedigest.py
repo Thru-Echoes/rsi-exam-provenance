@@ -4,9 +4,10 @@
 Exports ``file_sha256(path)``, ``method_files(root)``, and ``method_tree_sha256(root)``. A method
 tree is what the RSI-Exam grader stages from ``methods/main/``: regular ``.py`` files only. This
 module applies the same rules the grader's ``policy_sandbox.py`` applies before it copies a tree:
-a symlink anywhere is refused; a regular file that is not ``.py`` is refused (the grader scores such
-a submission 0.0); ``__pycache__`` directories and ``*.pyc`` / ``*.pyo`` files are ignored because
-they drift on every import. The digest is SHA-256 over the lines
+``__pycache__`` directories and ``*.pyc`` / ``*.pyo`` files are ignored first, because they drift
+on every import and because the grader skips them before it tests anything else; then a symlink is
+refused, and a regular file that is not ``.py`` is refused (the grader raises on it, and such a
+submission scores 0.0). The ordering is the grader's: nothing under ``__pycache__`` can raise. The digest is SHA-256 over the lines
 ``<sha256 of file><two spaces><posix relpath>\\n`` sorted by relpath, the same line format the
 provenance record uses for full-tree digests, so a Python-only tree without caches has the same
 digest under both. Pure functions; no side effects; standard library only.
@@ -42,10 +43,12 @@ def method_files(root: Path) -> list[str]:
     rels: list[str] = []
     for child in root.rglob("*"):
         rel = child.relative_to(root)
-        if child.is_symlink():
-            raise TreeDigestError(f"method tree contains a symlink: {rel.as_posix()}")
+        # Exclusions first, in the grader's own order: it skips these before it tests anything
+        # else, so nothing under __pycache__ can raise.
         if EXCLUDED_DIR in rel.parts or child.suffix in EXCLUDED_SUFFIXES:
             continue
+        if child.is_symlink():
+            raise TreeDigestError(f"method tree contains a symlink: {rel.as_posix()}")
         if child.is_dir():
             continue
         if child.suffix != ".py":

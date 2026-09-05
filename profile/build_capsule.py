@@ -45,6 +45,7 @@ DECISION_KEYS = ("version_id", "parent_id", "replicates", "timestamp", "directio
 EXCLUSIONS = ("__pycache__/", "*.pyc", "*.pyo")
 EXCLUDED_DIR = "__pycache__"
 EXCLUDED_SUFFIXES = (".pyc", ".pyo")
+MAX_SOURCE_BYTES = 10_000_000      # the grader's cap on the total staged policy source
 VERSION_DIR = re.compile(r"^v[0-9]+$")
 VERSION_TOKEN = re.compile(r"\bv[0-9]+\b")
 SCORE_TOKEN = re.compile(r"scores?\s*[:=]?\s*(-?[0-9]+(?:\.[0-9]+)?)", re.IGNORECASE)
@@ -87,10 +88,14 @@ def method_files(path: Path) -> list[str]:
     """Sorted POSIX relpaths of the ``.py`` files a method-tree digest covers.
 
     This is digest construction, not submission validation: files the grader would not stage are
-    skipped, not refused, so a snapshot that carries a note is still recordable. Refused instead
-    are the cases where the staged set cannot be known: a symlink, anything that is not a regular
-    file, and a ``.py`` file under ``__pycache__`` (bytecode there is ignored, but source there
-    may or may not be staged, and a digest must not silently drop a file that might be).
+    skipped, not refused, so a snapshot that carries a note is still recordable. Refused are the
+    cases where the tree cannot be read at all: a symlink, or something that is not a regular file.
+
+    The rules are the grader's, read from the task's own `tests/policy_sandbox.py` at the pinned
+    revision: it skips anything with ``__pycache__`` in its path parts and anything suffixed
+    ``.pyc`` or ``.pyo`` **before** any other test, refuses a symlink, and refuses any remaining
+    file that is not a regular ``.py``. Skipping comes first, so a ``.py`` file under
+    ``__pycache__`` is not staged and not an error.
 
     ``assert_stageable`` carries the rule that decides whether a tree is a valid submission.
     Raises ProducerError; no side effects.
@@ -100,14 +105,13 @@ def method_files(path: Path) -> list[str]:
     rels: list[str] = []
     for child in path.rglob("*"):
         rel = child.relative_to(path)
+        # Exclusions first, in the grader's own order: it skips these before it tests anything
+        # else, so nothing under __pycache__ can raise.
+        if EXCLUDED_DIR in rel.parts or child.suffix in EXCLUDED_SUFFIXES:
+            continue
         if child.is_symlink():
             raise ProducerError(f"symlink:{rel.as_posix()}")
         if child.is_dir():
-            continue
-        cached = EXCLUDED_DIR in rel.parts
-        if cached and child.suffix == ".py":
-            raise ProducerError(f"source_in_cache_dir:{path.name}/{rel.as_posix()}")
-        if cached or child.suffix in EXCLUDED_SUFFIXES:
             continue
         if not child.is_file():
             raise ProducerError(f"not_a_regular_file:{path.name}/{rel.as_posix()}")
@@ -134,24 +138,29 @@ def method_tree_digest(path: Path) -> str:
 def assert_stageable(path: Path) -> None:
     """Refuse a tree the grader would not accept as a submission.
 
-    The grader stages ``.py`` files only and scores a submission carrying any other regular file
-    0.0, so such a tree has no digest it would honour. Applied to ``main/`` alone: a snapshot that
-    is not stageable is still a fact worth recording. Raises ProducerError; no side effects.
+    The grader stages ``.py`` files only, refuses a tree carrying any other regular file, and
+    refuses one whose staged source exceeds ten megabytes. Applied to ``main/`` alone: a snapshot
+    that is not stageable is still a fact worth recording. Raises ProducerError; no side effects.
     """
     stray = []
     found_python = False
+    total = 0
     for child in path.rglob("*"):
         rel = child.relative_to(path)
         if child.is_dir() or EXCLUDED_DIR in rel.parts or child.suffix in EXCLUDED_SUFFIXES:
             continue
         if child.suffix == ".py":
             found_python = True
+            total += child.stat().st_size
         else:
             stray.append(rel.as_posix())
     if stray:
         raise ProducerError(f"non_python_in_submission:{sorted(stray)[0]}")
     if not found_python:
         raise ProducerError("empty_submission")
+    if total > MAX_SOURCE_BYTES:
+        # The grader refuses to stage more than this, so such a tree has no score to record.
+        raise ProducerError(f"submission_too_large:{total}")
 
 
 def _reject_constant(token: str) -> Any:

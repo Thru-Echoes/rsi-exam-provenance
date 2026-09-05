@@ -91,11 +91,17 @@ under another profile, is refused.
   `candidate_method_tree_sha256`, `look_index`, `size`, and `max_moves`.
 
 **Method-tree digest.** SHA-256 over the lines `<sha256 of file><two spaces><posix relpath>\n`,
-sorted by relpath, over the `.py` files under the directory, skipping any path with a `__pycache__`
-component and any `*.pyc` or `*.pyo` file. A symlink anywhere under the tree is refused, and that
-check runs before the exclusions; a regular file that is not `.py` is refused, because the grader
-refuses it and scores such a submission 0.0. The digest equals the provenance record's full-tree
-digest for a Python-only tree without caches.
+sorted by relpath, over the `.py` files under the directory.
+
+The rules and their order are the grader's, read from `tests/policy_sandbox.py` in the task at the
+pinned dataset revision. Its `_stage_policy` skips any path with a `__pycache__` component and any
+`*.pyc` or `*.pyo` file **first**, then refuses a symlink, then refuses any remaining file that is
+not a regular `.py`, and caps the staged source at 10 MB in total. Two consequences follow from the
+ordering, and both matter: a `.py` file under `__pycache__` is not staged and is not an error, and
+neither is a symlink there. A regular non-`.py` file elsewhere in the tree is refused, because the
+grader refuses it and such a submission scores 0.0.
+
+The digest equals the provenance record's full-tree digest for a Python-only tree without caches.
 
 **Task profile** (`rsi-exam-gate-profile/v1`, `gate/task_profile.py`). One file per rollout,
 mounted with the gate scripts, never under `main/` or `versions/`. Keys: `schema`, `task`,
