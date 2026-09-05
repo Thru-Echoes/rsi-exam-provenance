@@ -929,5 +929,215 @@ class DecisionRecordTests(FixtureCase):
         self.assertIn("file:decision_log:digest_mismatch", self.verify(job)["errors"])
 
 
+class RecomputedMeasurementTests(FixtureCase):
+    """The verifier redoes each decision's interval from the files the decision rests on."""
+
+    def materialize_gated(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name)
+        shutil.copytree(GATED_ROOT, root, dirs_exist_ok=True)
+        return root / "job", root / "task"
+
+    @staticmethod
+    def decision(data, version_id, index=0):
+        return next(v for v in data["versions"]
+                    if v["version_id"] == version_id)["decisions"][index]
+
+    def test_the_gate_and_the_verifier_agree_on_the_interval_algorithm(self):
+        """Two implementations of rsi-exam-gate/percentile-bootstrap/1 that disagree would make the
+        record unverifiable exactly when it mattered."""
+        import random as _random
+        gate = _load("rsi_exam_decide", REPO_ROOT / "gate/decide.py")
+        rng = _random.Random(20260905)
+        for _ in range(25):
+            deltas = [rng.uniform(-500, 500) for _ in range(rng.randint(2, 12))]
+            level = rng.choice([0.8, 0.9, 0.95])
+            resamples = rng.choice([50, 500, 2000])
+            seed = rng.randint(0, 10 ** 6)
+            self.assertEqual(
+                VERIFIER.bootstrap_interval(deltas, level=level, resamples=resamples, seed=seed),
+                gate.bootstrap_interval(deltas, level=level, resamples=resamples, seed=seed))
+
+    def test_the_percentile_index_is_computed_exactly(self):
+        """Through binary floats (1.0 - 0.9) / 2.0 is a shade under 0.05, so the float index at
+        5000 resamples is 249 where the contract says 250. On the eight-seed fixtures the two order
+        statistics coincide, which is why this needs its own test: on realistic suites they do not,
+        and an implementation that indexes in floats reports a different interval every time."""
+        import random as _random
+        from fractions import Fraction
+        self.assertEqual(int(((1.0 - 0.9) / 2.0) * 5000), 249)
+        self.assertEqual(int(((Fraction(1) - Fraction("0.9")) / 2) * 5000), 250)
+
+        def float_indexed(deltas, level, resamples, seed):
+            rng = _random.Random(seed)
+            n = len(deltas)
+            means = sorted(sum(rng.choice(deltas) for _ in range(n)) / n for _ in range(resamples))
+            alpha = (1.0 - level) / 2.0
+            return means[int(alpha * resamples)], means[int((1.0 - alpha) * resamples) - 1]
+
+        rng = _random.Random(1)
+        differed = 0
+        for _ in range(20):
+            deltas = [rng.uniform(-100, 100) for _ in range(rng.randint(20, 40))]
+            seed = rng.randint(1, 10 ** 6)
+            exact = VERIFIER.bootstrap_interval(deltas, level=0.9, resamples=5000, seed=seed)
+            if exact != float_indexed(deltas, 0.9, 5000, seed):
+                differed += 1
+        self.assertEqual(differed, 20)
+
+    def test_a_declared_holdout_that_cannot_be_recomputed_is_reported(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        self.decision(data, "v2")["holdout"] = {"estimate": 1.0}
+        self.save(job, data)
+        self.assertIn("decision:holdout_malformed:v2:1", self.verify(job)["errors"])
+
+    def test_a_repeated_evidence_role_is_refused(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        decision = self.decision(data, "v2")
+        decision["evidence"].append(dict(decision["evidence"][0]))
+        self.save(job, data)
+        self.assertIn("decision:evidence_duplicate_role:v2:1", self.verify(job)["errors"])
+
+    def test_a_consistently_retold_result_still_fails_to_reproduce(self):
+        """The case the check exists for: a score is changed and every digest, the log and the
+        record are updated to agree with it. Nothing contradicts anything, and the interval the gate
+        recorded no longer follows from the numbers."""
+        job, _ = self.materialize_gated()
+        result = job / METHODS / "results/v2/visible_result.json"
+        payload = json.loads(result.read_text(encoding="utf-8"))
+        payload["instances"][0]["score"] += 1000
+        result.write_text(json.dumps(payload), encoding="utf-8")
+        digest = VERIFIER.file_digest(result)
+
+        log = job / METHODS / "decisions.jsonl"
+        lines = [json.loads(text) for text in log.read_text(encoding="utf-8").splitlines()]
+        for line in lines:
+            for reference in line["evidence"]:
+                if reference["locator"] == "results/v2/visible_result.json":
+                    reference["sha256"] = digest
+                    line["evidence_digests"][reference["role"]] = "sha256:" + digest
+        log.write_text("".join(json.dumps(line) + "\n" for line in lines), encoding="utf-8")
+
+        data = self.load(job)
+        data["source"]["decision_log"]["sha256"] = VERIFIER.file_digest(log)
+        for version in data["versions"]:
+            for entry in version.get("decisions", []):
+                source = next(l for l in lines if l["line"] == entry["log_line"])
+                entry["evidence"] = source["evidence"]
+                entry["evidence_digests"] = source["evidence_digests"]
+        self.save(job, data)
+
+        errors = self.verify(job)["errors"]
+        self.assertIn("decision:interval_not_reproducible:v2:1", errors)
+        self.assertIn("decision:estimate_not_reproducible:v2:1", errors)
+
+    def test_an_interval_the_evidence_does_not_give_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        self.decision(data, "v2")["interval"]["lower"] = -382.0
+        self.save(job, data)
+        self.assertIn("decision:interval_not_reproducible:v2:1", self.verify(job)["errors"])
+
+    def test_an_algorithm_this_verifier_cannot_redo_is_reported(self):
+        """Reporting it beats recording the decision as verified when the interval was never redone."""
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        self.decision(data, "v2")["method"]["algorithm"] = "someone-elses/bootstrap/2"
+        self.save(job, data)
+        self.assertIn("decision:interval_algorithm_unsupported:v2:1", self.verify(job)["errors"])
+
+    def test_evidence_that_does_not_match_its_digest_is_flagged(self):
+        job, _ = self.materialize_gated()
+        result = job / METHODS / "results/v2/visible_result.json"
+        result.write_text(result.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+        errors = self.verify(job)["errors"]
+        self.assertIn("decision:evidence_digest_mismatch:v2:1:candidate", errors)
+
+    def test_a_missing_evidence_file_is_flagged(self):
+        job, _ = self.materialize_gated()
+        (job / METHODS / "results/v2/visible_result.json").unlink()
+        self.assertIn("decision:evidence_missing:v2:1:candidate", self.verify(job)["errors"])
+
+    def test_a_digest_map_that_disagrees_with_the_evidence_list_is_flagged(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        self.decision(data, "v2")["evidence_digests"]["parent"] = "sha256:" + "0" * 64
+        self.save(job, data)
+        self.assertIn("decision:evidence_digest_mismatch:v2:1:parent", self.verify(job)["errors"])
+
+    def test_a_logged_score_its_evidence_does_not_support_is_flagged(self):
+        job, _ = self.materialize_gated()
+        log = job / METHODS / "experiment_log.md"
+        log.write_text(log.read_text(encoding="utf-8").replace("score: 3801.25", "score: 940"),
+                       encoding="utf-8")
+        data = self.load(job)
+        self.rebind(job, data, "source.experiment_log.sha256", f"{METHODS}/experiment_log.md")
+        self.save(job, data)
+        self.assertIn("log:score_mismatch:v2", self.verify(job)["errors"])
+
+    def test_a_rounded_logged_score_is_not_a_contradiction(self):
+        """3801.25 printed as 3801 is a rounding, not a different number."""
+        job, _ = self.materialize_gated()
+        log = job / METHODS / "experiment_log.md"
+        log.write_text(log.read_text(encoding="utf-8").replace("score: 3801.25", "score: 3801"),
+                       encoding="utf-8")
+        data = self.load(job)
+        self.rebind(job, data, "source.experiment_log.sha256", f"{METHODS}/experiment_log.md")
+        self.save(job, data)
+        self.assertNotIn("log:score_mismatch:v2", self.verify(job)["errors"])
+
+    def test_evidence_inside_the_policy_tree_is_refused(self):
+        """The grader scores a submission carrying any non-Python file 0.0, so a result file under
+        versions/ zeroes the run the moment that snapshot is restored."""
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        self.decision(data, "v2")["evidence"][1]["locator"] = "versions/v2/visible_result.json"
+        self.save(job, data)
+        self.assertIn("decision:evidence_in_policy_tree:v2:1:candidate", self.verify(job)["errors"])
+
+    def test_unusable_interval_parameters_give_a_stable_error(self):
+        job, _ = self.materialize_gated()
+        data = self.load(job)
+        self.decision(data, "v2")["method"]["resamples"] = None
+        self.save(job, data)
+        self.assertIn("decision:interval_not_reproducible:v2:1:parameters",
+                      self.verify(job)["errors"])
+
+    def test_a_result_file_the_verifier_cannot_read_is_reported(self):
+        for mutation, fragment in (
+            ({"instances": []}, "empty"),
+            ({"instances": [{"seed": 1, "score": 1}, {"seed": 1, "score": 2}]}, "duplicate_seed"),
+            ({"instances": [{"seed": "x", "score": 1}]}, "seed"),
+        ):
+            with self.subTest(fragment=fragment):
+                job, _ = self.materialize_gated()
+                result = job / METHODS / "results/v2/visible_result.json"
+                result.write_text(json.dumps(mutation), encoding="utf-8")
+                data = self.load(job)
+                digest = VERIFIER.file_digest(result)
+                log = job / METHODS / "decisions.jsonl"
+                lines = [json.loads(t) for t in log.read_text(encoding="utf-8").splitlines()]
+                for line in lines:
+                    for reference in line["evidence"]:
+                        if reference["locator"] == "results/v2/visible_result.json":
+                            reference["sha256"] = digest
+                            line["evidence_digests"][reference["role"]] = "sha256:" + digest
+                log.write_text("".join(json.dumps(l) + "\n" for l in lines), encoding="utf-8")
+                data["source"]["decision_log"]["sha256"] = VERIFIER.file_digest(log)
+                for version in data["versions"]:
+                    for entry in version.get("decisions", []):
+                        source = next(l for l in lines if l["line"] == entry["log_line"])
+                        entry["evidence"] = source["evidence"]
+                        entry["evidence_digests"] = source["evidence_digests"]
+                self.save(job, data)
+                errors = self.verify(job)["errors"]
+                self.assertTrue(
+                    any(e.startswith("decision:evidence_unparsable:v2:1:candidate") for e in errors),
+                    errors)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -51,7 +51,7 @@
     ],
     "experiment_log": {
       "locator": "artifacts/app/methods/experiment_log.md",
-      "sha256": "0ddfa3ec10b799335b36aae1a816cd69bc12012a776664ee3c3351a9e27ca7be"
+      "sha256": "92de8c6c3b84dbef1d146ca2aa2e02fa9ecf209d21d28d2c848fc6db20e77293"
     },
     "trajectory": {
       "format": "ATIF",
@@ -79,7 +79,7 @@
       "version_id": "v1",
       "visible": {
         "recorded_in": "experiment_log",
-        "score": 1180.0
+        "score": 4120.0
       }
     },
     {
@@ -151,7 +151,7 @@
       "version_id": "v2",
       "visible": {
         "recorded_in": "experiment_log",
-        "score": 940.0
+        "score": 3801.25
       }
     },
     {
@@ -273,7 +273,7 @@
       "version_id": "v3",
       "visible": {
         "recorded_in": "experiment_log",
-        "score": 1560.0
+        "score": 4380.0
       }
     }
   ]
