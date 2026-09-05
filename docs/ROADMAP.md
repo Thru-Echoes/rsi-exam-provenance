@@ -54,8 +54,11 @@ document updated in the same pull request; pyright clean.
 ## Milestone 2: the record, the verifier, the report (built)
 
 Status: the producer, the verifier's checks, the golden fixtures, the conformance matrix and
-the report are built. What remains for a real rollout belongs to Milestone 3: a gated-mode
-fixture whose gated fields are not null, and the run report regenerated on a real record.
+the report are built. Three fixtures cover the three shapes a rollout takes: `fixtures/valid`
+for a rollout that ran no gate, `fixtures/gated` for replay mode, and `fixtures/gated_mode`
+for a rollout the gate really ran in gated mode, with the runner's own receipts and every
+gated field a value rather than a null. What remains belongs to Milestone 3: the run report
+regenerated on a real record.
 
 **Producer** (`profile/build_capsule.py`): method-tree digest per snapshot and for `main/`
 excluding `__pycache__/`, `*.pyc`, `*.pyo` (`source.exclusions` recorded; full tree digest

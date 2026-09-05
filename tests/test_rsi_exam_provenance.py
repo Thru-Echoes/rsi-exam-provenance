@@ -19,6 +19,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 STUDY = REPO_ROOT / "profile"
 FIXTURE_ROOT = REPO_ROOT / "fixtures/valid"
 GATED_ROOT = REPO_ROOT / "fixtures/gated"
+GATED_MODE_ROOT = REPO_ROOT / "fixtures/gated_mode"
 
 
 def _load(name, path):
@@ -1235,15 +1236,30 @@ class ReceiptTests(FixtureCase):
         self.save(job, data)
         self.assertIn("receipt:mismatch:v2:1:receipt-parent:profile", self.verify(job)["errors"])
 
-    def test_a_receipt_for_another_suite_is_flagged(self):
-        """The right policy measured on the wrong suite measures something else entirely."""
+    def test_a_confirmation_receipt_for_another_suite_is_flagged(self):
+        """The right policy measured on the wrong suite measures something else entirely. Only a
+        confirmation's receipts are about the derived suite: a screening's `suite` names the suite
+        the gate derived for the confirmation to come, not the one the screening ran on."""
         job, _ = self.materialize_gated()
         data = self.load(job)
-        entry = self.gated_decision(job, data)
-        entry["suite"] = {"locator": "gate/suites/s1.json", "sha256": "f" * 64,
+        version = next(v for v in data["versions"] if v["version_id"] == "v3")
+        entry = version["decisions"][1]
+        entry["confirm_policy"] = "always"
+        entry["suite"] = {"locator": "results/v3/replication/seeds.json", "sha256": "f" * 64,
                           "derivation": {"algorithm": "rsi-exam-gate/hmac-seeds/1"}}
+        from tests.gate_fixtures import write_receipt
+        for role, result_role in (("receipt-parent", "parent"), ("receipt-candidate", "candidate")):
+            reference = next(r for r in entry["evidence"] if r["role"] == result_role)
+            receipt_path = write_receipt(job / METHODS / reference["locator"],
+                                         profile_sha="a" * 64, policy_digest="b" * 64,
+                                         suite_sha="c" * 64, games=8)
+            digest = VERIFIER.file_digest(receipt_path)
+            entry["evidence"].append({
+                "role": role, "sha256": digest,
+                "locator": reference["locator"][: -len(".json")] + ".receipt.json"})
+            entry["evidence_digests"][role] = "sha256:" + digest
         self.save(job, data)
-        self.assertIn("receipt:mismatch:v2:1:receipt-parent:suite", self.verify(job)["errors"])
+        self.assertIn("receipt:mismatch:v3:3:receipt-parent:suite", self.verify(job)["errors"])
 
     def test_a_receipt_that_is_not_a_receipt_is_flagged(self):
         job, _ = self.materialize_gated()
@@ -1404,6 +1420,94 @@ class DecisionRuleTests(FixtureCase):
         self.rebind(job, data, "source.experiment_log.sha256", f"{METHODS}/experiment_log.md")
         self.save(job, data)
         self.assertIn("protocol:action_contradiction:v2", self.verify(job)["errors"])
+
+
+class GatedModeFixtureTests(FixtureCase):
+    """A rollout the gate really ran in gated mode: every gated field is a value, not a null, and
+    every receipt is one the runner wrote."""
+
+    GATED_KEYS = ("confirm_policy", "profile_sha256", "look_index", "parent_method_tree_sha256",
+                  "candidate_method_tree_sha256", "sizing", "suite")
+
+    def materialize_gated_mode(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name)
+        shutil.copytree(GATED_MODE_ROOT, root, dirs_exist_ok=True)
+        return root / "job", root / "task"
+
+    @staticmethod
+    def decisions(capsule):
+        return sorted((entry for version in capsule["versions"]
+                       for entry in version.get("decisions", [])),
+                      key=lambda entry: entry["log_line"])
+
+    def test_the_gated_mode_fixture_verifies_with_complete_coverage(self):
+        job, _ = self.materialize_gated_mode()
+        result = self.verify(job, require_complete=True)
+        self.assertEqual(result["errors"], [])
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["coverage"], "complete")
+
+    def test_the_producer_regenerates_the_committed_gated_mode_capsule(self):
+        job, task = self.materialize_gated_mode()
+        golden = (GATED_MODE_ROOT / "job/capsule.json").read_text(encoding="utf-8")
+        capsule = PRODUCER.build_capsule(job, task, "0.1@bc36dadb405b",
+                                         "fixture-gated-mode-001", None, None, [])
+        self.assertEqual(json.dumps(capsule, indent=2, sort_keys=True) + "\n", golden)
+
+    def test_no_gated_field_is_null(self):
+        """The reason this fixture exists: in fixtures/gated every one of these is null, so the
+        checks that read them had nothing real to read."""
+        capsule = self.load(GATED_MODE_ROOT / "job")
+        decisions = self.decisions(capsule)
+        self.assertEqual(len(decisions), 2)
+        screening, confirmation = decisions
+        for entry in decisions:
+            for key in self.GATED_KEYS:
+                if key == "suite" and entry["kind"] == "screening":
+                    continue     # the screening derives the suite the confirmation will run on
+                self.assertIsNotNone(entry.get(key), f"{key} on line {entry['log_line']}")
+            self.assertEqual(entry["confirm_policy"], "always")
+        self.assertEqual(screening["sizing"]["rule"][:38],
+                         "normal-approximation planning size fro")
+        self.assertEqual(confirmation["suite"]["derivation"]["algorithm"],
+                         "rsi-exam-gate/hmac-seeds/1")
+
+    def test_the_confirmation_runs_the_size_the_screening_planned(self):
+        capsule = self.load(GATED_MODE_ROOT / "job")
+        screening, confirmation = self.decisions(capsule)
+        self.assertEqual(confirmation["sample_size"], screening["sizing"]["size"])
+        self.assertLess(confirmation["sample_size"], screening["sample_size"])
+
+    def test_every_result_carries_the_receipt_the_runner_wrote(self):
+        capsule = self.load(GATED_MODE_ROOT / "job")
+        for entry in self.decisions(capsule):
+            roles = [reference["role"] for reference in entry["evidence"]]
+            self.assertEqual(roles, ["parent", "candidate", "receipt-parent", "receipt-candidate"],
+                             entry["log_line"])
+
+    def test_a_tampered_runner_receipt_is_caught(self):
+        """Not a synthesised receipt: the one gate/evaluate_suite.py wrote during the run."""
+        job, _ = self.materialize_gated_mode()
+        capsule = self.load(job)
+        entry = self.decisions(capsule)[0]
+        locator = next(r["locator"] for r in entry["evidence"] if r["role"] == "receipt-parent")
+        path = job / METHODS / locator
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["policy_method_tree_sha256"] = "0" * 64
+        path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        errors = self.verify(job)["errors"]
+        self.assertIn("decision:evidence_digest_mismatch:v2:1:receipt-parent", errors)
+
+    def test_a_reverted_candidate_leaves_a_class_the_grader_cannot_split(self):
+        """The candidate was the parent's policy unchanged, so after the revert three trees agree.
+        The record names both snapshots rather than claiming which one was restored."""
+        capsule = self.load(GATED_MODE_ROOT / "job")
+        self.assertEqual(capsule["final_submission"]["version_ids"], ["v1", "v2"])
+        self.assertEqual(capsule["final_submission"]["version_id"], "v1")
+        statuses = {v["version_id"]: v["status"] for v in capsule["versions"]}
+        self.assertEqual(statuses, {"v1": "submitted", "v2": "reverted"})
 
 
 if __name__ == "__main__":
