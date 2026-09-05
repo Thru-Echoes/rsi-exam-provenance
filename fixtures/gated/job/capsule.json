@@ -1,0 +1,280 @@
+{
+  "benchmark": {
+    "name": "RSI-Exam",
+    "release": "0.1@bc36dadb405b",
+    "statistic": "mean_paired_delta",
+    "task_id": "autoresearch-arena/fixture_2048_policy_search",
+    "unit": "game_score"
+  },
+  "capsule_id": "fixture-gated-001",
+  "final_submission": {
+    "locator": "artifacts/app/methods/main",
+    "method_tree_sha256": "e4752c0c45ae49e6a32201008643907b029fb284d0e656f4134b0e96da27d58a",
+    "tree_sha256": "e4752c0c45ae49e6a32201008643907b029fb284d0e656f4134b0e96da27d58a",
+    "version_id": "v3",
+    "version_ids": [
+      "v3"
+    ]
+  },
+  "freeze": {
+    "grader_digest": "6494a4d613035ed2a35ff20e5fd4a3576c5e7d35e94a653758157ecba0dcf7c5",
+    "task_digest": "aad537e3265627abd0edf6ba491a6448e3f6ce7a10370bf6ed70e1f161113a2d"
+  },
+  "hidden_evaluation": {
+    "binding": {
+      "basis": "job_directory",
+      "job_id": "job"
+    },
+    "reward": 0.41273418,
+    "reward_locator": "verifier/reward.json",
+    "reward_sha256": "aa31ef772a54a1cca5e9f66544a9eeeca911f52bd820a5b0dbc5f22523b628b1",
+    "score_details_locator": "verifier/score_details.json",
+    "score_details_sha256": "32ba65c9aaa03e7f01f63d5deffeff2cfabe13386c75b30dd6a50297432e2108"
+  },
+  "rollout": {
+    "budget_hours": 12.0,
+    "config_digest": "3afb4d967419210fa6071126b4616566aae48a0afb8ce5cea833c5662e90d38d",
+    "harness": "claude-code",
+    "id": "job",
+    "model": "fixture-model"
+  },
+  "schema_version": "proofpress/rsi-exam-trajectory/v3",
+  "source": {
+    "decision_log": {
+      "locator": "artifacts/app/methods/decisions.jsonl",
+      "sha256": "4c6564e0782ab0c7956eae9f813dc17eee7984c94f313cf6124c9b1ead9640f2"
+    },
+    "exclusions": [
+      "__pycache__/",
+      "*.pyc",
+      "*.pyo"
+    ],
+    "experiment_log": {
+      "locator": "artifacts/app/methods/experiment_log.md",
+      "sha256": "0ddfa3ec10b799335b36aae1a816cd69bc12012a776664ee3c3351a9e27ca7be"
+    },
+    "trajectory": {
+      "format": "ATIF",
+      "locator": "agent/trajectory.json",
+      "sha256": "d98ee930ec247ae5dcdb994886203ab71b994b8cd951bda8dcc0670c56b83c45"
+    },
+    "versions_root": {
+      "locator": "artifacts/app/methods/versions"
+    }
+  },
+  "versions": [
+    {
+      "artifact": {
+        "locator": "artifacts/app/methods/versions/v1",
+        "method_tree_sha256": "bcc59289cf7ca59278d72552f685cb059f41c62041ffa627f28b35257bf8e623",
+        "tree_sha256": "bcc59289cf7ca59278d72552f685cb059f41c62041ffa627f28b35257bf8e623",
+        "type": "directory"
+      },
+      "log": {
+        "line": 3
+      },
+      "ordinal": 1,
+      "parent_ids": [],
+      "status": "kept",
+      "version_id": "v1",
+      "visible": {
+        "recorded_in": "experiment_log",
+        "score": 1180.0
+      }
+    },
+    {
+      "artifact": {
+        "locator": "artifacts/app/methods/versions/v2",
+        "method_tree_sha256": "01431930bc36f33cef01283148a9cf53db355d9b25a27670d2babddbcf1cb5d2",
+        "tree_sha256": "01431930bc36f33cef01283148a9cf53db355d9b25a27670d2babddbcf1cb5d2",
+        "type": "directory"
+      },
+      "decisions": [
+        {
+          "candidate_method_tree_sha256": null,
+          "confirm_policy": "inconclusive",
+          "direction": "higher",
+          "disposition": "revert",
+          "estimate": -318.75,
+          "evidence": [
+            {
+              "locator": "results/v1/visible_result.json",
+              "role": "parent",
+              "sha256": "a9fbeefee5519f92a3786b1ce1958637a8e9f92e6ac5a62ceae24aafad795afe"
+            },
+            {
+              "locator": "results/v2/visible_result.json",
+              "role": "candidate",
+              "sha256": "2b989bb0748aa05e8828a3b68f2074968994d70118a09956db5fdfc45fa3da8a"
+            }
+          ],
+          "evidence_digests": {
+            "candidate": "sha256:2b989bb0748aa05e8828a3b68f2074968994d70118a09956db5fdfc45fa3da8a",
+            "parent": "sha256:a9fbeefee5519f92a3786b1ce1958637a8e9f92e6ac5a62ceae24aafad795afe"
+          },
+          "holdout": null,
+          "interval": {
+            "level": 0.9,
+            "lower": -382.5,
+            "upper": -258.75
+          },
+          "kind": "screening",
+          "log_line": 1,
+          "look_index": null,
+          "method": {
+            "algorithm": "rsi-exam-gate/percentile-bootstrap/1",
+            "name": "percentile_bootstrap",
+            "resamples": 5000,
+            "seed": 20260902
+          },
+          "min_effect": 0.0,
+          "parent_id": "v1",
+          "parent_method_tree_sha256": null,
+          "profile_sha256": null,
+          "replicates": null,
+          "sample_size": 8,
+          "sizing": null,
+          "suite": null,
+          "timestamp": "2026-09-03T18:01:00+00:00",
+          "verdict": "below",
+          "version_id": "v2"
+        }
+      ],
+      "log": {
+        "line": 4
+      },
+      "ordinal": 2,
+      "parent_ids": [
+        "v1"
+      ],
+      "status": "reverted",
+      "version_id": "v2",
+      "visible": {
+        "recorded_in": "experiment_log",
+        "score": 940.0
+      }
+    },
+    {
+      "artifact": {
+        "locator": "artifacts/app/methods/versions/v3",
+        "method_tree_sha256": "e4752c0c45ae49e6a32201008643907b029fb284d0e656f4134b0e96da27d58a",
+        "tree_sha256": "e4752c0c45ae49e6a32201008643907b029fb284d0e656f4134b0e96da27d58a",
+        "type": "directory"
+      },
+      "decisions": [
+        {
+          "candidate_method_tree_sha256": null,
+          "confirm_policy": "inconclusive",
+          "direction": "higher",
+          "disposition": "provisional",
+          "estimate": 260.0,
+          "evidence": [
+            {
+              "locator": "results/v1/visible_result.json",
+              "role": "parent",
+              "sha256": "a9fbeefee5519f92a3786b1ce1958637a8e9f92e6ac5a62ceae24aafad795afe"
+            },
+            {
+              "locator": "results/v3/visible_result.json",
+              "role": "candidate",
+              "sha256": "9cbcf78d6fe4dbcceebdbc9b2ea7c61d8ef749f31d6759301a683ad010fc678e"
+            }
+          ],
+          "evidence_digests": {
+            "candidate": "sha256:9cbcf78d6fe4dbcceebdbc9b2ea7c61d8ef749f31d6759301a683ad010fc678e",
+            "parent": "sha256:a9fbeefee5519f92a3786b1ce1958637a8e9f92e6ac5a62ceae24aafad795afe"
+          },
+          "holdout": null,
+          "interval": {
+            "level": 0.9,
+            "lower": -30.0,
+            "upper": 583.75
+          },
+          "kind": "screening",
+          "log_line": 2,
+          "look_index": null,
+          "method": {
+            "algorithm": "rsi-exam-gate/percentile-bootstrap/1",
+            "name": "percentile_bootstrap",
+            "resamples": 5000,
+            "seed": 20260902
+          },
+          "min_effect": 0.0,
+          "parent_id": "v1",
+          "parent_method_tree_sha256": null,
+          "profile_sha256": null,
+          "replicates": null,
+          "sample_size": 8,
+          "sizing": null,
+          "suite": null,
+          "timestamp": "2026-09-03T18:02:00+00:00",
+          "verdict": "inconclusive",
+          "version_id": "v3"
+        },
+        {
+          "candidate_method_tree_sha256": null,
+          "confirm_policy": "inconclusive",
+          "direction": "higher",
+          "disposition": "keep",
+          "estimate": 518.75,
+          "evidence": [
+            {
+              "locator": "results/v3/replication/parent_result.json",
+              "role": "parent",
+              "sha256": "8c2735eb5784810082600ef490774fdcfc26f7cd1983394f22ce714eac065a4f"
+            },
+            {
+              "locator": "results/v3/replication/candidate_result.json",
+              "role": "candidate",
+              "sha256": "4af3ae28024d2389637fa1990d1be85d2d76dd71b70b7e76f560b89d81b1f49d"
+            }
+          ],
+          "evidence_digests": {
+            "candidate": "sha256:4af3ae28024d2389637fa1990d1be85d2d76dd71b70b7e76f560b89d81b1f49d",
+            "parent": "sha256:8c2735eb5784810082600ef490774fdcfc26f7cd1983394f22ce714eac065a4f"
+          },
+          "holdout": null,
+          "interval": {
+            "level": 0.9,
+            "lower": 467.5,
+            "upper": 575.0
+          },
+          "kind": "confirmation",
+          "log_line": 3,
+          "look_index": null,
+          "method": {
+            "algorithm": "rsi-exam-gate/percentile-bootstrap/1",
+            "name": "percentile_bootstrap",
+            "resamples": 5000,
+            "seed": 20260902
+          },
+          "min_effect": 0.0,
+          "parent_id": "v1",
+          "parent_method_tree_sha256": null,
+          "profile_sha256": null,
+          "replicates": "v3",
+          "resolves_log_line": 2,
+          "sample_size": 8,
+          "sizing": null,
+          "suite": null,
+          "timestamp": "2026-09-03T18:03:00+00:00",
+          "verdict": "clears",
+          "version_id": "v3"
+        }
+      ],
+      "log": {
+        "line": 5
+      },
+      "ordinal": 3,
+      "parent_ids": [
+        "v1"
+      ],
+      "status": "submitted",
+      "version_id": "v3",
+      "visible": {
+        "recorded_in": "experiment_log",
+        "score": 1560.0
+      }
+    }
+  ]
+}

@@ -46,6 +46,17 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 200
+        },
+        "statistic": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "The statistic every decision in this record measures."
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
         }
       }
     },
@@ -187,6 +198,10 @@
             "maxLength": 200
           },
           "description": "Path patterns excluded from every method-tree digest in this record."
+        },
+        "decision_log": {
+          "$ref": "#/$defs/bound_file",
+          "description": "The gate's append-only decision log, bound by digest. Absent when no gate ran."
         }
       }
     },
@@ -376,6 +391,7 @@
             "baseline",
             "kept",
             "reverted",
+            "provisional",
             "submitted"
           ],
           "description": "'submitted' marks the canonical representative of the submitted tree, the lowest-ordinal member of final_submission.version_ids. When that class holds more than one snapshot the others are indistinguishable to the grader and the record does not claim which was restored."
@@ -460,6 +476,324 @@
             "minLength": 1,
             "maxLength": 200
           }
+        },
+        "decisions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/decision"
+          },
+          "description": "Every decision-log line for this version, in log order. Absent on a rollout that ran no gate, and on a version the gate never decided."
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One line of the gate's decision log, projected. statistic and unit are not repeated here; the benchmark block states them once for the whole log.",
+      "required": [
+        "log_line",
+        "kind",
+        "version_id",
+        "parent_id",
+        "replicates",
+        "timestamp",
+        "direction",
+        "estimate",
+        "interval",
+        "method",
+        "sample_size",
+        "min_effect",
+        "verdict",
+        "disposition",
+        "evidence",
+        "evidence_digests",
+        "holdout",
+        "confirm_policy",
+        "profile_sha256",
+        "look_index",
+        "parent_method_tree_sha256",
+        "candidate_method_tree_sha256",
+        "sizing",
+        "suite"
+      ],
+      "properties": {
+        "log_line": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The line's 1-based physical position in the decision log."
+        },
+        "kind": {
+          "enum": [
+            "screening",
+            "confirmation"
+          ]
+        },
+        "resolves_log_line": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Present on a confirmation: the provisional it resolves."
+        },
+        "version_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "replicates": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "timestamp": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "direction": {
+          "enum": [
+            "higher",
+            "lower"
+          ]
+        },
+        "estimate": {
+          "type": "number"
+        },
+        "interval": {
+          "$ref": "#/$defs/interval"
+        },
+        "method": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "algorithm",
+            "resamples",
+            "seed"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "algorithm": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "resamples": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seed": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "sample_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "min_effect": {
+          "type": "number",
+          "minimum": 0
+        },
+        "verdict": {
+          "enum": [
+            "clears",
+            "below",
+            "inconclusive"
+          ]
+        },
+        "disposition": {
+          "enum": [
+            "keep",
+            "revert",
+            "provisional"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/evidence_ref"
+          }
+        },
+        "evidence_digests": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "holdout": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confirm_policy": {
+          "enum": [
+            "always",
+            "inconclusive"
+          ]
+        },
+        "profile_sha256": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "look_index": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parent_method_tree_sha256": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "candidate_method_tree_sha256": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sizing": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "suite": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "interval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lower",
+        "upper",
+        "level"
+      ],
+      "properties": {
+        "lower": {
+          "type": "number"
+        },
+        "upper": {
+          "type": "number"
+        },
+        "level": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 1
+        }
+      }
+    },
+    "evidence_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "locator",
+        "sha256"
+      ],
+      "properties": {
+        "role": {
+          "enum": [
+            "parent",
+            "candidate",
+            "holdout-parent",
+            "holdout-candidate",
+            "receipt-parent",
+            "receipt-candidate"
+          ]
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
         }
       }
     }

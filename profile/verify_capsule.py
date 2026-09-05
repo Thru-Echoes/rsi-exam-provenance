@@ -145,6 +145,41 @@ def _string(min_len: int = 1, max_len: int = MAX_STRING,
     return check
 
 
+def _reject_constant(token: str) -> Any:
+    """Refuse the JSON extensions for non-finite numbers; the contract requires every number finite."""
+    raise ValueError(f"non-finite number: {token}")
+
+
+def _nullable(checker: Checker) -> Checker:
+    """Accept null, or whatever `checker` accepts. The gate writes null in every field a replay-mode
+    line leaves unset, so the record carries those nulls rather than dropping the key."""
+    def check(value: Any, path: str, errors: Errors) -> None:
+        if value is not None:
+            checker(value, path, errors)
+    return check
+
+
+_PREFIXED_DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
+
+
+def _digest_map(value: Any, path: str, errors: Errors) -> None:
+    """A non-empty map of evidence role to prefixed digest, as the decision-log contract states."""
+    if not isinstance(value, dict) or not value:
+        _add(errors, f"schema:{path}:invalid")
+        return
+    for role, digest in value.items():
+        if not isinstance(role, str) or not role:
+            _add(errors, f"schema:{path}:invalid")
+        elif not isinstance(digest, str) or not _PREFIXED_DIGEST.fullmatch(digest):
+            _add(errors, f"schema:{path}.{role}:invalid")
+
+
+def _any_object(value: Any, path: str, errors: Errors) -> None:
+    """A block the record carries verbatim and does not interpret; the decision log binds its bytes."""
+    if not isinstance(value, dict):
+        _add(errors, f"schema:{path}:invalid")
+
+
 def _const(expected: str) -> Checker:
     def check(value: Any, path: str, errors: Errors) -> None:
         if value != expected:
@@ -153,7 +188,8 @@ def _const(expected: str) -> Checker:
 
 
 def _number(minimum: float | None = None, maximum: float | None = None,
-            exclusive_minimum: float | None = None) -> Checker:
+            exclusive_minimum: float | None = None,
+            exclusive_maximum: float | None = None) -> Checker:
     def check(value: Any, path: str, errors: Errors) -> None:
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             _add(errors, f"schema:{path}:invalid")
@@ -166,6 +202,8 @@ def _number(minimum: float | None = None, maximum: float | None = None,
         if maximum is not None and value > maximum:
             _add(errors, f"schema:{path}:invalid")
         if exclusive_minimum is not None and value <= exclusive_minimum:
+            _add(errors, f"schema:{path}:invalid")
+        if exclusive_maximum is not None and value >= exclusive_maximum:
             _add(errors, f"schema:{path}:invalid")
     return check
 
@@ -231,6 +269,48 @@ _BOUND_FILE = _obj({
     "sha256": (True, _digest_checker),
 })
 
+_DECISION = _obj({
+    "log_line": (True, _integer(minimum=1)),
+    "kind": (True, _enum("screening", "confirmation")),
+    "resolves_log_line": (False, _integer(minimum=1)),
+    "version_id": (True, _version_ref),
+    "parent_id": (True, _nullable(_version_ref)),
+    "replicates": (True, _nullable(_version_ref)),
+    "timestamp": (True, _string(1, 100)),
+    "direction": (True, _enum("higher", "lower")),
+    "estimate": (True, _number()),
+    "interval": (True, _obj({
+        "lower": (True, _number()),
+        "upper": (True, _number()),
+        "level": (True, _number(exclusive_minimum=0, exclusive_maximum=1)),
+    })),
+    "method": (True, _obj({
+        "name": (True, _string(1, 200)),
+        "algorithm": (True, _nullable(_string(1, 200))),
+        "resamples": (True, _nullable(_integer(minimum=1))),
+        "seed": (True, _nullable(_integer())),
+    })),
+    "sample_size": (True, _integer(minimum=1)),
+    "min_effect": (True, _number(minimum=0)),
+    "verdict": (True, _enum("clears", "below", "inconclusive")),
+    "disposition": (True, _enum("keep", "revert", "provisional")),
+    "evidence": (True, _array(_obj({
+        "role": (True, _enum("parent", "candidate", "holdout-parent", "holdout-candidate",
+                             "receipt-parent", "receipt-candidate")),
+        "locator": (True, _locator),
+        "sha256": (True, _digest_checker),
+    }), min_items=1)),
+    "evidence_digests": (True, _digest_map),
+    "holdout": (True, _nullable(_any_object)),
+    "confirm_policy": (True, _enum("always", "inconclusive")),
+    "profile_sha256": (True, _nullable(_digest_checker)),
+    "look_index": (True, _nullable(_integer(minimum=1))),
+    "parent_method_tree_sha256": (True, _nullable(_digest_checker)),
+    "candidate_method_tree_sha256": (True, _nullable(_digest_checker)),
+    "sizing": (True, _nullable(_any_object)),
+    "suite": (True, _nullable(_any_object)),
+})
+
 CAPSULE_SPEC: Checker = _obj({
     "schema_version": (True, _const(SCHEMA_VERSION)),
     "capsule_id": (True, _string(1, 200)),
@@ -238,6 +318,8 @@ CAPSULE_SPEC: Checker = _obj({
         "name": (True, _const("RSI-Exam")),
         "release": (True, _string(1, 200)),
         "task_id": (True, _string(1, 200)),
+        "statistic": (False, _string(1, 200)),
+        "unit": (False, _string(1, 200)),
     })),
     "rollout": (True, _obj({
         "id": (True, _string(1, 200)),
@@ -255,6 +337,7 @@ CAPSULE_SPEC: Checker = _obj({
         "experiment_log": (True, _BOUND_FILE),
         "versions_root": (True, _obj({"locator": (True, _locator)})),
         "exclusions": (True, _array(_string(1, 200), unique=True, min_items=1)),
+        "decision_log": (False, _BOUND_FILE),
         "trajectory": (False, _obj({
             "locator": (True, _locator),
             "sha256": (True, _digest_checker),
@@ -277,7 +360,8 @@ CAPSULE_SPEC: Checker = _obj({
         "version_id": (True, _version_ref),
         "ordinal": (True, _integer(minimum=0)),
         "parent_ids": (True, _array(_version_ref, unique=True)),
-        "status": (True, _enum("baseline", "kept", "reverted", "submitted")),
+        "status": (True, _enum("baseline", "kept", "reverted", "provisional", "submitted")),
+        "decisions": (False, _array(_DECISION, min_items=1)),
         "stage": (False, _string(1, 200)),
         "artifact": (True, _obj({
             "type": (True, _enum("directory", "file")),
@@ -320,6 +404,172 @@ CAPSULE_SPEC: Checker = _obj({
 # ---------------------------------------------------------------------------
 # Semantic validation
 # ---------------------------------------------------------------------------
+
+DISPOSITION_STATUS = {"keep": "kept", "revert": "reverted", "provisional": "provisional"}
+# The fields the record projects from each decision-log line. Mirrors the producer's DECISION_KEYS;
+# the record is only as good as the projection, so every one is compared against the bound log.
+DECISION_SCHEMA = "rsi-exam-decision-log/v1"
+DECISION_KEYS = ("version_id", "parent_id", "replicates", "timestamp", "direction", "estimate",
+                 "interval", "method", "sample_size", "min_effect", "verdict", "disposition",
+                 "evidence", "evidence_digests", "holdout", "confirm_policy", "profile_sha256",
+                 "look_index", "parent_method_tree_sha256", "candidate_method_tree_sha256",
+                 "sizing", "suite")
+
+
+def _check_decisions_match_log(root: Path, data: dict[str, Any], errors: Errors) -> None:
+    """Compare every projected decision against the line it claims to project.
+
+    Binding the log by digest proves the file has not changed; it proves nothing about whether the
+    record's own `decisions[]` say what that file says. Without this the record could carry any
+    verdict, interval or evidence digest it liked and still verify. Appends to `errors`; reads only.
+    """
+    bound = data["source"].get("decision_log")
+    if bound is None:
+        return
+    path = _inside(root, bound["locator"])
+    if path is None or not path.is_file() or path.is_symlink():
+        return          # already reported by the bound-file check
+    try:
+        raw = path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError) as exc:
+        # A named error, not a traceback: a bound file whose bytes are not text is a finding.
+        _add(errors, f"file:decision_log:unreadable:{exc.__class__.__name__}")
+        return
+    if not raw:
+        _add(errors, "decision:log_empty")
+        return
+
+    logged: dict[int, dict[str, Any]] = {}
+    for position, text in enumerate(raw, start=1):
+        try:
+            line = json.loads(text, parse_constant=_reject_constant)
+        except (json.JSONDecodeError, ValueError):
+            _add(errors, f"decision:log_unparsable:{position}")
+            return
+        if not isinstance(line, dict):
+            _add(errors, f"decision:log_unparsable:{position}")
+            return
+        if line.get("schema") != DECISION_SCHEMA:
+            _add(errors, f"decision:log_foreign_schema:{position}")
+        if isinstance(line.get("line"), bool) or line.get("line") != position:
+            # The record addresses lines by number, so a log that numbers itself differently makes
+            # every projection ambiguous.
+            _add(errors, f"decision:log_line_number:{position}")
+        logged[position] = line
+
+    for key in ("statistic", "unit"):
+        stated = [line.get(key) for line in logged.values()]
+        if any(not isinstance(value, str) or not value for value in stated):
+            # Collected only after they are known to be strings: an unhashable value here would
+            # otherwise raise TypeError out of the set below instead of being reported.
+            _add(errors, f"decision:log_bad_{key}")
+            continue
+        values = set(stated)
+        if len(values) != 1:
+            _add(errors, f"decision:log_mixed_{key}")
+        elif data["benchmark"].get(key) != next(iter(values)):
+            # Hoisting these to the benchmark block is only safe if the hoist is checked.
+            _add(errors, f"decision:log_{key}_mismatch")
+
+    projected: dict[int, list[tuple[str, dict[str, Any]]]] = {}
+    for version in data["versions"]:
+        for entry in version.get("decisions", []):
+            projected.setdefault(entry["log_line"], []).append((version["version_id"], entry))
+
+    for position in sorted(set(logged) | set(projected)):
+        claimants = projected.get(position, [])
+        if not claimants:
+            _add(errors, f"decision:log_line_missing:{position}")
+            continue
+        for vid, entry in claimants:      # every claimant, so a duplicate is still compared
+            if position not in logged:
+                _add(errors, f"decision:log_line_absent:{vid}:{position}")
+                continue
+            line = logged[position]
+            _compare_decision(vid, position, entry, line, errors)
+
+
+def _compare_decision(vid: str, position: int, entry: dict[str, Any], line: dict[str, Any],
+                      errors: Errors) -> None:
+    """Compare one projected decision against the log line it claims to project."""
+    for key in DECISION_KEYS:
+        # Membership first: a key the log never had and a key the record carries as null both
+        # read as None, and the record must not claim a field the log does not state.
+        if key not in line:
+            _add(errors, f"decision:log_line_absent_field:{vid}:{position}:{key}")
+        elif entry.get(key) != line[key]:
+            _add(errors, f"decision:log_line_mismatch:{vid}:{position}:{key}")
+
+
+
+
+
+def _check_decision_consistency(data: dict[str, Any], errors: Errors) -> None:
+    """Cross-check the projected decisions against the record that carries them.
+
+    These are the checks that need only the record: a decision must belong to the version it is
+    nested under, its kind must agree with whether it replicates, a confirmation must resolve an
+    earlier open provisional of the same version, line numbers must not collide, and the version's
+    status must be the one its own decisions imply. Whether the decisions match the log, the result
+    files, or the rule the gate claims to have applied is a separate question that needs the job
+    directory. Appends to `errors`; no other effects.
+    """
+    decided = [v for v in data["versions"] if v.get("decisions")]
+    if not decided:
+        return
+    if "decision_log" not in data["source"]:
+        _add(errors, "semantic:source:decision_log_missing")
+    benchmark = data["benchmark"]
+    if "statistic" not in benchmark or "unit" not in benchmark:
+        _add(errors, "semantic:benchmark:measurement_missing")
+
+    seen_lines: set[int] = set()
+    for version in decided:
+        vid = version["version_id"]
+        previous = 0
+        provisional_lines: set[int] = set()
+        for entry in version["decisions"]:
+            line = entry["log_line"]
+            if line in seen_lines:
+                _add(errors, f"semantic:decision:duplicate_log_line:{line}")
+            seen_lines.add(line)
+            if line <= previous:
+                _add(errors, f"semantic:decision:log_line_order:{vid}:{line}")
+            previous = line
+            if entry["version_id"] != vid:
+                _add(errors, f"semantic:decision:version_mismatch:{vid}:{line}")
+            replicates = entry["replicates"]
+            expected_kind = "confirmation" if replicates is not None else "screening"
+            if entry["kind"] != expected_kind:
+                _add(errors, f"semantic:decision:kind_mismatch:{vid}:{line}")
+            if entry["kind"] == "confirmation":
+                if replicates != vid:
+                    _add(errors, f"semantic:decision:replicates_mismatch:{vid}:{line}")
+                resolved = entry.get("resolves_log_line")
+                if resolved is None:
+                    _add(errors, f"semantic:decision:resolves_missing:{vid}:{line}")
+                elif resolved not in provisional_lines:
+                    _add(errors, f"semantic:decision:resolves_unknown:{vid}:{line}")
+                else:
+                    provisional_lines.discard(resolved)
+                if entry["disposition"] == "provisional":
+                    _add(errors, f"semantic:decision:confirmation_provisional:{vid}:{line}")
+            else:
+                if entry.get("resolves_log_line") is not None:
+                    _add(errors, f"semantic:decision:resolves_unexpected:{vid}:{line}")
+                if entry["disposition"] == "provisional":
+                    provisional_lines.add(line)
+
+        implied = DISPOSITION_STATUS.get(version["decisions"][-1]["disposition"])
+        # `submitted` marks the tree that was handed in and outranks the decision state; whether a
+        # version with an open provisional may be submitted at all is a protocol question.
+        if version["status"] not in ("submitted", implied):
+            _add(errors, f"semantic:version:status_not_decided:{vid}")
+        if version["status"] == "submitted" and implied == "provisional":
+            # The contract is explicit: an unresolved provisional cannot be the submission without
+            # a protocol failure. Letting `submitted` mask it would hide exactly that failure.
+            _add(errors, f"protocol:unresolved_provisional_submitted:{vid}")
+
 
 def expected_main_locator(versions_root: str) -> str:
     """The submitted tree's locator: the sibling of the versions root named ``main``.
@@ -388,6 +638,8 @@ def _check_semantics(data: dict[str, Any], errors: Errors) -> None:
         # Without this the record chooses which directory the verifier recomputes, and a record
         # pointing at a snapshot would never have main/ read at all.
         _add(errors, "semantic:final:locator_convention")
+
+    _check_decision_consistency(data, errors)
 
     if sorted(data["source"]["exclusions"]) != sorted(EXPECTED_EXCLUSIONS):
         _add(errors, "semantic:source:exclusions_mismatch")
@@ -570,6 +822,12 @@ def _check_files(root: Path, data: dict[str, Any], errors: Errors) -> None:
         _check_bound_file(root, export["locator"], export["sha256"],
                           f"trace_export:{index}", errors)
 
+    decision_log = source.get("decision_log")
+    if decision_log is not None:
+        _check_bound_file(root, decision_log["locator"], decision_log["sha256"],
+                          "decision_log", errors)
+
+    _check_decisions_match_log(root, data, errors)
     _check_final_submission(root, data, errors)
     _check_unrecorded_matches(root, data, errors)
 
