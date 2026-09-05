@@ -418,6 +418,13 @@ RECEIPT_SCHEMA = "rsi-exam-gate-receipt/v1"
 RECEIPT_SUFFIX = ".receipt.json"
 
 
+def _is_canonical_locator(locator: Any) -> bool:
+    """The contract's evidence-locator rule: a canonical relative POSIX path, no dot segments."""
+    return (isinstance(locator, str) and bool(locator) and not locator.startswith("/")
+            and "\\" not in locator and "%" not in locator and ":" not in locator
+            and not any(part in ("..", "", ".") for part in locator.split("/")))
+
+
 def _check_receipts(root: Path, methods: str, vid: str, entry: dict[str, Any],
                     errors: Errors) -> None:
     """On a gated decision, every result must carry the runner receipt that produced it.
@@ -736,6 +743,12 @@ def _resolve_evidence(root: Path, methods: str, vid: str, line: int,
         if digests.get(role) != f"sha256:{expected}":
             _add(errors, f"decision:evidence_digest_mismatch:{vid}:{line}:{role}")
             ok = False
+        if not _is_canonical_locator(locator):
+            # The converter enforces this and the verifier did not, so one document had two
+            # readings. Two spellings of one path are two identities to anything comparing strings.
+            _add(errors, f"decision:evidence_locator_not_canonical:{vid}:{line}:{role}")
+            ok = False
+            continue
         head = locator.split("/", 1)[0]
         if head in ("versions", "main"):
             # A contract rule with teeth behind it: the grader scores a submission carrying any
