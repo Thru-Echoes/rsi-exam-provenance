@@ -48,6 +48,12 @@ EXCLUDED_SUFFIXES = (".pyc", ".pyo")
 MAX_SOURCE_BYTES = 10_000_000      # the grader's cap on the total staged policy source
 VERSION_DIR = re.compile(r"^v[0-9]+$")
 VERSION_TOKEN = re.compile(r"\bv[0-9]+\b")
+# A declaration opens a version's block: a heading, a list item, or a bare id at the line start,
+# with markdown emphasis around the id tolerated.
+DECLARATION = re.compile(r"^\s*(?:#{1,6}\s+)?(?:[-*+]\s+)?[*_]{0,2}(v[0-9]+)\b")
+STATUS_HEADER = re.compile(r"kept|keep|status|disposition", re.IGNORECASE)
+STATUS_LABEL = re.compile(r"^\s*(?:[-*+]\s+)?[*_]{0,2}(?:status|disposition|kept)\b", re.IGNORECASE)
+PARENT_LABEL = re.compile(r"^\s*(?:[-*+]\s+)?[*_]{0,2}parent\b", re.IGNORECASE)
 SCORE_TOKEN = re.compile(r"scores?\s*[:=]?\s*(-?[0-9]+(?:\.[0-9]+)?)", re.IGNORECASE)
 
 
@@ -256,21 +262,109 @@ def get_decided_status(entries: list[dict[str, Any]]) -> str:
     raise ProducerError(f"decision_log_unknown_disposition:{last['log_line']}")
 
 
-def get_log_reference(log_lines: list[str], version_id: str) -> tuple[int, str]:
-    """First 1-based line that names the version. Raises when absent."""
-    token = re.compile(rf"\b{re.escape(version_id)}\b")
-    for number, line in enumerate(log_lines, start=1):
-        if token.search(line):
-            return number, line
-    raise ProducerError(f"log_missing_version:{version_id}")
+def get_cells(line: str) -> list[str]:
+    """Cells of a markdown table row, outer pipes stripped. Pure function."""
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
 
 
-def get_status(line: str, version_id: str) -> str:
-    lowered = line.lower()
+def get_declaration(line: str) -> str | None:
+    """The version id this line declares, or ``None``.
+
+    A declaration is a line that *introduces* a version: a heading, a list item, or a table row
+    whose first cell is the id. A line that merely mentions an id -- ``Status: kept (best before
+    v7)`` names v7 while belonging to v6 -- declares nothing. That distinction is the whole point:
+    a disposition must be read from a line the version owns, never from the first line its
+    identifier happens to appear on. Pure function.
+    """
+    if line.lstrip().startswith("|"):
+        cells = get_cells(line)
+        first = cells[0].strip("*_ ").lower() if cells else ""
+        return first if VERSION_DIR.fullmatch(first) else None
+    match = DECLARATION.match(line)
+    return match.group(1) if match else None
+
+
+def get_version_blocks(log_lines: list[str]) -> dict[str, tuple[int, list[str]]]:
+    """Map each declared version to its 1-based declaration line and the lines it owns.
+
+    A version's block runs from its declaration to the next declaration of any version, or to the
+    end of the log. Re-declaring an id keeps the first block, so the mapping is deterministic.
+    Pure function.
+    """
+    starts = [(index, vid) for index, line in enumerate(log_lines)
+              if (vid := get_declaration(line)) is not None]
+    blocks: dict[str, tuple[int, list[str]]] = {}
+    for position, (index, vid) in enumerate(starts):
+        end = starts[position + 1][0] if position + 1 < len(starts) else len(log_lines)
+        blocks.setdefault(vid, (index + 1, log_lines[index:end]))
+    return blocks
+
+
+def get_table_status(log_lines: list[str], declaration_index: int) -> str | None:
+    """The status cell for a table row, read from the column its header names. Pure function.
+
+    Returns ``None`` when the declaration is not a table row or the table has no status column.
+    """
+    line = log_lines[declaration_index]
+    if not line.lstrip().startswith("|"):
+        return None
+    header: list[str] | None = None
+    for position in range(declaration_index - 1, -1, -1):
+        current = log_lines[position]
+        if not current.lstrip().startswith("|"):
+            break
+        if set(current.replace("|", "").strip()) <= set("-: ") and position:
+            if log_lines[position - 1].lstrip().startswith("|"):
+                header = get_cells(log_lines[position - 1])
+            break
+    if header is None:
+        return None
+    cells = get_cells(line)
+    for column, name in enumerate(header):
+        if STATUS_HEADER.search(name) and column < len(cells):
+            return cells[column]
+    return None
+
+
+def get_classification(text: str) -> str | None:
+    """A schema status from free text, or ``None`` when the text settles nothing. Pure function."""
+    lowered = text.lower()
     if "revert" in lowered:
         return "reverted"
     if "kept" in lowered or "keep" in lowered:
         return "kept"
+    if "submitted" in lowered or "submission" in lowered or "final" in lowered:
+        return "submitted"
+    if "baseline" in lowered:
+        return "baseline"
+    return None
+
+
+def get_status(block: list[str], version_id: str, table_cell: str | None = None) -> str:
+    """The version's status from the lines it owns.
+
+    Precedence: an explicit status column in a table, then a line in the block that labels itself a
+    status, then the block as a whole. The labelled line outranks the block so that a version noting
+    it superseded a reverted predecessor is not itself read as reverted. Raises when nothing in the
+    block settles the question.
+    """
+    if table_cell is not None:
+        stripped = table_cell.strip().lower()
+        status = get_classification(stripped)
+        if status is not None:
+            return status
+        if stripped.startswith("y"):
+            return "kept"
+        if stripped.startswith("n"):
+            return "reverted"
+    for line in block:
+        if STATUS_LABEL.match(line):
+            status = get_classification(line)
+            if status is not None:
+                return status
+    status = get_classification("\n".join(block))
+    if status is not None:
+        return status
     raise ProducerError(f"log_unclassifiable:{version_id}")
 
 
@@ -279,11 +373,35 @@ def get_parents(line: str, version_id: str) -> list[str]:
     return [others[0]] if others else []
 
 
+def get_block_parents(block: list[str], version_id: str) -> list[str]:
+    """The version's declared parent, from a labelled parent line or else its declaration.
+
+    Only a labelled line or the declaration itself can name a parent. The rest of a block is prose
+    that routinely cites other versions in passing -- ``Mean score: 6816 (+231% vs v0)`` -- and
+    reading a parent out of that would invent lineage the log never claimed. Pure function.
+    """
+    for line in block[1:]:
+        if PARENT_LABEL.match(line):
+            others = [t for t in VERSION_TOKEN.findall(line) if t != version_id]
+            if others:
+                return [others[0]]
+    return get_parents(block[0], version_id)
+
+
 def get_visible(line: str) -> dict[str, Any] | None:
     match = SCORE_TOKEN.search(line)
     if not match:
         return None
     return {"score": float(match.group(1)), "recorded_in": "experiment_log"}
+
+
+def get_block_visible(block: list[str]) -> dict[str, Any] | None:
+    """The first score the block records, searching the declaration then the lines it owns."""
+    for line in block:
+        visible = get_visible(line)
+        if visible is not None:
+            return visible
+    return None
 
 
 def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
@@ -339,6 +457,13 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
         decisions, statistic, unit = get_decisions(decision_log_path)
 
     log_lines = log_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    blocks = get_version_blocks(log_lines)
+    # A snapshot directory the producer cannot name is refused, never skipped. Silently dropping it
+    # would omit a version from the record with nothing to show that anything was omitted, which is
+    # the one outcome this producer must not have: an incomplete record that reports itself whole.
+    for child in sorted(versions_root.iterdir()):
+        if child.is_dir() and not VERSION_DIR.fullmatch(child.name):
+            raise ProducerError(f"unrecognized_snapshot:{child.name}")
     snapshot_dirs = sorted(
         (child for child in versions_root.iterdir()
          if child.is_dir() and VERSION_DIR.fullmatch(child.name)),
@@ -352,8 +477,10 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
     digests: dict[str, str] = {}
     for child in snapshot_dirs:
         vid = child.name
-        line_no, line = get_log_reference(log_lines, vid)
-        parents = get_parents(line, vid)
+        if vid not in blocks:
+            raise ProducerError(f"log_missing_version:{vid}")
+        line_no, block = blocks[vid]
+        parents = get_block_parents(block, vid)
         for parent in parents:
             if parent not in ids:
                 raise ProducerError(f"unknown_parent:{vid}")
@@ -364,7 +491,7 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
             "version_id": vid,
             "ordinal": int(vid[1:]),
             "parent_ids": parents,
-            "status": get_status(line, vid),
+            "status": get_status(block, vid, get_table_status(log_lines, line_no - 1)),
             "artifact": {
                 "type": "directory",
                 "locator": f"artifacts/app/methods/versions/{vid}",
@@ -378,7 +505,7 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
             # The gate's own record of what it decided outranks the prose in the experiment log.
             version["status"] = get_decided_status(entries)
             version["decisions"] = entries
-        visible = get_visible(line)
+        visible = get_block_visible(block)
         if visible is not None:
             version["visible"] = visible
         versions.append(version)
