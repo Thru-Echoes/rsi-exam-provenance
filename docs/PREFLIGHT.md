@@ -206,8 +206,13 @@ the first line naming `v1` is the heading `## v1` and its disposition sits ten l
 `Status: kept (4.3x improvement from baseline)`. `v1`, `v2`, `v3` and `v5` all raise
 `log_unclassifiable` while stating in plain words that they were kept.
 
-**Snapshots the log never names.** The same run wrote `versions/v5_final` and `versions/v6_best`,
-directory names appearing nowhere in its log, so both raise `log_missing_version`.
+**Snapshots the producer cannot name, dropped in silence.** The same run wrote
+`versions/v5_final` and `versions/v6_best`, directory names that appear nowhere in its log. These
+never reach the log reader at all: the producer selects snapshot directories with `^v[0-9]+$` and
+filters both out before any check runs, so the record simply omits them while reporting itself
+complete. That is a fail-open in a codebase whose discipline is otherwise to fail closed, and it is
+the more serious of the two coverage problems here, because nothing in the output shows that
+anything was left out.
 
 **A silent misclassification, which is worse than any refusal.** In that run the first line naming
 `v7` is `Status: kept (best before v7)` — a line belonging to `v6`'s section that mentions `v7` only
@@ -234,6 +239,9 @@ stronger claim than it makes.
 - One task, one harness, one agent model, one trial per configuration.
 - A reduced model and a reduced budget. No number here is comparable to a published result.
 - No gate ran inside a container, so no rollout here exercises gated mode end to end.
-- The log-reader defects above are recorded, not fixed.
-- One rollout in three yielded a record, so the record producer has not been exercised
-  end to end on the majority of real logs.
+- The log-reader defects above are addressed in pull request #19, which reads a version's
+  disposition from the block it owns and refuses a snapshot directory it cannot name. Under that
+  change two of these three rollouts build and verify, and the third is refused precisely rather
+  than silently truncated. The three logs are kept as regression fixtures under `tests/real_logs/`.
+- Versions an agent names in its log but never snapshots remain invisible to the producer; that gap
+  is unaddressed.
