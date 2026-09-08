@@ -1,0 +1,115 @@
+[
+  {
+    "rollout": "opus-batch-k5-8NhhboZ",
+    "log_present": false,
+    "snapshots": [
+      "v0"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "opus-batch-k5-F7E69wm",
+    "log_present": true,
+    "snapshots": [
+      "v0",
+      "v1",
+      "v2"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "opus-batch-k5-FHQNNyJ",
+    "log_present": true,
+    "snapshots": [
+      "v0"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "opus-batch-k5-jTbv9e3",
+    "log_present": true,
+    "snapshots": [
+      "v1a",
+      "v2",
+      "v3"
+    ],
+    "symlinks": [],
+    "non_python_files": [
+      {
+        "path": "v3/result.txt",
+        "bytes": 510,
+        "sha256": "8afb52c8767c98af336db2a68e5ca552687f6f7560a511f16d38cafddfd8c0b1"
+      }
+    ]
+  },
+  {
+    "rollout": "opus-batch-k5-ucAjUAW",
+    "log_present": true,
+    "snapshots": [
+      "v1"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "opus-cal-01-sMUjv7Q",
+    "log_present": false,
+    "snapshots": [],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "opus-probe-20m-4tAEgA8",
+    "log_present": true,
+    "snapshots": [
+      "v1"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "preflight-A-mini-E9kaUgh",
+    "log_present": true,
+    "snapshots": [
+      "v1"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "preflight-B-longer-eKGshRf",
+    "log_present": true,
+    "snapshots": [
+      "v1",
+      "v10",
+      "v11",
+      "v12",
+      "v13",
+      "v14",
+      "v2",
+      "v3",
+      "v4",
+      "v9"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "preflight-C-long-CmWyNVF",
+    "log_present": true,
+    "snapshots": [
+      "v1",
+      "v2",
+      "v3",
+      "v5",
+      "v5_final",
+      "v6_best",
+      "v7"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  }
+]
