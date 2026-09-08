@@ -1,3 +1,8 @@
+> **Superseded.** This plan was reviewed on 2026-09-08 and replaced by
+> `docs/superpowers/plans/2026-09-08-milestone-3-dev-plan.md`, with the reasons in
+> `docs/superpowers/plans/2026-09-08-milestone-3-handoff.md`. Do not execute this file. It is kept
+> because the design decisions it records were accepted and the later plan builds on them.
+
 # Opus Records, Shadow Replay, and the Next Campaign: Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
