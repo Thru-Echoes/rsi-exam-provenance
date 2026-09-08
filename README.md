@@ -65,7 +65,7 @@ and the program overlay that call it.
 ## Quick start
 
 ```
-python3 -m unittest discover -s tests -t .          # 148 tests
+python3 -m unittest discover -s tests -t .          # 336 tests
 python3 gate/decide.py --help
 python3 gate/trace_from_decisions.py --help
 python3 gate/shadow_replay.py --help
