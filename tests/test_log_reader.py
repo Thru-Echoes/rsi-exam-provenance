@@ -17,6 +17,7 @@ Run: ``python3 -m unittest discover -s tests -t .``
 from __future__ import annotations
 
 import importlib.util
+import json
 import shutil
 import tempfile
 import unittest
@@ -55,6 +56,23 @@ def materialize(case: unittest.TestCase) -> tuple[Path, Path]:
 def status_of(lines: list[str], version_id: str) -> str:
     line_no, block = bc.get_version_blocks(lines)[version_id]
     return bc.get_status(block, version_id, bc.get_table_status(lines, line_no - 1))
+
+
+def load_verifier():
+    spec = importlib.util.spec_from_file_location(
+        "verify_capsule_under_test", REPO / "profile" / "verify_capsule.py")
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+vc = load_verifier()
+
+
+def verify(capsule_path: Path) -> dict:
+    """Run the verifier the way the CLI does, returning its JSON result."""
+    return vc.verify_capsule(capsule_path, artifact_root=None, require_complete=False)
 
 
 class DispositionIsReadFromALineTheVersionOwns(unittest.TestCase):
@@ -269,6 +287,83 @@ class OrdinalsFollowDeclarationOrder(unittest.TestCase):
         self.assertEqual(by_id["v2a"]["parent_ids"], ["v1"])
         self.assertEqual(by_id["v2a"]["status"], "reverted")
         self.assertEqual(by_id["v3"]["ordinal"], 3)
+
+
+class AnUnsnapshottedBaselineParentIsRecorded(unittest.TestCase):
+    """The agent inherits main/ and calls it v0; it never snapshots v0, and names it as v1's parent."""
+
+    def test_the_real_log_declares_v0_and_v1_names_it(self):
+        lines = read("table_baseline_parent.md")
+        blocks = bc.get_version_blocks(lines)
+        self.assertIn("v0", blocks)
+        _, block = blocks["v1"]
+        self.assertEqual(bc.get_block_parents(block, "v1"), ["v0"])
+
+    def test_end_to_end_the_parent_moves_to_unsnapshotted_parent_ids(self):
+        job, task = materialize(self)
+        (job / "artifacts/app/methods/experiment_log.md").write_text(
+            "# Experiment log\n\n"
+            "- v0 (parent: none): the inherited starter policy. baseline\n"
+            "- v1 (parent: v0): corner-priority move order. score: 1180. kept\n"
+            "- v2 (parent: v1): depth-2 lookahead. score: 940. reverted\n"
+            "- v3 (parent: v1): tuned corner weights. score: 1560. kept\n",
+            encoding="utf-8")
+        capsule = bc.build_capsule(job, task, "0.1@bc36dadb405b", "fixture-rollout-001",
+                                   None, None, [])
+        by_id = {v["version_id"]: v for v in capsule["versions"]}
+        self.assertNotIn("v0", by_id)
+        self.assertEqual(by_id["v1"]["parent_ids"], [])
+        self.assertEqual(by_id["v1"]["unsnapshotted_parent_ids"], ["v0"])
+        self.assertNotIn("unsnapshotted_parent_ids", by_id["v2"])
+        # v0 is declared first, so v1 is ordinal 2 and still the lineage root.
+        self.assertEqual(by_id["v1"]["ordinal"], 2)
+
+    def test_a_parent_the_log_never_declares_is_still_refused(self):
+        job, task = materialize(self)
+        (job / "artifacts/app/methods/experiment_log.md").write_text(
+            "# Experiment log\n\n"
+            "- v1 (parent: v9): corner-priority move order. score: 1180. kept\n"
+            "- v2 (parent: v1): depth-2 lookahead. score: 940. reverted\n"
+            "- v3 (parent: v1): tuned corner weights. score: 1560. kept\n",
+            encoding="utf-8")
+        with self.assertRaises(bc.ProducerError) as caught:
+            bc.build_capsule(job, task, "0.1@bc36dadb405b", "fixture-rollout-001", None, None, [])
+        self.assertIn("unknown_parent:v1", str(caught.exception))
+
+    def test_only_the_first_declared_version_may_lack_a_recorded_parent(self):
+        # v1 and v2 both descend from the unsnapshotted v0: a forest the record cannot express.
+        job, task = materialize(self)
+        (job / "artifacts/app/methods/experiment_log.md").write_text(
+            "# Experiment log\n\n"
+            "- v0 (parent: none): the inherited starter policy. baseline\n"
+            "- v1 (parent: v0): corner-priority move order. score: 1180. kept\n"
+            "- v2 (parent: v0): depth-2 lookahead. score: 940. reverted\n"
+            "- v3 (parent: v1): tuned corner weights. score: 1560. kept\n",
+            encoding="utf-8")
+        with self.assertRaises(bc.ProducerError) as caught:
+            bc.build_capsule(job, task, "0.1@bc36dadb405b", "fixture-rollout-001", None, None, [])
+        self.assertIn("missing_parent:v2", str(caught.exception))
+
+    def test_the_verifier_accepts_the_record_and_rejects_an_overlap(self):
+        job, task = materialize(self)
+        (job / "artifacts/app/methods/experiment_log.md").write_text(
+            "# Experiment log\n\n"
+            "- v0 (parent: none): the inherited starter policy. baseline\n"
+            "- v1 (parent: v0): corner-priority move order. score: 1180. kept\n"
+            "- v2 (parent: v1): depth-2 lookahead. score: 940. reverted\n"
+            "- v3 (parent: v1): tuned corner weights. score: 1560. kept\n",
+            encoding="utf-8")
+        capsule = bc.build_capsule(job, task, "0.1@bc36dadb405b", "fixture-rollout-001",
+                                   None, None, [])
+        out = job / "capsule.json"
+        out.write_text(json.dumps(capsule, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        result = verify(out)
+        self.assertEqual(result["integrity"], "pass", result["errors"])
+        # An entry that also appears in parent_ids, or that is itself a recorded version, is refused.
+        capsule["versions"][0]["unsnapshotted_parent_ids"] = ["v2"]
+        out.write_text(json.dumps(capsule, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        result = verify(out)
+        self.assertIn("semantic:version:v1:unsnapshotted_parent_is_recorded", result["errors"])
 
 
 if __name__ == "__main__":

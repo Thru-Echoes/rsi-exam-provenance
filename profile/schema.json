@@ -484,6 +484,16 @@
             "$ref": "#/$defs/decision"
           },
           "description": "Every decision-log line for this version, in log order. Absent on a rollout that ran no gate, and on a version the gate never decided."
+        },
+        "unsnapshotted_parent_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^v[0-9]+[a-z0-9_]*$"
+          },
+          "description": "Parents the experiment log declares for this version that have no snapshot under versions/; the inherited baseline is the usual case. Disjoint from parent_ids; never a recorded version."
         }
       }
     },

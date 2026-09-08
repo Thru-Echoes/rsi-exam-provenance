@@ -481,13 +481,22 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
     for child in snapshot_dirs:
         vid = child.name
         line_no, block = blocks[vid]
-        parents = get_block_parents(block, vid)
-        for parent in parents:
-            if parent not in ids:
+        # A parent the log declares but never snapshotted is real lineage without an artifact: the
+        # inherited baseline is the common case. It is recorded as such, never dropped, and a
+        # parent the log never declares at all is still refused.
+        recorded: list[str] = []
+        unsnapshotted: list[str] = []
+        for parent in get_block_parents(block, vid):
+            if parent in ids:
+                recorded.append(parent)
+            elif parent in blocks:
+                unsnapshotted.append(parent)
+            else:
                 raise ProducerError(f"unknown_parent:{vid}")
         ordinal = ordinal_of[vid]
-        if not parents and ordinal != lowest:
+        if not recorded and ordinal != lowest:
             raise ProducerError(f"missing_parent:{vid}")
+        parents = recorded
         digests[vid] = tree_digest(child)
         version: dict[str, Any] = {
             "version_id": vid,
@@ -502,6 +511,8 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
             },
             "log": {"line": line_no},
         }
+        if unsnapshotted:
+            version["unsnapshotted_parent_ids"] = unsnapshotted
         entries = decisions.get(vid)
         if entries:
             # The gate's own record of what it decided outranks the prose in the experiment log.
