@@ -231,6 +231,12 @@ ProofPress import, are in `RUN_REPORT.md`.
 This is a run of a task with one step added to the program text (so it is a modified-program run,
 not an official one). The official harness, containers, and grader are untouched.
 
+*Status.* This is the design of the in-container instrument. A second-model review found that a
+driver sharing the agent's container is not a trust boundary and that a suite derived from a key
+the agent can read is not a holdout, so this instrument is deferred (`ROADMAP.md`, Milestone 4).
+Milestone 3 runs the gate on the operator's machine after the rollout instead, over the
+candidate-parent pairs the record recovers, with a key the agent never had: a shadow audit.
+
 1. Before the run: the task profile (direction, unit, minimum effect, confirmation level and
    size, the seed-derivation key) and the gate scripts are mounted into `/app/methods/` with the
    same mechanism RSI-Exam uses for its own budget reminder.
@@ -244,8 +250,8 @@ not an official one). The official harness, containers, and grader are untouched
    says keep or revert.
 5. The agent writes the experiment-log line with the gate's action. On a revert it restores
    `main/` from the parent's snapshot (replacing the directory, not nesting it).
-6. After the run, offline: every frozen candidate and its parent are evaluated once on a
-   separate audit suite (never used during the run); the producer builds the record; the
+6. After the run, offline: every frozen candidate and its parent are evaluated by the host-side
+   shadow audit on seeds the agent never had; the producer builds the record; the
    verifier checks it; the evidence report is generated; the converter writes the TRACE
    document; ProofPress imports it.
 
@@ -255,10 +261,10 @@ to show what it would have said at each step.
 
 ## 6. What exists today, and what is next to build
 
-`ROADMAP.md` carries the status table and the milestones. In short: the record, the gate, and the
-converter are built and fixture-verified; the ProofPress import is verified; the task profile,
-confirmation policy, seed derivation, receipts, the verifier's decision checks, and the evidence
-report are next; no real rollout has run yet.
+`ROADMAP.md` carries the status table and the milestones. In short: the record, the gate, the
+converter and the report are built and fixture-verified; the ProofPress import is verified; ten
+real rollouts have run and the record builds for five; next are the host-side shadow audit over
+those records and four more trials under the program overlay.
 
 ## 7. How to find out whether the gate helps
 

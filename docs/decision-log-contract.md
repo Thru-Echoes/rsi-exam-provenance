@@ -162,9 +162,10 @@ versions/v<K> main` nests the snapshot inside `main/` instead, leaves the revert
 and makes every later gate call refuse.
 
 **Further limits of Milestone 1.** The evaluation child runs as the same user as the agent, so policy
-code could write to files the agent can write to; the grader's own sandbox drops privileges to an
-unprivileged user, and Milestone 3 adds the same drop (and the per-move time limit) to the runner
-before the first gated rollout. The runner publishes the result and then the receipt as two files; a
+code could write to files the agent can write to; the grader's own sandbox drops privileges to an unprivileged user; the host-side shadow audit runs the
+runner inside a throwaway container with no network and the operator's uid instead, and a privilege drop
+with a per-move limit in the runner belongs to the deferred in-container instrument (`ROADMAP.md`,
+Milestone 4). The runner publishes the result and then the receipt as two files; a
 crash between them leaves a result the next run refuses to overwrite, which the operator removes by
 hand. The gate accepts whichever profile path it is given; the post-rollout verifier's comparison of
 `profile_sha256` with the operator's mounted digest is the check that the intended profile was used.
@@ -177,8 +178,8 @@ possible; what makes it visible is that every line and every receipt records `pr
 which the post-rollout verifier compares with the digest of the profile the operator mounted. The
 record is tamper-evident relative to the exported job directory and that operator-held digest,
 never tamper-proof. `DECIDE_FIXED_TIMESTAMP` is a fixture hook, and timestamps are not evidence
-anywhere in this contract. `audit_key_sha256` is recorded now and used by the audit suite in
-Milestone 3.
+anywhere in this contract. `audit_key_sha256` is recorded now; nothing consumes it yet, and a replay
+configuration fills it with the digest of a documented literal.
 
 ## 2. The `confidence` block on a TRACE decision
 

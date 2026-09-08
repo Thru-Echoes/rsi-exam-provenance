@@ -53,14 +53,14 @@ statement about the sealed reward.
 
 ## Status
 
-Fixture-verified, no real rollout yet. The gate, its modules, and the converter have 110 tests, the
-profile has a 38-case conformance suite, and `docs/RUN_REPORT.md` records a full run on a demo
-lineage: gate decisions, `trace-mcp validate` passing, a byte-equal typed TRACE round-trip, and a
-successful `proofpress evidence import`. What comes next, milestone by milestone, is in
-`docs/ROADMAP.md`: the verifier's decision checks and cache-free digests, the decision-evidence
-report, then the first real rollout on `game2048_policy_search`. A gated rollout waits for
-Milestone 3, which mounts the gate and its profile into the container and adds the trusted driver
-and the program overlay that call it.
+Ten real rollouts of `game2048_policy_search` have run (four on `claude-haiku-4-5`, six on
+`claude-opus-5`), and the record builds for five of them; `docs/PREFLIGHT.md` records the real job
+layout and what the tooling did with it. The gate, its modules, the converter, the record and the
+report are fixture-verified, and `docs/RUN_REPORT.md` records a full run on a demo lineage through
+`trace-mcp validate` and a `proofpress evidence import`. A second-model review found that the gate
+cannot be trusted inside the agent's container, so Milestone 3 runs it on the host after the
+rollout, as a shadow audit over the record's candidate-parent pairs, with policy code isolated in a
+container; `docs/ROADMAP.md` has the milestones and the deferred in-container instrument.
 
 ## Quick start
 

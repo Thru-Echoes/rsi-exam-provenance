@@ -14,14 +14,13 @@ one branch and pull request per task, tests and pyright clean before every push.
 | TRACE converter (`gate/trace_from_decisions.py`) | Built, 17 tests | Re-checks every contract rule, including the gated ones, and carries the gated fields as extras. Output validates under the TRACE 0.5.1 typed models and schema and round-trips with every producer key preserved. |
 | ProofPress import | Verified on fixture data against `main` | The evidence adapter accepts the 0.5.1 document, keeps four fields, refuses a malformed interval and an unpinned version, and is idempotent (`docs/RUN_REPORT.md`). |
 | Decision-evidence report (`report/`) | Built | One row per decision from the record and the verifier's output, with the limits printed beside the table. |
-| Real rollout | Not yet | Needs Docker and a model key in the harness; first a short baseline run to observe the real job layout. |
+| Real rollouts | Ten trials run (four `claude-haiku-4-5`, six `claude-opus-5`); the record builds for five | The job layout is in `docs/PREFLIGHT.md`. The rest of Milestone 3 below: the host-side shadow audit over these records, and four more trials under the program overlay. |
 
 ## Milestone 1: the gate, the runner, receipts, and the restore helper (built)
 
-Status: Milestone 1 delivers the gate, the runner, receipts, and the restore helper. Mounting them
-into the container, the trusted driver that runs the gate between snapshots, and the program overlay
-that tells the agent to call it are Milestone 3, so no gated rollout runs before then. The preflight
-observation is recorded in `docs/PREFLIGHT.md` once it has been made.
+Status: Milestone 1 delivers the gate, the runner, receipts, and the restore helper. Running the gate
+over real rollouts is Milestone 3, on the host after the rollout; an in-container instrument is
+deferred to Milestone 4. The preflight observation is recorded in `docs/PREFLIGHT.md`.
 
 **Preflight (first engineering task).** Docker up; a model key in the harness environment; a
 short-budget `harbor` run of `game2048_policy_search`; observe the real job layout (where the
@@ -89,27 +88,57 @@ plus the record (rollout id and version id together, parent, score, interval, ve
 confirmed by, digests checked). It assists a human audit and never claims to answer whether a
 score moved for a real reason.
 
-## Milestone 3: real runs (target: second half of September 2026)
+## Milestone 3: the record on real rollouts, and a host-side shadow audit (target: September 2026)
 
-- **Runbook** for gated rollouts: a compose overlay mounts `decide.py`, `seeds.py`,
-  `evaluate_suite.py`, and the task profile into `/app/methods/` with the same mechanism RSI-Exam
-  uses for its own budget reminder; our copy of the prompt adds one step; the run is recorded as
-  a modified-program run. Restore is `rm -rf main && cp -r versions/vK main`, never the nested
-  form.
-- **Shadow replay** over the baseline rollout: the gate's recommended action per version against
-  the agent's recorded action; disagreement rate and what confirmation would have cost.
-- **One gated feasibility rollout**: gate execution, agent compliance, evaluation cost, interval
-  reproducibility, tamper tests; the audit suite evaluated offline for every frozen
-  candidate-parent pair before any analysis.
-- **Instrumentation discipline for any comparison.** TRACE cannot run inside the sandbox, so live
-  capture is an external observer and any run with TRACE in the harness is an instrumented
-  reproduction, never an unmodified exam run. Both arms of a comparison carry identical inert
-  instrumentation, start from an empty knowledge store, and run with no recall; TRACE writes
-  during measured rollouts go to a quarantine project until every measured outcome is frozen.
-  Anything that outlives a rollout shows the rollout id with the version id; a bare `v2` is
-  rollout-local.
-- `docs/RUN_REPORT.md` updated on the first real record: producer, verifier, report, converter,
-  `trace-mcp validate`, ProofPress import, with the prohibited-claims list carried forward.
+Status: ten real rollouts exist (four `claude-haiku-4-5` preflight trials, six `claude-opus-5`
+trials through a gateway); after the lineage fixes below the record producer builds five of them,
+and refuses the rest for reasons their logs carry (no log, a log with no rows, a snapshot the log
+never names, a version whose disposition the log never states). A second-model review of the
+in-container gate design found that a driver sharing the agent's container is not a trust boundary
+and that a confirmation suite derived from a key the agent can read is not a holdout, so the
+in-container gate is withdrawn in its strong form and deferred to Milestone 4. Milestone 3 is the
+part that carries no in-rollout trust problem:
+
+- **Record lineage.** Version ids may carry a lowercase suffix (`v1a`); ordinals follow the order
+  the experiment log declares versions; a parent the log declares but never snapshotted is recorded
+  in `unsnapshotted_parent_ids`. A missing or truncated log stays a refusal.
+- **Runbook and program overlay** (`runbook/`): the gateway run script, a fail-loud cost script, a
+  replay-configuration generator, the runbook, and our copy of the program text with the
+  conventions the record depends on (snapshot the inherited `main/` as `v0`, name snapshots
+  `v<N>`, log a version immediately after snapshotting it, state parent and disposition). A run
+  under the overlay is a modified-program run.
+- **Host-side shadow audit** (`gate/shadow_replay.py`). After a rollout, on the operator's machine,
+  the gate runs over the record-recoverable candidate-parent pairs of a verified record, with a
+  replication key the agent never had, evaluating policy code inside a throwaway container. Per
+  pair it reports why the gate ended where it did (screening below, exploratory, confirmed keep or
+  revert, or a named failure) and, over comparable record-backed pairs, a descriptive and
+  directionless agree or disagree count against the disposition the agent recorded. Its inputs
+  manifest is committed and pushed before any evaluation. It is a shadow audit, not an in-rollout
+  gate; its pairs are record-recoverable tuples, not the agent's action history; and it does not
+  authenticate anything that happened inside the rollout.
+- **Diagnostics** (`gate/calibrate.py`): the gate's rule simulated on synthetic paired deltas so
+  that a replay configuration's floor, cap and minimum effect are chosen with their consequences in
+  view. Under the accepted planning rule a candidate whose per-seed spread is large relative to the
+  minimum effect plans far more confirmation seeds than any cap allows and is reverted as
+  exploratory; the audit reports that as a finding about the rule, and a change to the rule is a
+  separate proposal.
+- **A descriptive campaign**: four `claude-opus-5` trials under the overlay, one at a time under a
+  spend guard, reported as counts (records built, `v0` present, log present) beside the earlier
+  trials as non-comparable context, then audited the same way. No rate, reliability, or efficacy
+  claim.
+- `docs/PREFLIGHT.md` carries the record's outcome over every real rollout, the audit tables with
+  their coverage denominators, and the limits.
+
+## Milestone 4: a cooperative in-container instrument (deferred, undecided)
+
+An in-container gate can only be a cooperative instrument, and only with the mechanical fixes the
+review named: the gate and its profile mounted read-only as one directory outside the artifact
+root; confirmation seeds from fresh entropy rather than a mounted key; an enforced state machine
+(one accepted head, a parent that must equal it, one-time version ids, `main/` validated after
+every evaluation and last of all); a crash-safe restore; a privilege drop and a per-move limit in
+the runner; rendered-compose checks that the network mode survives the overlay. Its claim is
+internal consistency of the exported record; it never establishes that the recorded evaluations
+occurred as described. Whether to build it is an open decision, taken after Milestone 3 reports.
 
 A comparative study comes only after RSI-Exam expresses interest and with a preregistered
 design; see `docs/overview.md`, section 7.
