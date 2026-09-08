@@ -4,7 +4,7 @@ Descriptive and directionless. Pairs are what each record recovers, not the agen
 
 | rollout | versions | pairs | with disposition | record-backed comparable | agree | disagree | task-starter pairs | confirmed | exploratory | screening below | evaluation failed | not replayable | other failures | median planned | cpu s | audit kind | exit |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| opus-batch-k5-8NhhboZ-pair | None | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |  | 0 | screening-and-feasibility | 1 |
+| opus-batch-k5-8NhhboZ-pair |  | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |  | 0 | screening-and-feasibility | 1 |
 | opus-batch-k5-F7E69wm | 3 | 2 | 1 | 1 | 0 | 1 | 0 | 0 | 1 | 0 | 1 | 0 | 0 | 9692228 | 552 | screening-and-feasibility | 1 |
 | opus-batch-k5-FHQNNyJ | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |  | 0 | screening-and-feasibility | 0 |
 | opus-probe-20m-4tAEgA8 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 15515437 | 342 | screening-and-feasibility | 0 |
@@ -15,7 +15,7 @@ Per-pair screening lines, for the sizing question:
 
 | rollout | parent | candidate | recorded | outcome | estimate | interval | min_effect | screening sd | planned |
 |---|---|---|---|---|---|---|---|---|---|
-| opus-batch-k5-8NhhboZ-pair | v0 | v1 | None | evaluation_failed |  |  |  |  |  |
+| opus-batch-k5-8NhhboZ-pair | v0 | v1 |  | evaluation_failed |  |  |  |  |  |
 | opus-batch-k5-F7E69wm | v0 | v1 | submitted | exploratory | 83474.0 | 56528.5 to 109760.0 | 51.5 | 48737 | 9692228 |
 | opus-batch-k5-F7E69wm | v1 | v2 | reverted | evaluation_failed |  |  |  |  |  |
 | opus-probe-20m-4tAEgA8 | v0 | v1 | submitted | exploratory | 109152.5 | 75879.0 to 142174.5 | 51.5 | 61664 | 15515437 |

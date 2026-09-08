@@ -234,6 +234,52 @@ make a keep-or-revert chain evidence of anything. The verifier's wording is alre
 coverage is complete *relative to the supplied versions directory* — but that phrase reads as a
 stronger claim than it makes.
 
+## Ten rollouts: the record, and the shadow audit
+
+The record producer and verifier at commit `af486c0`, run over the ten real rollouts with every record built into an audit root outside the job directories (`docs/shadow-audit/development-cohort/records.md`):
+
+| rollout | producer and verifier |
+|---|---|
+| opus-batch-k5-8NhhboZ | missing_log |
+| opus-batch-k5-F7E69wm | integrity=pass coverage=complete (relative to the supplied versions directory) |
+| opus-batch-k5-FHQNNyJ | integrity=pass coverage=complete (relative to the supplied versions directory) |
+| opus-batch-k5-jTbv9e3 | log_unclassifiable:v1a |
+| opus-batch-k5-ucAjUAW | log_missing_version:v1 |
+| opus-cal-01-sMUjv7Q | missing_log |
+| opus-probe-20m-4tAEgA8 | integrity=pass coverage=complete (relative to the supplied versions directory) |
+| preflight-A-mini-E9kaUgh | integrity=pass coverage=complete (relative to the supplied versions directory) |
+| preflight-B-longer-eKGshRf | integrity=pass coverage=complete (relative to the supplied versions directory) |
+| preflight-C-long-CmWyNVF | log_missing_version:v5_final |
+
+Five build and verify. The five refusals are the log's own doing. Two rollouts (`opus-batch-k5-8NhhboZ`, `opus-cal-01-sMUjv7Q`) have no experiment log at all: the agent was stopped before writing one. One (`opus-batch-k5-ucAjUAW`) wrote a table header and separator and no rows, so its one snapshot is never declared. One (`preflight-C-long-CmWyNVF`) wrote snapshots named `v5_final` and `v6_best` that no line of its log names. One (`opus-batch-k5-jTbv9e3`) recorded a measurement rather than a disposition for `v1a` (`informative: budget has ~7x headroom at this setting`), and behind that refusal its `v1a` and `v2` both name the unsnapshotted `v1` as parent, a forest the record does not express. The raw inventory of every snapshot directory, refused rollouts included, is `docs/shadow-audit/development-cohort/inventory.json`; it shows one non-Python file inside a snapshot (`jTbv9e3` `v3/result.txt`) and no symlinks.
+
+The shadow audit ran over the five records and one named comparison, with each run's inputs manifest committed and pushed before evaluation and its report committed after (`docs/shadow-audit/development-cohort/<rollout>/inputs.json` and `report.json`; the tables are `summary.md`). Descriptive and directionless. Pairs are what each record recovers, not the agent's action history. Comparable pairs have both a gate disposition and a recorded keep or revert.
+
+| rollout | versions | pairs | with disposition | record-backed comparable | agree | disagree | task-starter pairs | confirmed | exploratory | screening below | evaluation failed | not replayable | other failures | median planned | cpu s | audit kind | exit |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| opus-batch-k5-8NhhboZ-pair |  | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |  | 0 | screening-and-feasibility | 1 |
+| opus-batch-k5-F7E69wm | 3 | 2 | 1 | 1 | 0 | 1 | 0 | 0 | 1 | 0 | 1 | 0 | 0 | 9692228 | 552 | screening-and-feasibility | 1 |
+| opus-batch-k5-FHQNNyJ | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |  | 0 | screening-and-feasibility | 0 |
+| opus-probe-20m-4tAEgA8 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 15515437 | 342 | screening-and-feasibility | 0 |
+| preflight-A-mini-E9kaUgh | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |  | 0 | screening-and-feasibility | 0 |
+| preflight-B-longer-eKGshRf | 10 | 9 | 9 | 9 | 0 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 0 | 6177 | 24 | screening-and-feasibility | 0 |
+
+Over the cohort: 13 pairs, 10 comparable record-backed pairs, 0 agree, 10 disagree, 0 confirmed, 11 exploratory.
+
+The named comparison is the submission that scored `valid_fraction` 0.00 on the sealed suite because it returned illegal moves, against the `v0` that rollout did snapshot: the shadow audit produced no gate disposition for this submission because its evaluation failed (v1: cpu_budget_exhausted); the configured failure policy would revert it.
+
+Under the accepted planning rule, a candidate whose per-seed spread is large relative to the minimum effect plans more confirmation seeds than the cap of 64 allows and is reverted without a confirmation; this is a finding about the rule and the task's per-seed spread, not about the candidate, and a change to the rule is a separate proposal. The per-pair screening lines in `summary.md` carry each pair's estimate, interval, minimum effect, spread and planned size; the diagnostics under `docs/shadow-audit/diagnostics/` simulate the rule at the observed scale under stated synthetic distributions.
+
+Limits, as every report states them:
+
+- The pairs are record-recoverable candidate-parent-status tuples, not the agent's action history.
+- The policy is imported into the evaluator's process, as in the task's own self-check; the container protects the operator's machine, not the result, against a policy written to manipulate the evaluator.
+- The disagreement counts are descriptive and directionless; nothing here says who was right.
+- An interval describes the measured effect on the seeds evaluated; it is not the probability a decision was right and not a statement about the sealed reward.
+- Anchoring starts at the commit that carries the inputs manifest; nothing inside the rollout is authenticated.
+- The eight-seed screening interval is a screening heuristic on reused seeds, not a stable inference about the policy; the confirmation on fresh seeds is what decides.
+- The replay configuration, including the replication key, is mounted where the policy can read it; after the rollout that key protects nothing, because every candidate was fixed before it existed.
+
 ## Limits of this observation
 
 - One task, one harness, one agent model, one trial per configuration.
