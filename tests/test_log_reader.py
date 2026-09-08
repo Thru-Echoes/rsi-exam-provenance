@@ -190,20 +190,30 @@ class UnnameableSnapshotsAreRefused(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             versions = Path(tmp) / "versions"
             (versions / "v1").mkdir(parents=True)
-            (versions / "v6_best").mkdir()
+            (versions / "v6-best").mkdir()
             offenders = sorted(child.name for child in versions.iterdir()
                                if child.is_dir() and not bc.VERSION_DIR.fullmatch(child.name))
-            self.assertEqual(offenders, ["v6_best"])
+            self.assertEqual(offenders, ["v6-best"])
 
     def test_the_producer_refuses_such_a_job_directory(self):
         # End to end on the golden fixture, so the refusal is proved against a job directory that
         # is otherwise complete and would build a record.
         job, task = materialize(self)
+        (job / "artifacts/app/methods/versions/v6-best").mkdir()
+        with self.assertRaises(bc.ProducerError) as caught:
+            bc.build_capsule(job, task, "0.1@bc36dadb405b", "fixture-rollout-001",
+                             None, None, [])
+        self.assertIn("unrecognized_snapshot:v6-best", str(caught.exception))
+
+    def test_a_well_formed_name_the_log_never_declares_is_refused(self):
+        # v6_best is now a well-formed id, so the refusal moves from the name to the log: the
+        # directory exists and no line of the log declares it.
+        job, task = materialize(self)
         (job / "artifacts/app/methods/versions/v6_best").mkdir()
         with self.assertRaises(bc.ProducerError) as caught:
             bc.build_capsule(job, task, "0.1@bc36dadb405b", "fixture-rollout-001",
                              None, None, [])
-        self.assertIn("unrecognized_snapshot:v6_best", str(caught.exception))
+        self.assertIn("log_missing_version:v6_best", str(caught.exception))
 
     def test_the_same_fixture_builds_without_it(self):
         job, task = materialize(self)
@@ -211,6 +221,54 @@ class UnnameableSnapshotsAreRefused(unittest.TestCase):
                                    None, None, [])
         self.assertTrue(capsule["versions"])
 
+
+class SuffixedVersionIdsAreReal(unittest.TestCase):
+    """A real rollout snapshotted v1a beside v2 and v3; the log declares all of them."""
+
+    def test_a_suffixed_id_declares_a_block(self):
+        self.assertEqual(bc.get_declaration("| v1a | v1 | knobs only | informative |"), "v1a")
+        self.assertEqual(bc.get_declaration("## v5_final"), "v5_final")
+
+    def test_a_hyphen_never_joins_two_ids(self):
+        # "v1-v2" in prose is two versions with a dash between them, not one id.
+        self.assertEqual(bc.VERSION_TOKEN.findall("compared v1-v2 and v3"), ["v1", "v2", "v3"])
+
+    def test_the_real_log_declares_every_snapshotted_id(self):
+        lines = read("table_suffixed_ids.md")
+        blocks = bc.get_version_blocks(lines)
+        for vid in ("v0", "v1", "v1a", "v2", "v3"):
+            self.assertIn(vid, blocks, vid)
+        with self.assertRaises(bc.ProducerError) as caught:
+            status_of(lines, "v1a")
+        self.assertIn("log_unclassifiable:v1a", str(caught.exception))
+        # The v3 row reads "**kept (submitted)**": the reader returns kept, because kept is checked before
+        # submitted, and the producer is what marks a version submitted, by matching main/.
+        self.assertEqual(status_of(lines, "v3"), "kept")
+
+    def test_declaration_order_is_the_ordinal(self):
+        lines = read("table_suffixed_ids.md")
+        declared = list(bc.get_version_blocks(lines))
+        self.assertEqual(declared[:5], ["v0", "v1", "v1a", "v2", "v3"])
+
+
+class OrdinalsFollowDeclarationOrder(unittest.TestCase):
+    def test_end_to_end_a_suffixed_snapshot_is_recorded(self):
+        job, task = materialize(self)
+        versions = job / "artifacts/app/methods/versions"
+        (versions / "v2").rename(versions / "v2a")
+        (job / "artifacts/app/methods/experiment_log.md").write_text(
+            "# Experiment log\n\n"
+            "- v1 (parent: none): corner-priority move order. score: 1180. kept\n"
+            "- v2a (parent: v1): depth-2 lookahead, exceeded the per-move budget. score: 940. reverted\n"
+            "- v3 (parent: v1): tuned corner weights on the public suite. score: 1560. kept\n",
+            encoding="utf-8")
+        capsule = bc.build_capsule(job, task, "0.1@bc36dadb405b", "fixture-rollout-001",
+                                   None, None, [])
+        by_id = {v["version_id"]: v for v in capsule["versions"]}
+        self.assertEqual(by_id["v2a"]["ordinal"], 2)
+        self.assertEqual(by_id["v2a"]["parent_ids"], ["v1"])
+        self.assertEqual(by_id["v2a"]["status"], "reverted")
+        self.assertEqual(by_id["v3"]["ordinal"], 3)
 
 
 if __name__ == "__main__":

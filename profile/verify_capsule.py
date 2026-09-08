@@ -37,7 +37,7 @@ from typing import Any, Callable
 
 SCHEMA_VERSION = "proofpress/rsi-exam-trajectory/v3"
 DIGEST = re.compile(r"^[0-9a-f]{64}$")
-VERSION_ID = re.compile(r"^v[0-9]+$")
+VERSION_ID = re.compile(r"^v[0-9]+[a-z0-9_]*$")
 MAX_STRING = 2000
 
 Errors = list[str]

@@ -372,7 +372,7 @@
       "properties": {
         "version_id": {
           "type": "string",
-          "pattern": "^v[0-9]+$"
+          "pattern": "^v[0-9]+[a-z0-9_]*$"
         },
         "ordinal": {
           "type": "integer",
@@ -383,7 +383,7 @@
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "pattern": "^v[0-9]+$"
+            "pattern": "^v[0-9]+[a-z0-9_]*$"
           }
         },
         "status": {
