@@ -46,11 +46,11 @@ EXCLUSIONS = ("__pycache__/", "*.pyc", "*.pyo")
 EXCLUDED_DIR = "__pycache__"
 EXCLUDED_SUFFIXES = (".pyc", ".pyo")
 MAX_SOURCE_BYTES = 10_000_000      # the grader's cap on the total staged policy source
-VERSION_DIR = re.compile(r"^v[0-9]+$")
-VERSION_TOKEN = re.compile(r"\bv[0-9]+\b")
+VERSION_DIR = re.compile(r"^v[0-9]+[a-z0-9_]*$")
+VERSION_TOKEN = re.compile(r"\bv[0-9]+[a-z0-9_]*\b")
 # A declaration opens a version's block: a heading, a list item, or a bare id at the line start,
 # with markdown emphasis around the id tolerated.
-DECLARATION = re.compile(r"^\s*(?:#{1,6}\s+)?(?:[-*+]\s+)?[*_]{0,2}(v[0-9]+)\b")
+DECLARATION = re.compile(r"^\s*(?:#{1,6}\s+)?(?:[-*+]\s+)?[*_]{0,2}(v[0-9]+[a-z0-9_]*)\b")
 STATUS_HEADER = re.compile(r"kept|keep|status|disposition", re.IGNORECASE)
 STATUS_LABEL = re.compile(r"^\s*(?:[-*+]\s+)?[*_]{0,2}(?:status|disposition|kept)\b", re.IGNORECASE)
 PARENT_LABEL = re.compile(r"^\s*(?:[-*+]\s+)?[*_]{0,2}parent\b", re.IGNORECASE)
@@ -464,32 +464,43 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
     for child in sorted(versions_root.iterdir()):
         if child.is_dir() and not VERSION_DIR.fullmatch(child.name):
             raise ProducerError(f"unrecognized_snapshot:{child.name}")
-    snapshot_dirs = sorted(
-        (child for child in versions_root.iterdir()
-         if child.is_dir() and VERSION_DIR.fullmatch(child.name)),
-        key=lambda child: int(child.name[1:]))
-    if not snapshot_dirs:
+    ordinal_of = {vid: index for index, vid in enumerate(blocks, start=1)}
+    candidates = [child for child in versions_root.iterdir()
+                  if child.is_dir() and VERSION_DIR.fullmatch(child.name)]
+    if not candidates:
         raise ProducerError("no_snapshots")
+    for child in sorted(candidates):
+        if child.name not in ordinal_of:
+            raise ProducerError(f"log_missing_version:{child.name}")
+    snapshot_dirs = sorted(candidates, key=lambda child: ordinal_of[child.name])
 
     versions: list[dict[str, Any]] = []
     ids = {child.name for child in snapshot_dirs}
-    lowest = min(int(child.name[1:]) for child in snapshot_dirs)
+    lowest = min(ordinal_of[child.name] for child in snapshot_dirs)
     digests: dict[str, str] = {}
     for child in snapshot_dirs:
         vid = child.name
-        if vid not in blocks:
-            raise ProducerError(f"log_missing_version:{vid}")
         line_no, block = blocks[vid]
-        parents = get_block_parents(block, vid)
-        for parent in parents:
-            if parent not in ids:
+        # A parent the log declares but never snapshotted is real lineage without an artifact: the
+        # inherited baseline is the common case. It is recorded as such, never dropped, and a
+        # parent the log never declares at all is still refused.
+        recorded: list[str] = []
+        unsnapshotted: list[str] = []
+        for parent in get_block_parents(block, vid):
+            if parent in ids:
+                recorded.append(parent)
+            elif parent in blocks:
+                unsnapshotted.append(parent)
+            else:
                 raise ProducerError(f"unknown_parent:{vid}")
-        if not parents and int(vid[1:]) != lowest:
+        ordinal = ordinal_of[vid]
+        if not recorded and ordinal != lowest:
             raise ProducerError(f"missing_parent:{vid}")
+        parents = recorded
         digests[vid] = tree_digest(child)
         version: dict[str, Any] = {
             "version_id": vid,
-            "ordinal": int(vid[1:]),
+            "ordinal": ordinal,
             "parent_ids": parents,
             "status": get_status(block, vid, get_table_status(log_lines, line_no - 1)),
             "artifact": {
@@ -500,6 +511,8 @@ def build_capsule(job_dir: Path, task_dir: Path, release: str, capsule_id: str,
             },
             "log": {"line": line_no},
         }
+        if unsnapshotted:
+            version["unsnapshotted_parent_ids"] = unsnapshotted
         entries = decisions.get(vid)
         if entries:
             # The gate's own record of what it decided outranks the prose in the experiment log.

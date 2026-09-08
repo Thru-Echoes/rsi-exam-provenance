@@ -32,10 +32,16 @@ ATIF file, which is bound by digest but not copied.
 
 ## Required bindings
 
-Every version has a snapshot-directory identity (`v<N>`), an ordinal, parent
-ids, a disposition from the protocol's own vocabulary (`baseline`, `kept`,
+Every version has a snapshot-directory identity (`v<N>`, optionally with a
+lowercase suffix such as `v1a`), an ordinal that is its 1-based position in
+the order the experiment log declares versions, parent ids that name recorded
+versions, optionally `unsnapshotted_parent_ids` naming parents the log
+declares but never snapshotted (the inherited baseline is the usual case), a
+disposition from the protocol's own vocabulary (`baseline`, `kept`,
 `reverted`, `submitted`), a reference to the experiment-log line that names
-it, and a canonical tree digest of its directory. The
+it, and a canonical tree digest of its directory. Only the lowest-ordinal
+version may have no recorded parent; two versions both descending from an
+unsnapshotted baseline is a forest the record does not express and is refused. The
 canonical tree digest is: one line `<sha256><two spaces><posix relpath>` per
 regular file, relpaths byte-sorted, lines concatenated and hashed with
 SHA-256; symlinks are rejected. Occurrence identity is the directory name,

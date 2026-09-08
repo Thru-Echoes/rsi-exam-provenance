@@ -37,7 +37,7 @@ from typing import Any, Callable
 
 SCHEMA_VERSION = "proofpress/rsi-exam-trajectory/v3"
 DIGEST = re.compile(r"^[0-9a-f]{64}$")
-VERSION_ID = re.compile(r"^v[0-9]+$")
+VERSION_ID = re.compile(r"^v[0-9]+[a-z0-9_]*$")
 MAX_STRING = 2000
 
 Errors = list[str]
@@ -361,6 +361,7 @@ CAPSULE_SPEC: Checker = _obj({
         "version_id": (True, _version_ref),
         "ordinal": (True, _integer(minimum=0)),
         "parent_ids": (True, _array(_version_ref, unique=True)),
+        "unsnapshotted_parent_ids": (False, _array(_version_ref, unique=True, min_items=1)),
         "status": (True, _enum("baseline", "kept", "reverted", "provisional", "submitted")),
         "decisions": (False, _array(_DECISION, min_items=1)),
         "stage": (False, _string(1, 200)),
@@ -1070,6 +1071,14 @@ def _check_semantics(data: dict[str, Any], errors: Errors) -> None:
                 _add(errors, f"semantic:version:{vid}:missing_parent")
             elif by_id[parent]["ordinal"] >= version["ordinal"]:
                 _add(errors, f"semantic:version:{vid}:parent_order")
+
+    for version in versions:
+        vid = version["version_id"]
+        for parent in version.get("unsnapshotted_parent_ids", []):
+            if parent in by_id:
+                _add(errors, f"semantic:version:{vid}:unsnapshotted_parent_is_recorded")
+            if parent in version["parent_ids"]:
+                _add(errors, f"semantic:version:{vid}:parent_listed_twice")
 
     submitted = [v for v in versions if v["status"] == "submitted"]
     if len(submitted) != 1:
