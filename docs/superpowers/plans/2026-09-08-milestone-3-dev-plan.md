@@ -833,25 +833,37 @@ real rollouts have run and the record builds for five; next are the host-side sh
 those records and four more trials under the program overlay.
 ```
 
-- [ ] **Step 5: Contract prose (the only permitted edit to that file)**
+- [ ] **Step 5: Contract prose (the only permitted edit to that file), and two more stale sentences**
 
-In `docs/decision-log-contract.md`, in the paragraph that begins `**Further limits of Milestone 1.**`, replace the sentence
+These sentences wrap across lines in the files, so match them with any whitespace between words. Run:
+```bash
+python3 - <<'PY'
+import pathlib, re
+def edit_wrapped(path, pairs):
+    p = pathlib.Path(path); s = p.read_text()
+    for old, new in pairs:
+        pattern = re.compile(r"\s+".join(re.escape(w) for w in old.split()))
+        m = pattern.search(s); assert m, f"{path}: missing {old[:60]!r}"
+        s = s[:m.start()] + new + s[m.end():]
+    p.write_text(s); print("edited", path)
+edit_wrapped("docs/decision-log-contract.md", [
+ ("the grader's own sandbox drops privileges to an unprivileged user, and Milestone 3 adds the same drop (and the per-move time limit) to the runner before the first gated rollout.",
+  "the grader's own sandbox drops privileges to an unprivileged user; the host-side shadow audit runs the\nrunner inside a throwaway container with no network and the operator's uid instead, and a privilege drop\nwith a per-move limit in the runner belongs to the deferred in-container instrument (`ROADMAP.md`,\nMilestone 4)."),
+ ("`audit_key_sha256` is recorded now and used by the audit suite in Milestone 3.",
+  "`audit_key_sha256` is recorded now; nothing consumes it yet, and a replay\nconfiguration fills it with the digest of a documented literal."),
+])
+edit_wrapped("docs/ROADMAP.md", [
+ ("Status: Milestone 1 delivers the gate, the runner, receipts, and the restore helper. Mounting them into the container, the trusted driver that runs the gate between snapshots, and the program overlay that tells the agent to call it are Milestone 3, so no gated rollout runs before then. The preflight observation is recorded in `docs/PREFLIGHT.md` once it has been made.",
+  "Status: Milestone 1 delivers the gate, the runner, receipts, and the restore helper. Running the gate\nover real rollouts is Milestone 3, on the host after the rollout; an in-container instrument is\ndeferred to Milestone 4. The preflight observation is recorded in `docs/PREFLIGHT.md`."),
+])
+edit_wrapped("docs/overview.md", [
+ ("every frozen candidate and its parent are evaluated once on a separate audit suite (never used during the run);",
+  "every frozen candidate and its parent are evaluated by the host-side\n   shadow audit on seeds the agent never had;"),
+])
+PY
+git diff --stat docs/decision-log-contract.md
 ```
-the grader's own sandbox drops privileges to an unprivileged user, and Milestone 3 adds the same drop (and the per-move time limit) to the runner before the first gated rollout.
-```
-with
-```
-the grader's own sandbox drops privileges to an unprivileged user; the host-side shadow audit runs the runner inside a throwaway container with no network and the operator's uid instead, and a privilege drop with a per-move limit in the runner belongs to the deferred in-container instrument (`ROADMAP.md`, Milestone 4).
-```
-In the paragraph that begins `**Limits.**`, replace the sentence
-```
-`audit_key_sha256` is recorded now and used by the audit suite in Milestone 3.
-```
-with
-```
-`audit_key_sha256` is recorded now; nothing consumes it yet, and a replay configuration fills it with the digest of a documented literal.
-```
-Run `git diff --stat docs/decision-log-contract.md` and expect exactly `1 file changed, 2 insertions(+), 2 deletions(-)`. Anything more is STOP condition 7.
+Expected: three `edited` lines, and a contract diff that touches only the two paragraphs named (the paragraphs re-wrap, so the line count is a few lines, not two). Anything outside those two paragraphs is STOP condition 7.
 
 - [ ] **Step 6: Confirm the banner on the earlier plan**
 
@@ -870,7 +882,7 @@ The pull request that introduced this plan also put a superseded banner at the t
 ```bash
 grep -rn -i "trusted driver\|no trust caveat\|genuine holdout\|audit suite" README.md docs/ROADMAP.md docs/overview.md docs/decision-log-contract.md | grep -v "Milestone 4" | grep -v "superpowers"
 ```
-Expected: no output other than lines in the deferred-instrument paragraphs that name the phrase in order to withdraw it. Then:
+Expected: no output at all (the deferred-instrument paragraphs are excluded by the `grep -v`; if any other line appears, it is a sentence this task missed: rewrite it in the same spirit and record it in the commit body). Then:
 ```bash
 python3 -m unittest discover -s tests -t . 2>&1 | tail -3
 git add docs/ROADMAP.md README.md docs/overview.md docs/decision-log-contract.md docs/superpowers/plans/2026-09-07-opus-records-shadow-replay-campaign.md
