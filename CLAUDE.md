@@ -25,6 +25,9 @@ gate/seeds.py                  fresh confirmation suites (rsi-exam-gate/hmac-see
 gate/evaluate_suite.py         the evaluation runner that writes receipts (rsi-exam-gate-receipt/v1)
 gate/restore.py                put a snapshot back into main/ without nesting it
 gate/trace_from_decisions.py   decision log -> TRACE 0.5.1 session document
+gate/shadow_replay.py          host-side shadow audit: the gate over a finished rollout's record-recoverable pairs
+gate/calibrate.py              the gate's rule simulated on synthetic paired deltas (diagnostic)
+runbook/                       operator tooling: gateway run script, cost script, replay-configuration generator, program overlay, runbook
 profile/schema.json            the provenance record's JSON Schema (profile v2)
 profile/build_capsule.py       job directory -> provenance record
 profile/verify_capsule.py      offline verifier for a record
