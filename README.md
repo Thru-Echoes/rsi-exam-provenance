@@ -65,9 +65,11 @@ container; `docs/ROADMAP.md` has the milestones and the deferred in-container in
 ## Quick start
 
 ```
-python3 -m unittest discover -s tests -t .          # 148 tests
+python3 -m unittest discover -s tests -t .          # 336 tests
 python3 gate/decide.py --help
 python3 gate/trace_from_decisions.py --help
+python3 gate/shadow_replay.py --help
+python3 gate/calibrate.py --help
 python3 profile/build_capsule.py --job-dir fixtures/valid/job --task-dir fixtures/valid/task \
     --release "0.1@bc36dadb405b" --capsule-id fixture-rollout-001 --output /tmp/capsule.json
 python3 profile/verify_capsule.py /tmp/capsule.json --artifact-root fixtures/valid/job --require-complete
