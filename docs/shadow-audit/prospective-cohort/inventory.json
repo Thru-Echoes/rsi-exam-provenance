@@ -1,0 +1,38 @@
+[
+  {
+    "rollout": "opus-overlay-01-73Ra8Kd",
+    "log_present": true,
+    "snapshots": [
+      "v0"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "opus-overlay-02-94czup8",
+    "log_present": true,
+    "snapshots": [
+      "v0"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "opus-overlay-03-bYVTshq",
+    "log_present": true,
+    "snapshots": [
+      "v0"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "opus-overlay-04-c44VQwv",
+    "log_present": true,
+    "snapshots": [
+      "v0"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  }
+]
