@@ -914,9 +914,10 @@ def expected_disposition(entry: dict[str, Any]) -> str:
     """The action the contract's table gives for a decision. Pure function.
 
     A confirmation keeps only on a clearing interval whose held-out replicate also clears, and
-    reverts otherwise; it is never provisional. A screening reverts on `below`, is provisional on
-    `inconclusive`, and on `clears` keeps unless confirmation is required or a held-out replicate
-    fails to clear.
+    reverts otherwise; it is never provisional. A screening reverts on `below`, reverts when its
+    confirmation plan is exploratory (the gated rule: an under-planned confirmation never keeps, so
+    the gate reverts on the screening line and derives no suite), is provisional on `inconclusive`,
+    and on `clears` keeps unless confirmation is required or a held-out replicate fails to clear.
     """
     verdict = entry["verdict"]
     holdout = entry.get("holdout")
@@ -926,6 +927,9 @@ def expected_disposition(entry: dict[str, Any]) -> str:
             return "keep"
         return "revert"
     if verdict == "below":
+        return "revert"
+    sizing = entry.get("sizing")
+    if isinstance(sizing, dict) and sizing.get("exploratory") is True:
         return "revert"
     if verdict == "inconclusive":
         return "provisional"
@@ -959,6 +963,17 @@ def _check_decision_rules(data: dict[str, Any], errors: Errors) -> None:
         elif entry["disposition"] != expected_disposition(entry):
             # Only meaningful once the verdict itself holds; otherwise this restates that finding.
             _add(errors, f"decision:disposition_inconsistent:{vid}:{line}")
+        sizing = entry.get("sizing")
+        if isinstance(sizing, dict) and entry["kind"] == "screening":
+            size, planned = sizing.get("size"), sizing.get("planned")
+            if (isinstance(size, int) and isinstance(planned, int)
+                    and sizing.get("exploratory") is not (size < planned)):
+                # The flag the disposition rests on must follow from the plan's own numbers.
+                _add(errors, f"decision:sizing_inconsistent:{vid}:{line}")
+            if sizing.get("exploratory") is True and entry.get("suite") is not None:
+                # An exploratory screening derives no suite; one that carries a suite opened a
+                # confirmation the rule says it may not open.
+                _add(errors, f"decision:sizing_inconsistent:{vid}:{line}")
         if (entry["kind"] == "screening" and entry["disposition"] == "keep"
                 and entry["confirm_policy"] == "always"):
             _add(errors, f"protocol:unconfirmed_keep:{vid}:{line}")
