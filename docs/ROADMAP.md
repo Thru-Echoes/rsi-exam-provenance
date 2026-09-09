@@ -14,7 +14,7 @@ one branch and pull request per task, tests and pyright clean before every push.
 | TRACE converter (`gate/trace_from_decisions.py`) | Built, 17 tests | Re-checks every contract rule, including the gated ones, and carries the gated fields as extras. Output validates under the TRACE 0.5.1 typed models and schema and round-trips with every producer key preserved. |
 | ProofPress import | Verified on fixture data against `main` | The evidence adapter accepts the 0.5.1 document, keeps four fields, refuses a malformed interval and an unpinned version, and is idempotent (`docs/RUN_REPORT.md`). |
 | Decision-evidence report (`report/`) | Built | One row per decision from the record and the verifier's output, with the limits printed beside the table. |
-| Real rollouts | Ten trials run (four `claude-haiku-4-5`, six `claude-opus-5`); the record builds for five | The job layout is in `docs/PREFLIGHT.md`. The rest of Milestone 3 below: the host-side shadow audit over these records, and four more trials under the program overlay. |
+| Real rollouts | Ten earlier trials, the stopped overlay campaign, the pilots and the helper campaign; records build for every helper rollout | Every observation is in `docs/PREFLIGHT.md` as counts; the campaign manifests are under `docs/campaign/`. |
 
 ## Milestone 1: the gate, the runner, receipts, and the restore helper (built)
 
@@ -88,57 +88,53 @@ plus the record (rollout id and version id together, parent, score, interval, ve
 confirmed by, digests checked). It assists a human audit and never claims to answer whether a
 score moved for a real reason.
 
-## Milestone 3: the record on real rollouts, and a host-side shadow audit (target: September 2026)
+## Milestone 3: the record on real rollouts, and a host-side shadow audit (September 2026, reported)
 
-Status: ten real rollouts exist (four `claude-haiku-4-5` preflight trials, six `claude-opus-5`
-trials through a gateway); after the lineage fixes below the record producer builds five of them,
-and refuses the rest for reasons their logs carry (no log, a log with no rows, a snapshot the log
-never names, a version whose disposition the log never states). A second-model review of the
-in-container gate design found that a driver sharing the agent's container is not a trust boundary
-and that a confirmation suite derived from a key the agent can read is not a holdout, so the
-in-container gate is withdrawn in its strong form and deferred to Milestone 4. Milestone 3 is the
-part that carries no in-rollout trust problem:
+Status: built and run. The record producer, the verifier, the shadow audit and its diagnostics
+are on `main`; `docs/PREFLIGHT.md` carries every observation as counts: the ten earlier rollouts
+(records for five; the audit over 13 pairs, all exploratory or failed under the accepted rule),
+the stopped six-trial `claude-opus-5` campaign under the wording-only overlay (four trials, every
+one stopped by the timeout with the starter untouched, zero pairs, cause not established), the
+pilots on the operator's key that led to the helper, the sealed-suite retrospective over the ten
+earlier rollouts, and the campaign under the helper-backed overlay with its audit under the
+accepted planning rule and, as a labelled diagnostic, under the estimate-aware rule.
 
 - **Record lineage.** Version ids may carry a lowercase suffix (`v1a`); ordinals follow the order
   the experiment log declares versions; a parent the log declares but never snapshotted is recorded
   in `unsnapshotted_parent_ids`. A missing or truncated log stays a refusal.
-- **Runbook and program overlay** (`runbook/`): the gateway run script, a fail-loud cost script, a
-  replay-configuration generator, the runbook, and our copy of the program text with the
-  conventions the record depends on (snapshot the inherited `main/` as `v0`, name snapshots
-  `v<N>`, log a version immediately after snapshotting it, state parent and disposition). A run
-  under the overlay is a modified-program run.
+- **Runbook, overlay and helper** (`runbook/`): the gateway run script, a fail-loud cost script
+  with rate cards for the three models, a replay-configuration generator, and the program overlay
+  whose loop routes every step through `provenance.py`, a helper mounted read-only into the
+  agent's container that snapshots, logs, decides and finalizes for the agent. The wording-only
+  overlay that asked the agent to do that bookkeeping by hand is withdrawn: hand bookkeeping lost
+  most records to races at the stop. A run under the overlay is a modified-program run.
 - **Host-side shadow audit** (`gate/shadow_replay.py`). After a rollout, on the operator's machine,
   the gate runs over the record-recoverable candidate-parent pairs of a verified record, with a
   replication key the agent never had, evaluating policy code inside a throwaway container. Per
-  pair it reports why the gate ended where it did (screening below, exploratory, confirmed keep or
-  revert, or a named failure) and, over comparable record-backed pairs, a descriptive and
-  directionless agree or disagree count against the disposition the agent recorded. Its inputs
-  manifest is committed and pushed before any evaluation. It is a shadow audit, not an in-rollout
-  gate; its pairs are record-recoverable tuples, not the agent's action history; and it does not
-  authenticate anything that happened inside the rollout.
-- **Diagnostics** (`gate/calibrate.py`): the gate's rule simulated on synthetic paired deltas so
-  that a replay configuration's floor, cap and minimum effect are chosen with their consequences in
-  view. Under the accepted planning rule a candidate whose per-seed spread is large relative to the
-  minimum effect plans far more confirmation seeds than any cap allows and is reverted as
-  exploratory; the audit reports that as a finding about the rule, and a change to the rule is a
-  separate proposal.
-- **A descriptive campaign**: four `claude-opus-5` trials under the overlay, one at a time under a
-  spend guard, reported as counts (records built, `v0` present, log present) beside the earlier
-  trials as non-comparable context, then audited the same way. No rate, reliability, or efficacy
-  claim.
-- `docs/PREFLIGHT.md` carries the record's outcome over every real rollout, the audit tables with
-  their coverage denominators, and the limits.
+  pair it reports why the gate ended where it did and, over comparable record-backed pairs, a
+  descriptive and directionless agree or disagree count against the disposition the agent recorded.
+  Its inputs manifest is committed and pushed before any evaluation.
+- **The planning rule.** Under the accepted rule a candidate whose per-seed spread is large
+  relative to the minimum effect plans far more confirmation seeds than any cap allows and is
+  reverted as exploratory; on this task that is almost every pair. A profile may select the
+  estimate-aware rule (`confirmation.planning_rule`), which plans against the larger of the minimum
+  effect and the screening estimate less the minimum effect; the audit reports it as a labelled
+  diagnostic beside the primary tables. Adopting it is a separate decision with its own
+  pre-registered calibration (`gate/calibrate.py` supports the protocol).
+- **Diagnostics** (`gate/calibrate.py`) and the sealed-suite retrospective (`gate/sealed_eval.py`):
+  the rule simulated at the observed scale, and every snapshot of the earlier rollouts scored on the
+  task's published sealed seeds as analysis data, never used to tune the rule.
 
-## Milestone 4: a cooperative in-container instrument (deferred, undecided)
+## Milestone 4: a cooperative in-container instrument (the helper, built in its cooperative form)
 
-An in-container gate can only be a cooperative instrument, and only with the mechanical fixes the
-review named: the gate and its profile mounted read-only as one directory outside the artifact
-root; confirmation seeds from fresh entropy rather than a mounted key; an enforced state machine
-(one accepted head, a parent that must equal it, one-time version ids, `main/` validated after
-every evaluation and last of all); a crash-safe restore; a privilege drop and a per-move limit in
-the runner; rendered-compose checks that the network mode survives the overlay. Its claim is
-internal consistency of the exported record; it never establishes that the recorded evaluations
-occurred as described. Whether to build it is an open decision, taken after Milestone 3 reports.
+The helper of Milestone 3 is the cooperative instrument in its minimal form: one file mounted
+read-only, the record's bookkeeping done in code with a fixed order and self-repair after any
+stop, and the loop text written around it. Its claim is internal consistency of the exported
+record; it never establishes that the recorded evaluations occurred as described, and an agent can
+still bypass it by hand. What the review of the in-container gate asked for beyond that (confirmation
+seeds from fresh entropy rather than a mounted key, an enforced state machine over the gate's own
+decisions, a privilege drop and a per-move limit in the runner, rendered-compose checks) remains
+undecided and would be taken up only if the shadow audit's findings warrant an in-rollout gate.
 
 A comparative study comes only after RSI-Exam expresses interest and with a preregistered
 design; see `docs/overview.md`, section 7.

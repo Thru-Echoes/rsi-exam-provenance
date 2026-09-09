@@ -101,6 +101,10 @@ producer then says and that the next command recovers a complete record.
 `ARB_PROVENANCE_PY` override). A run under the overlay is a modified-program run. Pass the program and the
 matching template as the last two arguments.
 
+The replay-configuration generator takes `--planning-rule estimate-aware` to write the profile key that
+selects the estimate-aware planning rule for a diagnostic pass of the audit; without the flag the profile
+names no rule and the gate plans under the accepted one.
+
 ## Building and verifying the record
 
 Never write into a job directory. Build every record into an audit root outside the jobs:
