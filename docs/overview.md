@@ -292,8 +292,12 @@ trial.
   protocol step they could switch on; a decision record any auditor can recompute.
 - **Ask:** include the submitted method's digest in `reward.json` so the score binds to exact
   bytes; publish a digest per released job directory; preserve per-seed visible results per
-  snapshot in the export; and fix or document the only-Python trap in the instruction and revert
-  command.
+  snapshot in the export; fix or document the only-Python trap in the instruction and revert
+  command; and give the agent a signal a short while before the harness stops it, so that a
+  closing step can run. Three rollouts under the helper lost record quality to the abrupt stop:
+  one made an unevaluated edit after its last decision and stopped without closing out, and two
+  had a candidate still undecided when the window closed, which the record then reports as the
+  submission. No wording prevents that; a grace period would.
 
 ## 9. How this fits ProofPress and TRACE
 
@@ -325,6 +329,10 @@ anyone acts on them. The verifier is the auditor who checks the minutes against 
 - ProofPress import shows compatibility, not adoption or verification.
 - Nothing here demonstrates that the gate improves RSI-Exam outcomes. Section 7 is how that
   would be found out.
+- The record is only as complete as the agent's last minute. The helper keeps every snapshot
+  logged and every decision durable, but an edit made after the last decision and a candidate
+  left undecided at the stop are the agent's to close out; the record reports the first as a
+  refusal and the second as the submission it was, and the observations count both.
 
 ## 11. Glossary
 

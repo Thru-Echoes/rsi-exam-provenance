@@ -496,6 +496,8 @@ The same diagnostic over the helper-overlay campaign's records is reported with 
 
 ## Limits of this observation
 
+Two windows stay with the agent under the helper, and the counts above include them: an edit made after the last decision and never evaluated, which leaves `main/` equal to no snapshot and the record refused (`campaign-H5`), and a candidate still undecided when the window closes, which the record reports as the submission it was, its log line reading reverted until decided (`campaign-S1`, one Opus pilot). A closing step cannot run after an abrupt stop; only a signal from the harness before the stop would close the second window, which is now one of the asks upstream.
+
 - One task, one harness, one agent model, one trial per configuration.
 - A reduced model and a reduced budget. No number here is comparable to a published result.
 - No gate ran inside a container, so no rollout here exercises gated mode end to end.
