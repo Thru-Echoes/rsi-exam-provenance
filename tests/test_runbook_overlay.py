@@ -15,13 +15,15 @@ TEMPLATE = REPO / "runbook" / "autoresearch-provenance.j2"
 
 # Sentences the record producer depends on, one per defect a real rollout exposed.
 REQUIRED = (
-    "run `python3 /app/provenance.py init`",
-    "snapshots the inherited /app/methods/main as /app/methods/versions/v0",
+    "run exactly `python3 /app/provenance.py init`",
+    "snapshots the inherited main/ as v0",
     "prints your run window",
-    "run `python3 /app/provenance.py evaluate --change \"<what changed>\"`",
-    "Never create versions/ directories or write to experiment_log.md by hand",
+    "never create, edit, delete or copy into or out of those paths",
+    "`python3 /app/provenance.py evaluate --change \"<one short line: what changed>\"`",
+    "Do not run selfcheck.py yourself",
     "`python3 /app/provenance.py decide v<N> kept`",
     "`python3 /app/provenance.py decide v<N> reverted`",
+    "Never restore or combine versions by copying files by hand",
     "run `python3 /app/provenance.py finalize`",
 )
 

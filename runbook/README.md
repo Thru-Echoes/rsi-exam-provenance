@@ -74,18 +74,27 @@ a job with no usage records; it never guesses. Start the next trial only while
 
 ## The provenance overlay and the helper
 
-`autoresearch-provenance.md` is RSI-Exam's own program text with the loop block rewritten so that
-the record can be built from what the agent leaves behind: the agent runs `provenance.py`, mounted
-read-only at `/app/provenance.py`, instead of copying snapshot directories and appending log entries
-by hand. `init` snapshots the inherited `main/` as `v0`, logs it, measures it and prints the run window;
-`evaluate` copies `main/` to the next `versions/v<N>`, appends that version's log block (id, parent,
-status, change, score) and runs the task's self-check; `decide v<N> kept|reverted` records the decision
-and a revert restores the head into `main/`; `finalize` settles an undecided candidate and leaves `main/`
-equal to the head; `status` shows the versions. A candidate reads as `reverted` until it is decided, so
-an interrupted run never reports an undecided version as kept. The remaining windows are one system call
-wide (between a snapshot's rename and its log block, and between the two renames of a restore) and the
-stretch while the agent edits `main/` before `evaluate`; `tests/test_provenance_helper.py` stops the
-helper at every checkpoint and asserts what the record producer then says.
+`autoresearch-provenance.md` is RSI-Exam's own program text with the loop block rewritten so that the
+record can be built from what the agent leaves behind: the agent runs `provenance.py`, mounted read-only
+at `/app/provenance.py`, instead of copying snapshot directories and appending log entries by hand, and the
+helper owns everything under `methods/` except `main/`. `init` snapshots the inherited `main/` as `v0`,
+logs it, measures it and prints the run window; `evaluate` copies `main/` to the next `versions/v<N>`,
+appends that version's log block (id, parent, status, change, digest, score) and runs the task's
+self-check; `decide v<N> kept|reverted` records the decision, a revert restoring the head into `main/`;
+`restore v<K>` makes an older snapshot the head; `finalize` settles an undecided candidate and leaves
+`main/` equal to the head; `status` shows the versions. The loop also tells the agent its run window and
+how to budget it.
+
+A candidate reads as `reverted` until its decision is durable, so an interrupted run never reports an
+undecided version as kept. Every stop is repaired by the agent's next command: a snapshot without a log
+block is adopted as the pending candidate with the parent recorded before staging, a block without its
+status line is set to `reverted`, the head's block is reconciled from the state, an unmeasured candidate
+is measured at `decide`, and `finalize` restores the head even when `main/` cannot be hashed. The remaining
+windows are a few operations wide (between a snapshot's rename and its log block; between the two renames
+of a restore) plus the stretch while the agent edits `main/` before `evaluate`. Snapshots are never
+edited: a changed snapshot is refused. One command runs at a time (a lock under `.provenance/`).
+`tests/test_provenance_helper.py` stops the helper at every checkpoint and asserts what the record
+producer then says and that the next command recovers a complete record.
 
 `mount-provenance.yaml` is RSI-Exam's `infra/prompts/mount.yaml` plus the helper's read-only mount;
 `run_gateway.sh` selects it when the program text names `/app/provenance.py` (`MOUNT_YAML` and

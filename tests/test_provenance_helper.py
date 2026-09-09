@@ -274,8 +274,9 @@ class InterruptionAtEveryCheckpoint(unittest.TestCase):
                 self.assertEqual(sorted(p.name for p in (root / "methods" / "versions").iterdir()), ["v0"])
 
     def test_evaluate(self):
-        for checkpoint, expected in (("staged", "submitted_not_snapshotted"), ("renamed", "log_missing_version:v2"),
-                                     ("appended", None), ("state_saved", None), ("scored", None)):
+        for checkpoint, expected in (("intent_saved", "submitted_not_snapshotted"), ("staged", "submitted_not_snapshotted"),
+                                     ("renamed", "log_missing_version:v2"), ("appended", None), ("state_saved", None),
+                                     ("scored", None)):
             with self.subTest(checkpoint=checkpoint):
                 root = make_root(self)
                 self.assertEqual(run(root, "init", "--no-evaluate").returncode, 0)
@@ -287,7 +288,7 @@ class InterruptionAtEveryCheckpoint(unittest.TestCase):
                 self.assertEqual(proc.returncode, 3, checkpoint)
                 self.assert_outcome(root, expected)
                 # recovery: the agent decides (a stop before the block exists is adopted first) or re-evaluates
-                if checkpoint == "staged":
+                if checkpoint in ("intent_saved", "staged"):
                     self.assertEqual(run(root, "evaluate", "--change", "always LEFT").returncode, 0)
                 proc = run(root, "decide", "v2", "reverted")
                 self.assertEqual(proc.returncode, 0, proc.stderr)
@@ -297,7 +298,7 @@ class InterruptionAtEveryCheckpoint(unittest.TestCase):
                 self.assertEqual((root / "methods" / "main" / "policy.py").read_text(), VARIANT.read_text())
 
     def test_decide_reverted(self):
-        for checkpoint, expected in (("status_rewritten", None), ("state_saved", None),
+        for checkpoint, expected in (("state_saved", None), ("status_rewritten", None),
                                      ("main_moved_aside", "missing_main"), ("restored", None)):
             with self.subTest(checkpoint=checkpoint):
                 root = make_root(self)
@@ -317,7 +318,10 @@ class InterruptionAtEveryCheckpoint(unittest.TestCase):
                 self.assertEqual(bc.get_status(block, "v1"), "reverted")
 
     def test_decide_kept(self):
-        for checkpoint in ("status_rewritten", "state_saved"):
+        # The state is saved before the log is rewritten: a stop between the two leaves a log that still
+        # says reverted while the state says the head is v1, and the next command (a plain finalize, the
+        # agent's natural closeout) reconciles the log to kept rather than reverting the decision.
+        for checkpoint in ("state_saved", "status_rewritten"):
             with self.subTest(checkpoint=checkpoint):
                 root = make_root(self)
                 self.assertEqual(run(root, "init", "--no-evaluate").returncode, 0)
@@ -326,12 +330,134 @@ class InterruptionAtEveryCheckpoint(unittest.TestCase):
                 proc = run(root, "decide", "v1", "kept", kill_after=checkpoint)
                 self.assertEqual(proc.returncode, 3, checkpoint)
                 self.assert_outcome(root, None)
-                proc = run(root, "finalize", "--keep", "v1") if checkpoint == "status_rewritten" else run(root, "status")
+                proc = run(root, "finalize")
                 self.assertEqual(proc.returncode, 0, proc.stderr)
+                lines = (root / "methods" / "experiment_log.md").read_text().splitlines()
+                _, block = bc.get_version_blocks(lines)["v1"]
+                self.assertEqual(bc.get_status(block, "v1"), "kept")
+                self.assertEqual((root / "methods" / "main" / "policy.py").read_text(), CANDIDATE)
                 capsule, reason = build(self, root)
                 self.assertIsNone(reason)
                 assert capsule is not None
                 self.assertEqual({v["version_id"]: v["status"] for v in capsule["versions"]}["v1"], "submitted")
+
+    def test_evaluate_from_stopped_after_placing_the_candidate(self):
+        root = make_root(self)
+        self.assertEqual(run(root, "init", "--no-evaluate").returncode, 0)
+        work = root / "work.py"
+        work.write_text(CANDIDATE, encoding="utf-8")
+        proc = run(root, "evaluate", "--from", str(work), kill_after="candidate_placed")
+        self.assertEqual(proc.returncode, 3)
+        self.assertEqual(sorted(p.name for p in (root / "methods" / "main").iterdir()), ["policy.py"])
+        self.assert_outcome(root, "submitted_not_snapshotted")
+        self.assertEqual(run(root, "finalize").returncode, 0)
+        self.assert_outcome(root, None)
+        self.assertEqual((root / "methods" / "main" / "policy.py").read_text(), STARTER.read_text())
+
+    def test_restore_stopped_after_the_state_save_is_completed_by_finalize(self):
+        root = make_root(self)
+        session(self, root)
+        proc = run(root, "restore", "v0", kill_after="state_saved")
+        self.assertEqual(proc.returncode, 3)
+        self.assertEqual(run(root, "finalize").returncode, 0)
+        self.assertEqual((root / "methods" / "main" / "policy.py").read_text(), STARTER.read_text())
+        capsule, reason = build(self, root)
+        self.assertIsNone(reason)
+        assert capsule is not None
+        self.assertEqual({v["version_id"]: v["status"] for v in capsule["versions"]}["v0"], "submitted")
+
+    def test_an_unmeasured_candidate_is_measured_at_decide(self):
+        root = make_root(self)
+        self.assertEqual(run(root, "init", "--no-evaluate").returncode, 0)
+        write_main(root, CANDIDATE)
+        proc = run(root, "evaluate", kill_after="state_saved")
+        self.assertEqual(proc.returncode, 3)
+        self.assertFalse((root / "methods" / "results" / "v1" / "selfcheck.json").exists())
+        proc = run(root, "decide", "v1", "reverted")
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertIn("never measured", proc.stdout)
+        self.assertTrue((root / "methods" / "results" / "v1" / "selfcheck.json").is_file())
+        capsule, reason = build(self, root)
+        self.assertIsNone(reason)
+        assert capsule is not None
+        self.assertIn("visible", {v["version_id"]: v for v in capsule["versions"]}["v1"])
+
+    def test_a_block_without_its_status_line_is_repaired(self):
+        root = make_root(self)
+        session(self, root)
+        log = root / "methods" / "experiment_log.md"
+        text = log.read_text()
+        text = text.replace("## v2\n- parent: v1\n- status: reverted\n", "## v2\n- parent: v1\n")
+        log.write_text(text, encoding="utf-8")
+        _, reason = build(self, root)
+        self.assertEqual(reason, "log_unclassifiable:v2")
+        self.assertEqual(run(root, "status").returncode, 0)
+        capsule, reason = build(self, root)
+        self.assertIsNone(reason)
+        assert capsule is not None
+        self.assertEqual({v["version_id"]: v["status"] for v in capsule["versions"]}["v2"], "reverted")
+
+    def test_a_log_that_does_not_end_in_a_newline_still_gets_a_declaration(self):
+        root = make_root(self)
+        self.assertEqual(run(root, "init", "--no-evaluate").returncode, 0)
+        with (root / "methods" / "experiment_log.md").open("a", encoding="utf-8") as stream:
+            stream.write("a hand-written note without a newline")
+        write_main(root, CANDIDATE)
+        self.assertEqual(run(root, "evaluate").returncode, 0)
+        self.assertEqual(run(root, "decide", "v1", "kept").returncode, 0)
+        capsule, reason = build(self, root)
+        self.assertIsNone(reason)
+        assert capsule is not None
+        self.assertEqual([v["version_id"] for v in capsule["versions"]], ["v0", "v1"])
+
+    def test_a_suffixed_snapshot_made_by_hand_is_adopted_and_logged(self):
+        root = make_root(self)
+        self.assertEqual(run(root, "init", "--no-evaluate").returncode, 0)
+        (root / "methods" / "versions" / "v1trial").mkdir()
+        (root / "methods" / "versions" / "v1trial" / "policy.py").write_text(CANDIDATE, encoding="utf-8")
+        proc = run(root, "status")
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        capsule, reason = build(self, root)
+        self.assertIsNone(reason)
+        assert capsule is not None
+        self.assertEqual({v["version_id"]: v["status"] for v in capsule["versions"]}["v1trial"], "reverted")
+        write_main(root, 'def choose_move(board):\n    return "DOWN"\n')
+        proc = run(root, "evaluate")
+        self.assertEqual(proc.returncode, 2)
+        self.assertIn("pending_decision:v1trial", proc.stderr)
+
+    def test_an_edited_snapshot_is_refused(self):
+        root = make_root(self)
+        session(self, root)
+        (root / "methods" / "versions" / "v1" / "policy.py").write_text("# edited\n" + VARIANT.read_text(), encoding="utf-8")
+        proc = run(root, "status")
+        self.assertEqual(proc.returncode, 2)
+        self.assertIn("snapshot_modified:v1", proc.stderr)
+
+    def test_a_second_command_while_one_runs_is_refused(self):
+        root = make_root(self)
+        self.assertEqual(run(root, "init", "--no-evaluate").returncode, 0)
+        import fcntl
+        fd = os.open(root / "methods" / ".provenance" / "lock", os.O_RDWR | os.O_CREAT)
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        try:
+            proc = run(root, "status")
+            self.assertEqual(proc.returncode, 2)
+            self.assertIn("busy", proc.stderr)
+        finally:
+            os.close(fd)
+
+    def test_scores_are_plain_decimals(self):
+        loader = importlib.util.spec_from_file_location("helper_under_test", HELPER)
+        assert loader is not None and loader.loader is not None
+        helper = importlib.util.module_from_spec(loader)
+        loader.loader.exec_module(helper)
+        rollout = helper.Rollout(Path("/nonexistent"))
+        self.assertEqual(rollout.score_line({"mean_score": 1e-05}), "- score: 0 mean over the public suite")
+        self.assertEqual(rollout.score_line({"mean_score": 2700.5, "median_score": 2574.0}),
+                         "- score: 2700.5 mean over the public suite (median 2574)")
+        for bad in ({"mean_score": float("nan")}, {"mean_score": True}, {"mean_score": "x"}, None):
+            self.assertTrue(rollout.score_line(bad).startswith("- score: not measured"), bad)
 
 
 if __name__ == "__main__":
