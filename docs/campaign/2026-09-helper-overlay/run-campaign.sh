@@ -19,7 +19,15 @@ LOCK=$AUDIT_ROOT/campaign2.lock.d; mkdir "$LOCK" 2>/dev/null || stop "another ca
 [ -z "$(git -C "$WT" status --porcelain -- runbook)" ] || stop "runbook/ in the campaign worktree is not clean"
 COMMIT=$(git -C "$WT" rev-parse --short HEAD)
 for F in "$PROGRAM" "$TEMPLATE" "$MOUNT" "$ARB_PROVENANCE_PY" "$COST" .env.local .env.gateway; do [ -f "$F" ] || stop "missing $F"; done
-for T in $ORDER O1 O2; do [ -e "jobs/campaign-$T" ] && stop "jobs/campaign-$T already exists; no trial is replaced"; done
+# RESUME=1 continues an interrupted run: trials whose job directory already holds a finished result are skipped in
+# place (never replaced); anything else that already exists still refuses.
+for T in $ORDER O1 O2; do
+  if [ -e "jobs/campaign-$T" ]; then
+    if [ "${RESUME:-0}" = 1 ] && [ -f "$(ls jobs/campaign-$T/game2048_policy_search__*/result.json 2>/dev/null | head -n 1)" ]; then continue; fi
+    stop "jobs/campaign-$T already exists; no trial is replaced"
+  fi
+done
+done_already() { [ "${RESUME:-0}" = 1 ] && [ -f "$(ls jobs/campaign-$1/game2048_policy_search__*/result.json 2>/dev/null | head -n 1)" ]; }
 echo "$(date -u +%H:%M:%S) campaign start: worktree commit $COMMIT, harbor $(harbor --version 2>/dev/null | head -n 1), RSI-Exam $(git rev-parse --short=12 HEAD)"
 priced() {  # exact priced spend over the given job directories with one rate card; fails loud
   local rates=$1; shift; local out
@@ -33,9 +41,9 @@ snapshots_of() {  # number of snapshot directories, or "unknown" when the versio
   find "$d/artifacts/app/methods/versions" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' '
 }
 arm_stopped() {  # the first two trials of the arm both finished with at most one snapshot (no pair)
-  local a b; read -r a b <<< "$2"
-  for T in $a $b; do [ -f "$(ls "$RSI_EXAM_ROOT"/jobs/campaign-$T/game2048_policy_search__*/result.json 2>/dev/null | head -n 1)" ] || return 1; done
-  for T in $a $b; do local n; n=$(snapshots_of "$T"); [ "$n" != unknown ] && [ "$n" -le 1 ] || return 1; done
+  local a b t n; read -r a b <<< "$2"
+  for t in $a $b; do [ -f "$(ls "$RSI_EXAM_ROOT"/jobs/campaign-$t/game2048_policy_search__*/result.json 2>/dev/null | head -n 1)" ] || return 1; done
+  for t in $a $b; do n=$(snapshots_of "$t"); [ "$n" != unknown ] && [ "$n" -le 1 ] || return 1; done
   return 0
 }
 reached_api() {  # the trial ended normally or by the harness timeout, and its session log carries assistant usage
@@ -78,10 +86,11 @@ run_local() {
   reached_api "jobs/campaign-$T" || stop "$T did not end normally or never reached the API"
   return 0
 }
-for T in $ORDER; do run_local "$T"; done
+for T in $ORDER; do if done_already "$T"; then echo "$(date -u +%H:%M:%S) $T already finished; not replaced"; continue; fi; run_local "$T"; done
 echo "$(date -u +%H:%M:%S) LOCAL-ARMS-DONE"
 for N in $(seq 1 $O_MAX); do
   SPENT=$(priced opus "$RSI_EXAM_ROOT"/jobs/opus-cal-01 "$RSI_EXAM_ROOT"/jobs/opus-probe-20m "$RSI_EXAM_ROOT"/jobs/opus-batch-k5 $(ls -d "$RSI_EXAM_ROOT"/jobs/opus-overlay-* "$RSI_EXAM_ROOT"/jobs/campaign-O* 2>/dev/null)) || stop "pricing failed (gateway)"
+  if done_already "O$N"; then echo "$(date -u +%H:%M:%S) O$N already finished; not replaced"; continue; fi
   echo "$(date -u +%H:%M:%S) O$N: gateway verified spend so far \$$SPENT; reservation \$$O_RESERVE"
   python3 -c "import sys; sys.exit(0 if $SPENT + $O_RESERVE <= $GATEWAY_CEILING else 1)" || { echo "$(date -u +%H:%M:%S) SKIP O$N: gateway ceiling (money rule)"; break; }
   echo "$(date -u +%H:%M:%S) O$N start: gateway anthropic/claude-opus-5 mult=0.030 effort=max window=1200s commit=$COMMIT"
