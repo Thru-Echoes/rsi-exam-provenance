@@ -83,7 +83,9 @@ under another profile, is refused.
   again at confirmation, and a confirmation refuses unless both digests still equal the frozen
   ones: neither policy can change between being measured and being confirmed.
 - `sizing`: the confirmation plan, `{rule, size, planned, floor, cap, exploratory, screening_sd,
-  z}`, or `null` on a line that plans no confirmation.
+  z}`, or `null` on a line that plans no confirmation. When the profile selects the `estimate-aware`
+  planning rule the plan also carries `planning_rule`, `planning_effect` and `screening_mean`, and
+  `rule` names that rule; a plan without them was made under the accepted rule.
 - `suite`: `null`, or `{locator, sha256, derivation}` for the confirmation suite the screening line
   derived (`results/<version_id>/replication/seeds.json`, a file of the shape `{"max_moves": N,
   "seeds": [...]}` that the task evaluator reads), repeated unchanged on the confirmation line.
@@ -128,8 +130,10 @@ candidate was tuned on them is measured after the fact by the verifier (Mileston
 suite (Milestone 3), never assumed here.
 
 **Confirmation size.** With `s` the sample standard deviation of the screening deltas and `z` the
-normal quantile for the level, `planned` is the smallest `n` with `z s / sqrt(n) < min_effect / 2`,
-at least `floor`; `size = min(planned, max_seeds)`; `exploratory` is `true` when the cap binds. It
+normal quantile for the level, `planned` is the smallest `n` with `z s / sqrt(n) < e / 2`, at least
+`floor`, where `e` is the planning effect: `min_effect` under the accepted rule, and
+`max(min_effect, screening_mean - min_effect)` under the `estimate-aware` rule a profile may select
+with `confirmation.planning_rule`; `size = min(planned, max_seeds)`; `exploratory` is `true` when the cap binds. It
 is a normal-approximation planning size computed from screening data, not a statement about the
 interval the confirmation will produce. An exploratory plan never keeps: the gate reverts the
 candidate on the screening line, records the plan, and derives no suite.

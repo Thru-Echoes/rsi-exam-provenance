@@ -70,6 +70,16 @@ class TestCheckProfile(unittest.TestCase):
         with self.assertRaises(task_profile.ProfileError):
             task_profile.check_profile(["not", "an", "object"])
 
+    def test_the_planning_rule_key_is_optional_and_checked(self) -> None:
+        profile = copy.deepcopy(VALID)
+        self.assertEqual(task_profile.resolve_planning_rule(task_profile.check_profile(profile)), "min-effect")
+        profile["confirmation"]["planning_rule"] = "estimate-aware"
+        self.assertEqual(task_profile.resolve_planning_rule(task_profile.check_profile(profile)), "estimate-aware")
+        profile["confirmation"]["planning_rule"] = "guess"
+        with self.assertRaises(task_profile.ProfileError):
+            task_profile.check_profile(profile)
+        self.assertEqual(task_profile.PLANNING_RULES, ("min-effect", "estimate-aware"))
+
     def test_absolute_min_effect_is_accepted(self) -> None:
         doc = mutate(min_effect={"kind": "absolute", "value": 120.0})
         self.assertEqual(task_profile.check_profile(doc)["min_effect"]["value"], 120.0)

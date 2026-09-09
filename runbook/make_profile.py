@@ -93,6 +93,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--replication-key-hex", default=None)
     parser.add_argument("--max-seeds", type=int, default=MAX_SEEDS)
     parser.add_argument("--min-effect-fraction", type=float, default=MIN_EFFECT_FRACTION)
+    parser.add_argument("--planning-rule", choices=task_profile.PLANNING_RULES, default=task_profile.PLANNING_RULES[0],
+                        help="the confirmation planning rule; the default writes no key and means the accepted rule")
     args = parser.parse_args(argv)
     if args.output.exists():
         print(f"refused: output already exists: {args.output}", file=sys.stderr)
@@ -100,6 +102,8 @@ def main(argv: list[str] | None = None) -> int:
     key_hex = args.replication_key_hex or secrets.token_hex(32)
     profile = get_profile(args.task_dir, args.rollout_id, key_hex, max_seeds=args.max_seeds,
                           min_effect_fraction=args.min_effect_fraction)
+    if args.planning_rule != task_profile.PLANNING_RULES[0]:
+        profile["confirmation"]["planning_rule"] = args.planning_rule
     try:
         task_profile.check_profile(profile)
     except task_profile.ProfileError as exc:
@@ -107,7 +111,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     write_private(args.output, json.dumps(profile, indent=2, sort_keys=True) + "\n")
     print(json.dumps({"output": str(args.output), "rollout_id": args.rollout_id, "max_seeds": args.max_seeds,
-                      "min_effect_fraction": args.min_effect_fraction}))
+                      "min_effect_fraction": args.min_effect_fraction, "planning_rule": args.planning_rule}))
     return 0
 
 
