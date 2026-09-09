@@ -52,12 +52,14 @@ class Pricing(unittest.TestCase):
         tokens = {"input": 1_000_000, "output": 200_000, "cache_write": 400_000, "cache_read": 2_000_000}
         # haiku: 1.00 + 200000*5/1e6 + 400000*1.25/1e6 + 2000000*0.10/1e6 = 1 + 1 + 0.5 + 0.2
         self.assertAlmostEqual(cost.get_cost(tokens, "haiku"), 2.70)
+        # sonnet: 2 + 2 + 1.0 + 0.4
+        self.assertAlmostEqual(cost.get_cost(tokens, "sonnet"), 5.40)
         # opus: 5 + 5 + 2.5 + 1.0
         self.assertAlmostEqual(cost.get_cost(tokens, "opus"), 13.50)
 
     def test_an_unknown_rate_card_is_refused(self):
         with self.assertRaises(cost.CostError):
-            cost.get_cost({"input": 1, "output": 1, "cache_write": 0, "cache_read": 0}, "sonnet")
+            cost.get_cost({"input": 1, "output": 1, "cache_write": 0, "cache_read": 0}, "gemini")
 
     def test_only_session_records_are_priced(self):
         with tempfile.TemporaryDirectory() as tmp:

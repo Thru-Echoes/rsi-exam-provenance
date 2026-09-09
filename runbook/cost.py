@@ -4,7 +4,7 @@
 Input: one or more harbor job directories. Reads every ``agent/sessions/**/*.jsonl`` under each
 (the claude-code adapter's session records, the only files this script prices), sums the token
 usage of every assistant record, and prices it at the rate card named by the ``RATES`` environment
-variable: ``haiku`` or ``opus``, no default and nothing else. Output: a per-job table with token
+variable: ``haiku``, ``sonnet`` or ``opus``, no default and nothing else. Output: a per-job table with token
 totals, cost, agent wall clock from the records' timestamps, and cost per minute, then a total.
 
 Fail loud, because the plan uses this number to stop a campaign: an unknown rate card, an
@@ -26,8 +26,8 @@ from typing import Any
 
 # USD per million tokens, (input, output), published rates as of RATE_CARD_DATE. Cache write is 1.25x
 # input and cache read 0.10x input.
-RATE_CARD_DATE = "2026-09-08"
-RATE_CARDS = {"haiku": (1.00, 5.00), "opus": (5.00, 25.00)}
+RATE_CARD_DATE = "2026-09-09"
+RATE_CARDS = {"haiku": (1.00, 5.00), "sonnet": (2.00, 10.00), "opus": (5.00, 25.00)}
 SESSION_GLOB = "**/agent/sessions/**/*.jsonl"
 TOKEN_KEYS = {"input": "input_tokens", "output": "output_tokens", "cache_write": "cache_creation_input_tokens",
               "cache_read": "cache_read_input_tokens"}
@@ -95,7 +95,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         rates = os.environ.get("RATES")
         if rates is None:
-            raise CostError("set RATES to haiku or opus; there is no default rate card")
+            raise CostError("set RATES to haiku, sonnet or opus; there is no default rate card")
         grand = 0.0
         for arg in argv:
             job = Path(arg)
