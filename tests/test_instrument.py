@@ -596,20 +596,27 @@ class InterruptedConfirmations(unittest.TestCase):
         proc = run(root, env, "status", **broken)
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertIn("1 provisional open); blocked:", proc.stdout)
-        proc = run(root, env, "finalize", **broken)                          # the runner refuses again: still open
+        proc = run(root, env, "finalize", **broken)                          # finalize never retries: it says why and holds the head
+        self.assertEqual(proc.returncode, 2)
+        self.assertIn("gate_blocked:v1", proc.stderr)
+        self.assertNotIn("confirmation_runner_failed", proc.stderr)
+        self.assertEqual(main_digest(root), treedigest.method_tree_sha256(POLICY_WORST))
+        proc = run(root, env, "decide", "v1", "kept", **broken)              # an explicit retry runs the confirmation again
         self.assertEqual(proc.returncode, 2)
         self.assertIn("confirmation_runner_failed:v1", proc.stderr)
-        self.assertEqual(main_digest(root), treedigest.method_tree_sha256(POLICY_WORST))
         capsule, refusal = build(self, root)
         self.assertIsNone(refusal)
         assert capsule is not None
         v1 = next(v for v in capsule["versions"] if v["version_id"] == "v1")
         self.assertEqual(v1["status"], "provisional")
         # If the runner later succeeds, the open decision resolves as the contract says: by a confirmation line.
-        proc = run(root, env, "finalize", "--keep", "v1")
+        proc = run(root, env, "decide", "v1", "kept")                        # the refusal was transient: the retry resolves it
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertIn("the gate kept v1", proc.stdout)
         self.assertEqual([l["disposition"] for l in decisions(root)], ["provisional", "keep"])
+        self.assertIsNone(state_of(root)["gate_blocked"])                     # a resolved decision cannot stay blocked
+        proc = run(root, env, "status")
+        self.assertNotIn("blocked", proc.stdout)
 
     def test_the_proposal_the_gate_was_asked_survives_a_stop(self):
         root, env = make_root(self, starter=POLICY_WORST)

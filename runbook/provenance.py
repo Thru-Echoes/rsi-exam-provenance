@@ -446,10 +446,12 @@ class Rollout:
         # The CPU figure must be the one the receipt-bound result carries, and the size the snapshot's own bytes:
         # a safety value that disagrees with the evidence it claims to summarize is not evidence. The slowest
         # move is measured in process and is not bound anywhere else; the margin is what stands behind it.
-        bound_cpu = visible.get("cpu_seconds_per_game")
-        if (isinstance(bound_cpu, bool) or not isinstance(bound_cpu, (int, float))
-                or abs(values["cpu_seconds_per_game"] - float(bound_cpu)) > 1e-9):
-            return "safety report's cpu per game disagrees with the receipt-bound result"
+        for key in ("cpu_seconds_per_game", "cpu_seconds"):
+            bound = visible.get(key)
+            claimed = report.get(key)
+            if (isinstance(bound, bool) or not isinstance(bound, (int, float)) or isinstance(claimed, bool)
+                    or not isinstance(claimed, (int, float)) or abs(float(claimed) - float(bound)) > 1e-9):
+                return f"safety report's {key.replace('_', ' ')} disagrees with the receipt-bound result"
         snapshot = self.versions / version_id
         try:
             actual_bytes = sum((snapshot / rel).stat().st_size for rel in self.method_files(snapshot))
@@ -647,6 +649,9 @@ class Rollout:
         if state.get("gate_sha256") not in (None, gate):
             raise Refusal(f"gate_changed: the gate's scripts are not the ones this rollout started under "
                           f"({str(state.get('gate_sha256'))[:12]} then, {gate[:12]} now)")
+        suite = self.file_sha256(self.visible_suite) if self.visible_suite.is_file() else None
+        if state.get("visible_suite_sha256") not in (None, suite):
+            raise Refusal("visible_suite_changed: the public seed file is not the one this rollout started under")
 
     def save_state(self, state: dict, name: str = "state_saved") -> None:
         """Side effect: atomically replaces state.json; ``name`` is the checkpoint the test hook sees."""
@@ -888,6 +893,7 @@ class Rollout:
         state["pending"] = None
         state["confirming"] = None
         state["proposal"] = None
+        state["gate_blocked"] = None
         if status == "kept":
             state["head"] = version_id
         self.save_state(state, "settling")
@@ -946,12 +952,20 @@ class Rollout:
               f"{self.measurement_text(line)}); main/ restored to the head {head}")
         return 0
 
-    def decide_with_gate(self, version_id: str, proposal: str, state: dict, note: str | None) -> int:
+    def decide_with_gate(self, version_id: str, proposal: str, state: dict, note: str | None,
+                         retry_blocked: bool = True) -> int:
         """``decide v<N> kept|reverted`` under the gate. The gate's log is consulted first: a line it already
         holds for the version is applied, never written twice, so a stop between the gate's append and the
         helper's settlement is repaired here. Side effects: the runner and the gate write under results/ and
         decisions.jsonl; the block and main/ follow."""
         head = state["head"]
+        blocked = state.get("gate_blocked")
+        if blocked and not retry_blocked:
+            if self.main_digest() != state["digests"].get(head):
+                self.replace_main(head)
+            raise Refusal(f"gate_blocked:{blocked['version']}: {blocked['reason']}; the provisional decision stays open, "
+                          f"main/ holds the head {head}; `decide {blocked['version']} kept` retries the confirmation once "
+                          "if the refusal was transient, otherwise stop editing and end your work")
         kind, line = self.gate_state(version_id)
         saved = state.get("proposal") or {}
         if kind != "none" and saved.get("version") == version_id:
@@ -1116,6 +1130,7 @@ class Rollout:
                  "window_seconds": self.window_seconds(),
                  "profile_sha256": self.file_sha256(PROFILE_PATH) if self.instrument else None,
                  "gate_sha256": self.gate_sha256() if self.instrument else None,
+                 "visible_suite_sha256": self.file_sha256(self.visible_suite) if self.instrument and self.visible_suite.is_file() else None,
                  "safety_fraction": SAFETY_FRACTION if self.instrument else None}
         self.save_state(state)
         if self.instrument:
@@ -1195,13 +1210,13 @@ class Rollout:
             print(f"provenance: {self.time_line(state)}")
         return 0
 
-    def cmd_decide(self, version_id: str, status: str, note: str | None = None) -> int:
+    def cmd_decide(self, version_id: str, status: str, note: str | None = None, retry_blocked: bool = True) -> int:
         state = self.load_state()
         if state.get("pending") != version_id:
             raise Refusal(f"not_pending:{version_id}: only the candidate awaiting a decision can be decided"
                           + (f" (pending: {state['pending']})" if state.get("pending") else ""))
         if self.instrument:
-            code = self.decide_with_gate(version_id, status, state, note)
+            code = self.decide_with_gate(version_id, status, state, note, retry_blocked)
             print(f"provenance: {self.time_line(state)}")
             return code
         if status == "kept":
@@ -1247,7 +1262,7 @@ class Rollout:
         state = self.load_state()
         pending = state.get("pending")
         if pending:
-            self.cmd_decide(pending, "kept" if keep == pending else "reverted")
+            self.cmd_decide(pending, "kept" if keep == pending else "reverted", retry_blocked=False)
             state = self.read_state()
         elif keep and keep != state["head"]:
             raise Refusal(f"not_pending:{keep}: only a pending candidate can be kept at finalize")
