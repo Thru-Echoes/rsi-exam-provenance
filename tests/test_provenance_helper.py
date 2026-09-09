@@ -373,7 +373,7 @@ class InterruptionAtEveryCheckpoint(unittest.TestCase):
         proc = run(root, "evaluate", kill_after="state_saved")
         self.assertEqual(proc.returncode, 3)
         self.assertFalse((root / "methods" / "results" / "v1" / "selfcheck.json").exists())
-        proc = run(root, "decide", "v1", "reverted")
+        proc = run(root, "decide", "v1", "kept")
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertIn("never measured", proc.stdout)
         self.assertTrue((root / "methods" / "results" / "v1" / "selfcheck.json").is_file())
@@ -381,6 +381,22 @@ class InterruptionAtEveryCheckpoint(unittest.TestCase):
         self.assertIsNone(reason)
         assert capsule is not None
         self.assertIn("visible", {v["version_id"]: v for v in capsule["versions"]}["v1"])
+
+    def test_a_reverted_unmeasured_candidate_is_not_re_measured(self):
+        root = make_root(self)
+        self.assertEqual(run(root, "init", "--no-evaluate").returncode, 0)
+        write_main(root, CANDIDATE)
+        proc = run(root, "evaluate", kill_after="state_saved")
+        self.assertEqual(proc.returncode, 3)
+        proc = run(root, "decide", "v1", "reverted")
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertNotIn("never measured", proc.stdout)
+        self.assertFalse((root / "methods" / "results" / "v1" / "selfcheck.json").exists())
+        self.assertIn("not measured", (root / "methods" / "experiment_log.md").read_text())
+        capsule, reason = build(self, root)
+        self.assertIsNone(reason)
+        assert capsule is not None
+        self.assertEqual({v["version_id"]: v["status"] for v in capsule["versions"]}["v1"], "reverted")
 
     def test_a_block_without_its_status_line_is_repaired(self):
         root = make_root(self)
