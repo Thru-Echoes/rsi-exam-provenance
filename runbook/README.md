@@ -105,6 +105,36 @@ The replay-configuration generator takes `--planning-rule estimate-aware` to wri
 selects the estimate-aware planning rule for a diagnostic pass of the audit; without the flag the profile
 names no rule and the gate plans under the accepted one.
 
+## The instrument overlay
+
+`autoresearch-instrument.md` is the helper overlay with a loop in which a keep is a proposal the gate rules on. It
+runs with `mount-instrument.yaml`, which mounts, beside the helper, a directory of the gate's scripts at `/app/gate`
+(`ARB_GATE_DIR`; a clean copy of `gate/*.py`) and a task profile at `/app/profile.json` (`ARB_PROFILE`; written per
+rollout with `runbook/make_profile.py`, for the instrument with `--floor 8 --max-seeds 16 --planning-rule
+estimate-aware`). `run_gateway.sh` selects that mount when the program text names `/app/gate/` and refuses to start
+without both variables. With the two mounts the helper measures every version with the gate's runner (a receipt
+beside each result, and a safety report with the slowest move, the CPU per game and the policy's size), prints a
+gate preview after `evaluate`, and on `decide v<N> kept` runs the gate's screening and, when the plan fits under the
+cap and before the close-out mark, its confirmation; only a confirmed candidate becomes the head, and an overruled
+proposal is recorded in the block. `decide v<N> reverted` consults no gate. A candidate the runner refused, or over
+half of the grader's CPU or per-move limit on the public seeds, cannot be kept, and `finalize` walks back to the last
+version within the margins. `init` prints the window's marks and every command the time used.
+
+Limits, stated as they are. The replication key is mounted with the profile and readable by the agent, so a fresh
+suite is auditable, not secret. What `init` sees (the mode, the profile's digest, the gate scripts' digest, the
+safety fraction, the window) is bound to the rollout, and a command run under a different environment refuses; what
+the helper cannot prevent is same-user tampering with files, because policy code and the helper run as the agent's
+user: a safety report's slowest-move figure is not bound anywhere else (its CPU figure and size are checked against
+the receipt-bound result and the snapshot), a policy can read the confirmation suite, and the gate can be invoked
+directly. What makes such a run visible after the fact is the record: every decision line and receipt carries the
+profile's digest, the safety reports carry the measured numbers, and the comparison's measures check both. The
+contract resolves an open provisional decision only by a confirmation, so a confirmation a stop interrupted is
+finished by the next `decide` or `finalize`, and a runner refusal during a confirmation leaves the decision open in
+the gate's log, the candidate pending, the head restored into `main/`, and every later command refusing with the
+reason. The per-move time is measured in process and underestimates the grader's sandboxed measurement, hence the
+margin. A run under this overlay is a modified-program run. `tests/test_instrument.py` drives every path on the
+fixture evaluator and verifies the record after each.
+
 ## Building and verifying the record
 
 Never write into a job directory. Build every record into an audit root outside the jobs:
