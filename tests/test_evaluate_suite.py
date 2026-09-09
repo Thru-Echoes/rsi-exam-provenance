@@ -60,6 +60,53 @@ class RunnerCase(unittest.TestCase):
                           "--output", str(output or self.output), *extra, env=env)
 
 
+class TestSubmissionSafety(RunnerCase):
+    """The size cap the grader enforces, and the optional safety report the in-rollout helper reads."""
+
+    def test_a_safety_report_records_the_slowest_move_and_the_policy_size(self) -> None:
+        report = self.root / "results" / "v1" / "visible_safety.json"
+        proc = self.run_weak("--safety-report", str(report))
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        doc = json.loads(report.read_text(encoding="utf-8"))
+        self.assertEqual(set(doc), {"schema", "policy_method_tree_sha256", "policy_bytes", "games", "cpu_seconds",
+                                    "cpu_seconds_per_game", "max_move_seconds", "result_sha256", "timestamp"})
+        self.assertEqual(doc["schema"], "rsi-exam-gate-safety/v1")
+        self.assertEqual(doc["policy_method_tree_sha256"], treedigest.method_tree_sha256(POLICY_WEAK))
+        self.assertEqual(doc["policy_bytes"], (self.policy / "policy.py").stat().st_size)
+        self.assertEqual(doc["games"], 2)
+        self.assertGreater(doc["max_move_seconds"], 0.0)
+        self.assertLess(doc["max_move_seconds"], 1.0)
+        self.assertEqual(doc["result_sha256"], treedigest.file_sha256(self.output))
+        # The result and the receipt are what they are without the flag: the report is a third file.
+        result = json.loads(self.output.read_text(encoding="utf-8"))
+        self.assertNotIn("max_move_seconds", result)
+        receipt = json.loads(self.output.with_name("parent_result.receipt.json").read_text(encoding="utf-8"))
+        self.assertEqual(set(receipt), RECEIPT_KEYS)
+        self.assertEqual(result["mean_score"], 1400.0)
+
+    def test_a_safety_report_is_evidence_and_is_written_once(self) -> None:
+        inside_tree = self.policy / "visible_safety.json"
+        proc = self.run_weak("--safety-report", str(inside_tree))
+        self.assertEqual(proc.returncode, 2)
+        self.assertIn("must live under a results directory", proc.stderr)
+        self.assertFalse(self.output.exists())
+        report = self.root / "results" / "v1" / "visible_safety.json"
+        self.assertEqual(self.run_weak("--safety-report", str(report)).returncode, 0)
+        again = self.run_weak("--safety-report", str(report),
+                              output=self.root / "results" / "v1" / "replication" / "candidate_result.json")
+        self.assertEqual(again.returncode, 2)
+        self.assertIn("safety report already exists", again.stderr)
+
+    def test_an_oversized_policy_is_refused_before_anything_runs(self) -> None:
+        big = self.root / "policy_big"
+        big.mkdir()
+        (big / "policy.py").write_bytes((self.policy / "policy.py").read_bytes() + b"#" * 10_000_001 + b"\n")
+        proc = self.run_weak(policy=big)
+        self.assertEqual(proc.returncode, 2)
+        self.assertIn("over the grader's 10,000,000 byte cap", proc.stderr)
+        self.assertFalse(self.output.exists())
+
+
 class TestRunnerResultAndReceipt(RunnerCase):
     def test_writes_the_result_in_selfcheck_shape_and_a_binding_receipt(self) -> None:
         proc = self.run_weak()
