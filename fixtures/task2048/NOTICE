@@ -4,4 +4,5 @@ game2048_policy_search (environment/evaluate.py, environment/game2048.py,
 environment/visible_seeds.json, environment/methods/main/policy.py). They are distributed under
 the MIT License of that dataset. They are test fixtures for the evaluation runner and the gate;
 nothing in this repository modifies them, and the gate never ships them into a rollout.
-policy_variant/policy.py is written here for tests and is Apache-2.0 like the rest of this repository.
+policy_variant/policy.py, policy_worst/policy.py and policy_greedy/policy.py are written here for tests
+and are Apache-2.0 like the rest of this repository.
