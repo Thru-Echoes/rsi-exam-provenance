@@ -1,0 +1,13 @@
+[
+  {
+    "rollout": "ab-pilot-sonnet-1-I-wt8S5gp",
+    "log_present": true,
+    "decision_log_present": true,
+    "snapshots": [
+      "v0",
+      "v1"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  }
+]

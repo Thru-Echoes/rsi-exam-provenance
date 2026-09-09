@@ -37,3 +37,23 @@ as it was.
 **Money and stopping.** Ceilings $1.00, $3.00 and $4.00 with reservations $0.60, $2.60 and $3.00, enforced by the
 runner; stop on any harbor non-zero exit, missing job directory, or trial that did not end normally or by the
 harness timeout with assistant usage in its session log. Every started trial is reported.
+
+## Outcome (from the committed endpoints under `docs/shadow-audit/instrument-ab/pilot-*/`)
+
+- Smoke (`ab-pilot-haiku-smoke-1-I`, 86.4 s, $0.41): `init` reported the gate mounted with the profile and gate digests; the
+  runner published results, receipts and safety reports for v0 and v1 inside the container; `evaluate` printed the gate
+  preview; the agent reverted v1 with a note (no gate line); the harness stopped the run with an unevaluated edit in `main/`
+  (record `submitted_not_snapshotted`, the known window). The runner refused the Haiku trial's first start under its money
+  rule because its stage glob counted the smoke's spend; fixed before the trial ran.
+- Haiku (`ab-pilot-haiku-1-I`, 345.6 s, $0.66, the agent finished on its own after 159 s and 28 steps): 3 gate lines; the
+  first keep overruled at screening as exploratory (estimate +162, 2046 seeds planned against a cap of 16); the second
+  confirmed on 10 fresh seeds in about a second (estimate +2503, interval [947, 4118]) and made the head; the third
+  candidate reverted by the agent after the preview said a keep would be exploratory; finalize ran; record verified;
+  sealed reward 0.0895. On the sealed seeds both reverts discarded better candidates (v1 +270, v3 +1140 against the head);
+  final-selection regret 0.031.
+- Sonnet (`ab-pilot-sonnet-1-I`, 1296 s, $0.67, the agent finished on its own after 480 s and 25 steps): 2 gate lines; one
+  candidate (expectimax with heuristics, 12 cpu s per public game) screened clear and was confirmed on 8 fresh seeds in
+  2.3 min (estimate +15833, interval [11162, 20546]); first evaluate at minute 2.8, first decide at 4.8, finalize at 7.9;
+  record verified; sealed reward 0.330 with all 16 seeds up; regret 0.
+- The Sonnet window rule: a confirmation settled before the close-out mark and no keep was refused for time, so the Sonnet
+  stage runs at multiplier 0.030. Single trials; no rate.
