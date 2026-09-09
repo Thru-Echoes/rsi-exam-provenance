@@ -80,3 +80,16 @@ budget at this window, stated in advance: the first-candidate mark is at 400 s a
 end, so a confirmation of eight seeds at 30 CPU seconds per game (about 6.2 min with the runner's slack) fits only for a
 keep proposed before about the eleventh minute; a keep refused for time is the expected failure mode at this window and
 is reported, not retried.
+
+### Outcome of the Opus smoke (from `docs/shadow-audit/instrument-ab/pilot-opus-smoke/`)
+
+`ab-pilot-opus-smoke-1-I`: the agent ran 1036 s of the 1200 s told and finished on its own; first evaluate at 8.7
+min, first decide at 10.3 min. v1 (a bitboard expectimax, 41,720 on the public seeds against the starter's 2,060, 6.4
+CPU s per game) screened `clears` and was confirmed on 8 fresh seeds in 1.2 min: kept. v2 (a deeper endgame search,
+91,864 on the public seeds, 18.8 CPU s per game) was proposed after the point where an 8-seed confirmation (about 3.9
+min with the runner's slack) still fit before the close-out mark: refused for time, `main/` restored to v1. finalize
+ran; the record verifies; sealed reward 0.5504, cost $4.75. On the sealed seeds v1 beat the starter on 16 of 16
+(+66,417); v2 had a higher mean than v1 (+10,288, 9 up and 7 down) but a lower reward (0.5297), so on the primary
+endpoint the refusal cost nothing, while the sealed-mean rule counts it as a revert the sealed seeds disagreed with.
+The time budget stated in advance held: at this window the second candidate's confirmation did not fit, which is why
+the Opus pilot runs at multiplier 0.045.

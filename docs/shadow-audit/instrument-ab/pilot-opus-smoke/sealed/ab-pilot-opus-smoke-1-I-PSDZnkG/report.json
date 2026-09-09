@@ -1,0 +1,476 @@
+{
+  "inputs": {
+    "container": {
+      "digest": "python@sha256:9d2e5553305c7c7b0097999bb17187c69b921ccd6bc9d40e4bb5ebe652c00285",
+      "image": "python@sha256:9d2e5553305c7c7b0097999bb17187c69b921ccd6bc9d40e4bb5ebe652c00285"
+    },
+    "evaluator": {
+      "evaluate.py": "642d194eab0c4f1e116a70d7d78d8b5e13197cbfb92e0d6a09dbba6c2a494c86",
+      "game2048.py": "3c1059f3a26b5d5ee014ae51f19147e05a31ddf60fd7d371a48e7c4101cef077"
+    },
+    "execution_model": "same-process-evaluator",
+    "gate_sources": {
+      "calibrate.py": "99338b1ed8fcc4a4668e9f7b67c2591cf64e946c726d57bd51a33746792e0a24",
+      "decide.py": "ca5764e0075282e62bc7335504ba16a06fad79283353ccf252391c491b79e892",
+      "evaluate_suite.py": "433344f05cb2628cb50c0468e5473804462b88528070862afabc12f2ca8f5d25",
+      "restore.py": "1bd8f70eb2e775c8744c0183dcde1d3c3b5996d91a107538f6427ae59f9ead02",
+      "sealed_eval.py": "24b21e046fecbf0bbfb69186a4ebacdf5b4d6eeb59c1df0942f4f56c40e2c0e6",
+      "seeds.py": "89c18f28e67c8b3f3b15f201f10fbbc232fdf9b3079268dd2d2f2f56524da571",
+      "shadow_replay.py": "6c5383e354ffc5e59642e317c186bf7daf5ed4f974dd8cdc15e60151e5a405ba",
+      "task_profile.py": "d619cd82db0fcbb92e2a8ab116d7b85551d4c184e709475a96b6cc33d9bb5748",
+      "trace_from_decisions.py": "b4fd1d750259d200cc30b1f3811841695d744f08407fe24dcd47e2cadeacd0ed",
+      "treedigest.py": "d18dfcba30cdc2a2fa61fe2b15b2fb7bc05f0bad02ff5c29868e3610723cfbe5"
+    },
+    "profile_sha256": "a15c5fbc51c085cda078037d7655f68cf2edece04ce581784cabfd10dc92c266"
+  },
+  "job": "ab-pilot-opus-smoke-1-I/game2048_policy_search__PSDZnkG",
+  "limits": [
+    "A retrospective on the sealed suite turns that suite into analysis data for this project; nothing here may be used to tune the gate's rule.",
+    "The scores describe these snapshots on these seeds; they say nothing about official RSI-Exam results.",
+    "The evaluator is the environment's in-process one under the runner's pooled CPU budget, not the grader's sandboxed process with its per-move limit; engine and seeds are identical, so scores agree for a policy that finishes within the limits, and one that cannot is reported as unmeasured, never scored.",
+    "Snapshots are staged as their Python-only projection; a snapshot carrying other files is marked and its omitted files are listed.",
+    "A sealed delta against a parent is the paired mean over the seeds both were measured on; it is a description, not a test."
+  ],
+  "schema": "rsi-exam-sealed-retrospective/v1",
+  "sealed_suite": {
+    "anchors": true,
+    "max_moves": 10000,
+    "seeds": 16,
+    "sha256": "10371301ecaac64515dc6ab00f49bea83ff2e94916df42a071c64dad164b0829"
+  },
+  "snapshots": [
+    {
+      "failure": null,
+      "id": "v0",
+      "mean_score": 2473.25,
+      "measured": true,
+      "method_tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+      "omitted_files": [],
+      "per_seed": [
+        {
+          "reward": 0.0,
+          "score": 1620.0,
+          "seed": 324161
+        },
+        {
+          "reward": 0.0,
+          "score": 1048.0,
+          "seed": 350377
+        },
+        {
+          "reward": 0.0,
+          "score": 848.0,
+          "seed": 378599
+        },
+        {
+          "reward": 0.0,
+          "score": 2888.0,
+          "seed": 406619
+        },
+        {
+          "reward": 0.0,
+          "score": 1472.0,
+          "seed": 435037
+        },
+        {
+          "reward": 0.0,
+          "score": 1764.0,
+          "seed": 465007
+        },
+        {
+          "reward": 0.0,
+          "score": 3448.0,
+          "seed": 496039
+        },
+        {
+          "reward": 0.0,
+          "score": 3668.0,
+          "seed": 527053
+        },
+        {
+          "reward": 0.0,
+          "score": 1544.0,
+          "seed": 559081
+        },
+        {
+          "reward": 0.0,
+          "score": 1564.0,
+          "seed": 591827
+        },
+        {
+          "reward": 0.0,
+          "score": 3624.0,
+          "seed": 625007
+        },
+        {
+          "reward": 0.0,
+          "score": 1892.0,
+          "seed": 658753
+        },
+        {
+          "reward": 0.0,
+          "score": 1164.0,
+          "seed": 692663
+        },
+        {
+          "reward": 0.0,
+          "score": 2724.0,
+          "seed": 727237
+        },
+        {
+          "reward": 0.0,
+          "score": 4212.0,
+          "seed": 762049
+        },
+        {
+          "reward": 0.0,
+          "score": 6092.0,
+          "seed": 797917
+        }
+      ],
+      "projected": false,
+      "reward": 0.0,
+      "source": "artifacts/app/methods/versions/v0"
+    },
+    {
+      "failure": null,
+      "id": "v1",
+      "mean_score": 68890.5,
+      "measured": true,
+      "method_tree_sha256": "7a91b8ff0bd003d0809bb7f9a671538e990a78b882850f062313dffab58eda97",
+      "omitted_files": [],
+      "per_seed": [
+        {
+          "reward": 0.5688194021078693,
+          "score": 66204.0,
+          "seed": 324161
+        },
+        {
+          "reward": 0.5538942994976674,
+          "score": 75712.0,
+          "seed": 350377
+        },
+        {
+          "reward": 0.6676296060478435,
+          "score": 81808.0,
+          "seed": 378599
+        },
+        {
+          "reward": 0.4662635310061885,
+          "score": 64980.0,
+          "seed": 406619
+        },
+        {
+          "reward": 0.47995950225348355,
+          "score": 61352.0,
+          "seed": 435037
+        },
+        {
+          "reward": 0.7599360464870736,
+          "score": 71676.0,
+          "seed": 465007
+        },
+        {
+          "reward": 0.3718509486990189,
+          "score": 50988.0,
+          "seed": 496039
+        },
+        {
+          "reward": 0.43530827450127757,
+          "score": 78720.0,
+          "seed": 527053
+        },
+        {
+          "reward": 0.6639015566033972,
+          "score": 68764.0,
+          "seed": 559081
+        },
+        {
+          "reward": 0.46664851262333107,
+          "score": 60656.0,
+          "seed": 591827
+        },
+        {
+          "reward": 0.7483406343797094,
+          "score": 80476.0,
+          "seed": 625007
+        },
+        {
+          "reward": 0.5830599040682816,
+          "score": 80284.0,
+          "seed": 658753
+        },
+        {
+          "reward": 0.49390819017277243,
+          "score": 72292.0,
+          "seed": 692663
+        },
+        {
+          "reward": 0.5255150693094437,
+          "score": 80776.0,
+          "seed": 727237
+        },
+        {
+          "reward": 0.4394048268239754,
+          "score": 61344.0,
+          "seed": 762049
+        },
+        {
+          "reward": 0.5819607672515402,
+          "score": 46216.0,
+          "seed": 797917
+        }
+      ],
+      "projected": false,
+      "reward": 0.55040007,
+      "source": "artifacts/app/methods/versions/v1"
+    },
+    {
+      "failure": null,
+      "id": "v2",
+      "mean_score": 79179.0,
+      "measured": true,
+      "method_tree_sha256": "1fdb31c203bb4a4d27631c3e63becb3e3840a6160ff3e2ef426e5bb769d531e1",
+      "omitted_files": [],
+      "per_seed": [
+        {
+          "reward": 0.6834882588551687,
+          "score": 157124.0,
+          "seed": 324161
+        },
+        {
+          "reward": 0.556834784499185,
+          "score": 77452.0,
+          "seed": 350377
+        },
+        {
+          "reward": 0.2492261221696308,
+          "score": 4524.0,
+          "seed": 378599
+        },
+        {
+          "reward": 0.5737757750334417,
+          "score": 133220.0,
+          "seed": 406619
+        },
+        {
+          "reward": 0.4784489839675415,
+          "score": 60636.0,
+          "seed": 435037
+        },
+        {
+          "reward": 0.774095730322338,
+          "score": 80712.0,
+          "seed": 465007
+        },
+        {
+          "reward": 0.4795456539327194,
+          "score": 111248.0,
+          "seed": 496039
+        },
+        {
+          "reward": 0.22147470213312295,
+          "score": 17456.0,
+          "seed": 527053
+        },
+        {
+          "reward": 0.5119604683692053,
+          "score": 27448.0,
+          "seed": 559081
+        },
+        {
+          "reward": 0.2929888027298042,
+          "score": 15548.0,
+          "seed": 591827
+        },
+        {
+          "reward": 0.7407546306820001,
+          "score": 76568.0,
+          "seed": 625007
+        },
+        {
+          "reward": 0.5834160374209383,
+          "score": 80468.0,
+          "seed": 658753
+        },
+        {
+          "reward": 0.44807870131989574,
+          "score": 49284.0,
+          "seed": 692663
+        },
+        {
+          "reward": 0.604409003001036,
+          "score": 134700.0,
+          "seed": 727237
+        },
+        {
+          "reward": 0.4492644077399489,
+          "score": 65144.0,
+          "seed": 762049
+        },
+        {
+          "reward": 0.8278483090236819,
+          "score": 175332.0,
+          "seed": 797917
+        }
+      ],
+      "projected": false,
+      "reward": 0.52972565,
+      "source": "artifacts/app/methods/versions/v2"
+    },
+    {
+      "failure": null,
+      "id": "submission",
+      "mean_score": 68890.5,
+      "measured": true,
+      "method_tree_sha256": "7a91b8ff0bd003d0809bb7f9a671538e990a78b882850f062313dffab58eda97",
+      "omitted_files": [],
+      "per_seed": [
+        {
+          "reward": 0.5688194021078693,
+          "score": 66204.0,
+          "seed": 324161
+        },
+        {
+          "reward": 0.5538942994976674,
+          "score": 75712.0,
+          "seed": 350377
+        },
+        {
+          "reward": 0.6676296060478435,
+          "score": 81808.0,
+          "seed": 378599
+        },
+        {
+          "reward": 0.4662635310061885,
+          "score": 64980.0,
+          "seed": 406619
+        },
+        {
+          "reward": 0.47995950225348355,
+          "score": 61352.0,
+          "seed": 435037
+        },
+        {
+          "reward": 0.7599360464870736,
+          "score": 71676.0,
+          "seed": 465007
+        },
+        {
+          "reward": 0.3718509486990189,
+          "score": 50988.0,
+          "seed": 496039
+        },
+        {
+          "reward": 0.43530827450127757,
+          "score": 78720.0,
+          "seed": 527053
+        },
+        {
+          "reward": 0.6639015566033972,
+          "score": 68764.0,
+          "seed": 559081
+        },
+        {
+          "reward": 0.46664851262333107,
+          "score": 60656.0,
+          "seed": 591827
+        },
+        {
+          "reward": 0.7483406343797094,
+          "score": 80476.0,
+          "seed": 625007
+        },
+        {
+          "reward": 0.5830599040682816,
+          "score": 80284.0,
+          "seed": 658753
+        },
+        {
+          "reward": 0.49390819017277243,
+          "score": 72292.0,
+          "seed": 692663
+        },
+        {
+          "reward": 0.5255150693094437,
+          "score": 80776.0,
+          "seed": 727237
+        },
+        {
+          "reward": 0.4394048268239754,
+          "score": 61344.0,
+          "seed": 762049
+        },
+        {
+          "reward": 0.5819607672515402,
+          "score": 46216.0,
+          "seed": 797917
+        }
+      ],
+      "projected": false,
+      "reward": 0.55040007,
+      "source": "artifacts/app/methods/main"
+    }
+  ],
+  "summary": {
+    "measured": 4,
+    "snapshots": 4,
+    "unmeasured": 0
+  },
+  "versions": [
+    {
+      "delta_vs_parent": null,
+      "measured": true,
+      "parent_ids": [],
+      "reward": 0.0,
+      "reward_delta_vs_parent": null,
+      "sealed_mean": 2473.25,
+      "status": "baseline",
+      "unsnapshotted_parent_ids": [],
+      "version_id": "v0",
+      "visible_score": 2060.0
+    },
+    {
+      "delta_vs_parent": {
+        "max": 80960.0,
+        "mean": 66417.25,
+        "min": 40124.0,
+        "negative": 0,
+        "positive": 16,
+        "seeds": 16
+      },
+      "measured": true,
+      "parent_ids": [
+        "v0"
+      ],
+      "reward": 0.55040007,
+      "reward_delta_vs_parent": 0.55040007,
+      "sealed_mean": 68890.5,
+      "status": "submitted",
+      "unsnapshotted_parent_ids": [],
+      "version_id": "v1",
+      "visible_score": 41720.5
+    },
+    {
+      "delta_vs_parent": {
+        "max": 129116.0,
+        "mean": 10288.5,
+        "min": -77284.0,
+        "negative": 7,
+        "positive": 9,
+        "seeds": 16
+      },
+      "measured": true,
+      "parent_ids": [
+        "v1"
+      ],
+      "reward": 0.52972565,
+      "reward_delta_vs_parent": -0.02067442,
+      "sealed_mean": 79179.0,
+      "status": "reverted",
+      "unsnapshotted_parent_ids": [],
+      "version_id": "v2",
+      "visible_score": 91863.5
+    }
+  ]
+}
