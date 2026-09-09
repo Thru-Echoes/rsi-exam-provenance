@@ -23,6 +23,25 @@
     "key": "operator",
     "seed": 20260911
   },
+  "pilot-haiku-smoke-H": {
+    "model": "claude-haiku-4-5-20251001",
+    "rates": "haiku",
+    "effort": "low",
+    "multiplier": 0.002,
+    "window": 80,
+    "ceiling": 1.0,
+    "reservation": 0.6,
+    "blocks": 1,
+    "order": [
+      "1-H"
+    ],
+    "floor": 8,
+    "cap": 16,
+    "planning_rule": "estimate-aware",
+    "min_effect_fraction": 0.025,
+    "key": "operator",
+    "seed": 20260911
+  },
   "pilot-haiku": {
     "model": "claude-haiku-4-5-20251001",
     "rates": "haiku",

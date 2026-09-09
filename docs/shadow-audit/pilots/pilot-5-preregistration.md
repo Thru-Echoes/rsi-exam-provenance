@@ -93,3 +93,20 @@ ran; the record verifies; sealed reward 0.5504, cost $4.75. On the sealed seeds 
 endpoint the refusal cost nothing, while the sealed-mean rule counts it as a revert the sealed seeds disagreed with.
 The time budget stated in advance held: at this window the second candidate's confirmation did not fit, which is why
 the Opus pilot runs at multiplier 0.045.
+
+## Pilot 7 smoke: the helper arm through the A/B runner
+
+Written 2026-09-09 23:15 UTC, before the trial started.
+
+**Question.** The A/B runner has executed only instrument-arm trials so far. Does its helper-arm path run as the
+stages need it to: the helper program and mount selected, no gate or profile exported, the job named by block and
+arm, the trial priced and admitted by the same rules, and the record built and verified afterwards?
+
+**Trial.** Stage `pilot-haiku-smoke-H`: the Haiku smoke's settings (`claude-haiku-4-5-20251001`, effort `low`,
+multiplier 0.002, the helper told 80 s) with the order `1-H`, one trial, job `ab-pilot-haiku-smoke-H-1-H`, at the
+commit of this section. Ceiling $1.00, reservation $0.60.
+
+**Reading it.** The stage log must show the helper program and mount for arm H and no profile line; the job
+directory must exist with assistant usage; the records step must build and verify a record or refuse it for a reason
+the helper's known windows explain (an unevaluated edit or an undecided candidate at the stop). Any other outcome
+stops the pilots for inspection before the Opus pilot starts. One trial establishes nothing about the arm's scores.
