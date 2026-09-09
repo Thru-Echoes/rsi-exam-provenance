@@ -33,8 +33,8 @@ reads as ``reverted`` until its decision is durable, so an undecided candidate n
 (``evaluate --from PATH`` shrinks that to one file replacement plus the copy into staging) and inside
 a restore's swap of two directories; a stop there is closed by ``finalize``, which restores the head
 even when ``main/`` cannot be hashed. A partial log write that leaves a block without its status line
-is repaired to ``reverted``. A stop before a candidate was measured is repaired at ``decide`` when
-``main/`` still holds that candidate. The helper cannot run twice at once: a lock under
+is repaired to ``reverted``. A stop before a candidate was measured is repaired at ``decide ... kept``
+when ``main/`` still holds that candidate; a reverted candidate keeps a "not measured" score line instead. The helper cannot run twice at once: a lock under
 ``.provenance/`` refuses the second invocation.
 
 Side effects: every command writes under ``<root>/methods``; ``init``, ``evaluate`` and ``decide``
@@ -505,7 +505,12 @@ class Rollout:
         if state.get("pending") != version_id:
             raise Refusal(f"not_pending:{version_id}: only the candidate awaiting a decision can be decided"
                           + (f" (pending: {state['pending']})" if state.get("pending") else ""))
-        self.measure_if_needed(version_id, state)
+        if status == "kept":
+            # A kept version carries its score; a reverted one only needs its block, and re-running a
+            # slow self-check for a candidate the agent is discarding is what tempts the agent to kill it.
+            self.measure_if_needed(version_id, state)
+        elif not self.measured(version_id) and self.is_newest_block(version_id):
+            self.append_log("- score: not measured (the evaluate was interrupted; the candidate was reverted)\n")
         state["pending"] = None
         if status == "kept":
             state["head"] = version_id
