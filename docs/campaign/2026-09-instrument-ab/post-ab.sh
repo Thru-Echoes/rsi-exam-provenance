@@ -18,7 +18,7 @@ step() { [ "$STEP" = all ] || [ "$STEP" = "$1" ]; }
 stop() { echo "STOP: $*"; exit 1; }
 model() { python3 -c "import json,sys; print(json.load(open(sys.argv[1]))[sys.argv[2]]['model'])" "$HERE/stages.json" "$STAGE"; }
 rates() { python3 -c "import json,sys; print(json.load(open(sys.argv[1]))[sys.argv[2]]['rates'])" "$HERE/stages.json" "$STAGE"; }
-jobdir() { ls -d "$RSI_EXAM_ROOT"/jobs/ab-$STAGE-*/game2048_policy_search__"${1: -7}"; }
+jobdir() { ls -d "$RSI_EXAM_ROOT"/jobs/ab-$STAGE-[0-9]*-[IH]/game2048_policy_search__"${1: -7}"; }
 MODEL=$(model); RATES=$(rates)
 
 if step records; then
@@ -26,7 +26,7 @@ if step records; then
   { echo "# Records over the instrument A/B, stage $STAGE"; echo
     echo "Producer and verifier at commit $CODE; records built into an audit root outside the job directories. One row per trial started."; echo
     echo "| rollout | arm | producer and verifier |"; echo "|---|---|---|"
-    for J in "$RSI_EXAM_ROOT"/jobs/ab-$STAGE-*/game2048_policy_search__*; do
+    for J in "$RSI_EXAM_ROOT"/jobs/ab-$STAGE-[0-9]*-[IH]/game2048_policy_search__*; do
       ID="$(basename "$(dirname "$J")")-$(basename "$J" | tail -c 8)"; ARM=$(basename "$(dirname "$J")" | sed 's/.*-//')
       mkdir -p "$RECORDS/$ID"; rm -f "$RECORDS/$ID/capsule.json"
       out=$(python3 profile/build_capsule.py --job-dir "$J" --task-dir "$TASK" --release "0.1@bc36dadb405b" --capsule-id "$ID" \
@@ -60,7 +60,7 @@ for trial in sorted(root.glob(f"{prefix}*/game2048_policy_search__*")):
 print(json.dumps(rows, indent=2))
 PY
   mkdir -p "$COHORT/profiles"
-  for P in "$RECORDS"/ab-$STAGE-*-I/profile.json; do [ -f "$P" ] && cp "$P" "$COHORT/profiles/$(basename "$(dirname "$P")").json"; done
+  for P in "$RECORDS"/ab-$STAGE-[0-9]*-I/profile.json; do [ -f "$P" ] && cp "$P" "$COHORT/profiles/$(basename "$(dirname "$P")").json"; done
   chmod 644 "$COHORT"/profiles/*.json 2>/dev/null
   cat "$COHORT/records.md"
   if [ "${COMMIT:-0}" = 1 ]; then
@@ -79,7 +79,7 @@ MSG
 fi
 
 if step manifests; then
-  for CAP in "$RECORDS"/ab-$STAGE-*/capsule.json; do
+  for CAP in "$RECORDS"/ab-$STAGE-[0-9]*-[IH]-*/capsule.json; do
     [ -f "$CAP" ] || continue
     ID=$(basename "$(dirname "$CAP")"); J=$(jobdir "$ID")
     rm -f "$RECORDS/$ID/replay-profile.json"
@@ -124,7 +124,7 @@ fi
 
 if step sealed; then
   SEALED=$COHORT/sealed; mkdir -p "$SEALED"; : > "$SEALED/exits.txt"
-  for J in "$RSI_EXAM_ROOT"/jobs/ab-$STAGE-*/game2048_policy_search__*; do
+  for J in "$RSI_EXAM_ROOT"/jobs/ab-$STAGE-[0-9]*-[IH]/game2048_policy_search__*; do
     ID="$(basename "$(dirname "$J")")-$(basename "$J" | tail -c 8)"; mkdir -p "$RECORDS/$ID" "$SEALED/$ID"
     [ -f "$RECORDS/$ID/replay-profile.json" ] || python3 runbook/make_profile.py --task-dir "$TASK" --rollout-id "$ID" --output "$RECORDS/$ID/replay-profile.json" >/dev/null
     CAP=(); [ -f "$RECORDS/$ID/capsule.json" ] && CAP=(--capsule "$RECORDS/$ID/capsule.json")
@@ -146,8 +146,8 @@ if step tables; then
   python3 "$HERE/ab_tables.py" "$COHORT" "Shadow audit over the instrument A/B, stage $STAGE" > "$COHORT/audit-summary.md"
   python3 "$HERE/ab_measures.py" --jobs-root "$RSI_EXAM_ROOT/jobs" --prefix "ab-$STAGE-" --records "$RECORDS" --rates "$RATES" \
     --sealed "$COHORT/sealed" --profiles "$COHORT/profiles" > "$COHORT/endpoints.md"
-  { for J in "$RSI_EXAM_ROOT"/jobs/ab-$STAGE-*; do printf "%s " "$(basename "$J")"; RATES=$RATES python3 runbook/cost.py "$J" | grep -E '^TOTAL'; done
-    printf "STAGE-%s " "$STAGE"; RATES=$RATES python3 runbook/cost.py "$RSI_EXAM_ROOT"/jobs/ab-$STAGE-* | grep -E '^TOTAL'; } > "$COHORT/spend.md"
+  { for J in "$RSI_EXAM_ROOT"/jobs/ab-$STAGE-[0-9]*-[IH]; do printf "%s " "$(basename "$J")"; RATES=$RATES python3 runbook/cost.py "$J" | grep -E '^TOTAL'; done
+    printf "STAGE-%s " "$STAGE"; RATES=$RATES python3 runbook/cost.py "$RSI_EXAM_ROOT"/jobs/ab-$STAGE-[0-9]*-[IH] | grep -E '^TOTAL'; } > "$COHORT/spend.md"
   cat "$COHORT/endpoints.md" "$COHORT/spend.md"
   if [ "${COMMIT:-0}" = 1 ]; then
     git add "$COHORT"

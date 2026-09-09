@@ -210,7 +210,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--sealed", type=Path, default=None)
     parser.add_argument("--profiles", type=Path, default=None)
     args = parser.parse_args(argv)
-    trials = sorted(Path(p) for p in glob.glob(str(args.jobs_root / f"{args.prefix}*" / "game2048_policy_search__*")))
+    # A prefix ending in "-" names a stage; its trials are <prefix><block>-<arm>, so a stage whose name is a prefix of
+    # another's never collects the other's trials. Any other prefix is matched as given.
+    pattern = f"{args.prefix}[0-9]*-[IH]" if args.prefix.endswith("-") else f"{args.prefix}*"
+    trials = sorted(Path(p) for p in glob.glob(str(args.jobs_root / pattern / "game2048_policy_search__*")))
     rows = [trial_row(t, args.records, args.rates, args.profiles, args.sealed) for t in trials]
     cols = [("trial", "trial"), ("arm", "arm"), ("block", "block"), ("agent_s", "agent s"), ("stopped", "stopped"),
             ("steps", "steps"), ("snapshots", "snapshots"), ("record", "record"), ("pairs", "pairs"),

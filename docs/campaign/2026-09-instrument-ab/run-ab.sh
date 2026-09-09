@@ -63,7 +63,7 @@ total = 0.0
 for name, cfg in stages.items():
     if name.startswith("_"):
         continue
-    dirs = sorted(glob.glob(os.path.join(jobs, f"ab-{name}-*")))
+    dirs = sorted(glob.glob(os.path.join(jobs, f"ab-{name}-[0-9]*-[IH]")))
     if not dirs:
         continue
     out = subprocess.run([sys.executable, cost, *dirs], capture_output=True, text=True, env={**os.environ, "RATES": cfg["rates"]})
@@ -108,7 +108,7 @@ admit_block() {  # the rules, judged once per block before its first trial: ever
   NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
   if [ "$NOW" \> "$CUTOFF_UTC" ]; then RULE="calendar: no block starts after $CUTOFF_UTC"; echo "$(date -u +%H:%M:%S) SKIP block $BLOCK and the rest of the stage: $RULE"; return 2; fi
   TRIALS=$(echo "$ORDER" | tr ' ' '\n' | grep -c "^$BLOCK-")
-  SPENT=$(priced $(ls -d "$RSI_EXAM_ROOT"/jobs/ab-$STAGE-* 2>/dev/null)) || stop "pricing failed ($RATES)"
+  SPENT=$(priced $(ls -d "$RSI_EXAM_ROOT"/jobs/ab-$STAGE-[0-9]*-[IH] 2>/dev/null)) || stop "pricing failed ($RATES)"
   CAMPAIGN=$(campaign_spend) || stop "campaign pricing failed"
   NEED=$(python3 -c "print($TRIALS * $RESERVATION)")
   echo "$(date -u +%H:%M:%S) block $BLOCK: stage spend so far \$$SPENT (admission threshold \$$CEILING); campaign spend \$$CAMPAIGN (threshold \$$CAMPAIGN_CEILING); reservation for the block's $TRIALS trial(s) \$$NEED"
