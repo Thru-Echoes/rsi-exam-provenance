@@ -72,13 +72,25 @@ price each finished job before starting the next:
 a job with no usage records; it never guesses. Start the next trial only while
 `verified spend so far + the reservation for one trial <= the ceiling`.
 
-## The provenance overlay
+## The provenance overlay and the helper
 
-`autoresearch-provenance.md` is RSI-Exam's own program text with the loop block extended so that
-the record can be built from what the agent writes: snapshot the inherited `main/` as `v0` before
-the first change, name snapshots exactly `v<N>`, append a version's log line immediately after
-snapshotting it, and state the parent id and the disposition in every entry. A run under it is a
-modified-program run. Pass it and the matching template as the last two arguments.
+`autoresearch-provenance.md` is RSI-Exam's own program text with the loop block rewritten so that
+the record can be built from what the agent leaves behind: the agent runs `provenance.py`, mounted
+read-only at `/app/provenance.py`, instead of copying snapshot directories and appending log entries
+by hand. `init` snapshots the inherited `main/` as `v0`, logs it, measures it and prints the run window;
+`evaluate` copies `main/` to the next `versions/v<N>`, appends that version's log block (id, parent,
+status, change, score) and runs the task's self-check; `decide v<N> kept|reverted` records the decision
+and a revert restores the head into `main/`; `finalize` settles an undecided candidate and leaves `main/`
+equal to the head; `status` shows the versions. A candidate reads as `reverted` until it is decided, so
+an interrupted run never reports an undecided version as kept. The remaining windows are one system call
+wide (between a snapshot's rename and its log block, and between the two renames of a restore) and the
+stretch while the agent edits `main/` before `evaluate`; `tests/test_provenance_helper.py` stops the
+helper at every checkpoint and asserts what the record producer then says.
+
+`mount-provenance.yaml` is RSI-Exam's `infra/prompts/mount.yaml` plus the helper's read-only mount;
+`run_gateway.sh` selects it when the program text names `/app/provenance.py` (`MOUNT_YAML` and
+`ARB_PROVENANCE_PY` override). A run under the overlay is a modified-program run. Pass the program and the
+matching template as the last two arguments.
 
 ## Building and verifying the record
 

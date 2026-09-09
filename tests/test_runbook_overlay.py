@@ -1,4 +1,4 @@
-"""The program overlay is RSI-Exam's program text plus exactly the sentences the record needs.
+"""The program overlay is RSI-Exam's program text with a loop that routes bookkeeping through the mounted helper.
 
 Run: python3 -m unittest tests.test_runbook_overlay
 """
@@ -15,16 +15,37 @@ TEMPLATE = REPO / "runbook" / "autoresearch-provenance.j2"
 
 # Sentences the record producer depends on, one per defect a real rollout exposed.
 REQUIRED = (
-    "Before your first change, copy the inherited /app/methods/main to /app/methods/versions/v0",
-    "Name snapshot directories exactly v0, v1, v2, and so on: a lowercase v followed by an integer",
-    "Append the log line for a version immediately after you snapshot it, before any further edit",
-    "state its parent version id and whether it was kept or reverted",
-    # The image copies only environment/methods into /app/methods, so versions/ does not exist yet.
-    "mkdir -p /app/methods/versions && cp -r /app/methods/main /app/methods/versions/v0",
+    "run `python3 /app/provenance.py init`",
+    "snapshots the inherited /app/methods/main as /app/methods/versions/v0",
+    "prints your run window",
+    "run `python3 /app/provenance.py evaluate --change \"<what changed>\"`",
+    "Never create versions/ directories or write to experiment_log.md by hand",
+    "`python3 /app/provenance.py decide v<N> kept`",
+    "`python3 /app/provenance.py decide v<N> reverted`",
+    "run `python3 /app/provenance.py finalize`",
 )
 
 
+MOUNT = REPO / "runbook" / "mount-provenance.yaml"
+
+
 class OverlayCarriesTheConventions(unittest.TestCase):
+    def test_the_mount_file_adds_only_the_helper(self):
+        text = MOUNT.read_text(encoding="utf-8")
+        self.assertIn('"${ARB_PROVENANCE_PY}:/app/provenance.py:ro"', text)
+        self.assertIn('"${ARB_PROGRAM}:/app/AUTORESEARCH.md:ro"', text)
+        self.assertIn('"${ARB_BUDGET_PY}:/app/budget.py:ro"', text)
+        declared = "\n".join(l for l in text.splitlines() if not l.lstrip().startswith("#"))
+        for forbidden in ("network_mode", "networks:"):
+            self.assertNotIn(forbidden, declared)
+        root = os.environ.get("RSI_EXAM_ROOT")
+        source = Path(root) / "infra/prompts/mount.yaml" if root else None
+        if source is not None and source.is_file():
+            theirs = [l for l in source.read_text(encoding="utf-8").splitlines() if not l.lstrip().startswith("#")]
+            ours = [l for l in text.splitlines() if not l.lstrip().startswith("#")
+                    and "ARB_PROVENANCE_PY" not in l]
+            self.assertEqual(ours, theirs)
+
     def test_every_required_sentence_is_present(self):
         text = OVERLAY.read_text(encoding="utf-8")
         for sentence in REQUIRED:

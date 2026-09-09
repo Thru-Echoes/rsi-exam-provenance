@@ -1,0 +1,15 @@
+# Mounts the program, the task instruction, and the budget reporter into the agent container.
+# Requires ARB_PROGRAM, ARB_BUDGET_PY, ARB_PROVENANCE_PY (absolute paths). This file is RSI-Exam's
+# infra/prompts/mount.yaml plus one read-only mount: the provenance helper the overlay tells the agent to run.
+# Never declare networks/network_mode here: harbor would skip egress control for main.
+services:
+  main:
+    volumes:
+      - "${ARB_PROGRAM}:/app/AUTORESEARCH.md:ro"
+      # CONTEXT_DIR is harbor's per-trial <task>/environment; a host var cannot vary per task
+      - "${CONTEXT_DIR}/../instruction.md:/app/TASK.md:ro"
+      - "${ARB_BUDGET_PY}:/app/budget.py:ro"
+      - "${ARB_PROVENANCE_PY}:/app/provenance.py:ro"
+    environment:
+      ARB_OUTPUT_TOKEN_LIMIT: "${ARB_OUTPUT_TOKEN_LIMIT:-500000}"
+      ARB_AGENT_TIMEOUT_SEC: "${ARB_AGENT_TIMEOUT_SEC:-0}"
