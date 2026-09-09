@@ -1,0 +1,48 @@
+{
+  "allow_projection": false,
+  "anchor_commit": null,
+  "capsule": {
+    "built_here": false,
+    "locator": "capsule.json",
+    "sha256": "85f208d48cfca0e5c4f7236df195e5f6d2661218efa2828a575b8b36d131dce5"
+  },
+  "container": {
+    "digest": "python@sha256:9d2e5553305c7c7b0097999bb17187c69b921ccd6bc9d40e4bb5ebe652c00285",
+    "image": "python@sha256:9d2e5553305c7c7b0097999bb17187c69b921ccd6bc9d40e4bb5ebe652c00285"
+  },
+  "created_utc": "2026-09-09T14:08:55.207910+00:00",
+  "evaluator": {
+    "evaluate.py": "642d194eab0c4f1e116a70d7d78d8b5e13197cbfb92e0d6a09dbba6c2a494c86",
+    "game2048.py": "3c1059f3a26b5d5ee014ae51f19147e05a31ddf60fd7d371a48e7c4101cef077"
+  },
+  "execution_model": "same-process-evaluator",
+  "expected_snapshot_digests": {
+    "v1": "d7db03c45e521d15c9a9d77404634170f78b7115827b37f1c0fd87e6d6108bcf",
+    "v10": "9896b8fa3276bf0722b86712b60581fc36d78ff47553d9c6e173b215ed2810e2",
+    "v11": "19efbb9967b09fa1f3c43904ba88d2d9377a1351a1b11d8daa432eaaa3f1d8a9",
+    "v12": "c5b50880959dadf2f8bfd9a0afc1efb9e348c855fd47c855db2491d782767bec",
+    "v13": "97d94be16f2175958d7e279b2601c43d42246b226df964cc4f20f7e64af4902c",
+    "v14": "cd878abfb0a43bab7fe64251c862060b886aaef8be39c11774648829c1ef3511",
+    "v2": "7406192d4de8da2e8e249515f5eb1483023c1d0dbde268c614bed350ff53658d",
+    "v3": "cce3f4910e18c0dc7550ca11ab07cb60e895479aa9a14231b6c399dd7ea576ea",
+    "v4": "8749c90b3d29e827ed27d2454e58b28298e97352111b01507ef58058e4a9c64d",
+    "v9": "db16347ee472a7db6c34b4ebd555e57e042031009c581d74b40be36965ff79da"
+  },
+  "gate_commit": "0a07b18ea58351d2ade40ace9db21b399a4204f7",
+  "gate_sources": {
+    "calibrate.py": "99338b1ed8fcc4a4668e9f7b67c2591cf64e946c726d57bd51a33746792e0a24",
+    "decide.py": "ca5764e0075282e62bc7335504ba16a06fad79283353ccf252391c491b79e892",
+    "evaluate_suite.py": "8a254c81c7c9871e0ba5536a9de725f81131d61fac89c45baeb5e72fb21e18aa",
+    "restore.py": "1bd8f70eb2e775c8744c0183dcde1d3c3b5996d91a107538f6427ae59f9ead02",
+    "sealed_eval.py": "24b21e046fecbf0bbfb69186a4ebacdf5b4d6eeb59c1df0942f4f56c40e2c0e6",
+    "seeds.py": "89c18f28e67c8b3f3b15f201f10fbbc232fdf9b3079268dd2d2f2f56524da571",
+    "shadow_replay.py": "6c5383e354ffc5e59642e317c186bf7daf5ed4f974dd8cdc15e60151e5a405ba",
+    "task_profile.py": "d619cd82db0fcbb92e2a8ab116d7b85551d4c184e709475a96b6cc33d9bb5748",
+    "trace_from_decisions.py": "b4fd1d750259d200cc30b1f3811841695d744f08407fe24dcd47e2cadeacd0ed",
+    "treedigest.py": "6fa2729c92b1b89a57ee087f9112110cf37faf10eb7fd58e7a8a65bf255e68b9"
+  },
+  "gate_tree_clean": true,
+  "profile_sha256": "ea0f86eaf72b642157835177a30299c22a81acd1b86d2a0ed8452a060b711763",
+  "task_starter_method_tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+  "visible_suite_sha256": "117c4cb7c2f19eb47fe70949a4f7c3ba2c4ff48da89bfb204dae5b30a7e4528a"
+}
