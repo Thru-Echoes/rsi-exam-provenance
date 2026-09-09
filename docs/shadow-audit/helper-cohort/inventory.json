@@ -1,0 +1,156 @@
+[
+  {
+    "rollout": "campaign-H1-hoG9P2f",
+    "log_present": true,
+    "snapshots": [
+      "v0",
+      "v1",
+      "v2",
+      "v3",
+      "v4",
+      "v5",
+      "v6",
+      "v7",
+      "v8",
+      "v9"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "campaign-H2-R8sDt8Y",
+    "log_present": true,
+    "snapshots": [
+      "v0",
+      "v1",
+      "v2",
+      "v3",
+      "v4",
+      "v5",
+      "v6",
+      "v7",
+      "v8",
+      "v9"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "campaign-H3-RbhgqQB",
+    "log_present": true,
+    "snapshots": [
+      "v0",
+      "v1",
+      "v2",
+      "v3",
+      "v4",
+      "v5",
+      "v6",
+      "v7",
+      "v8"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "campaign-H4-LWzeis7",
+    "log_present": true,
+    "snapshots": [
+      "v0",
+      "v1",
+      "v2",
+      "v3",
+      "v4",
+      "v5",
+      "v6"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "campaign-H5-wcEU25o",
+    "log_present": true,
+    "snapshots": [
+      "v0",
+      "v1",
+      "v2",
+      "v3",
+      "v4"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "campaign-H6-3qz6CEn",
+    "log_present": true,
+    "snapshots": [
+      "v0",
+      "v1",
+      "v10",
+      "v11",
+      "v12",
+      "v2",
+      "v3",
+      "v4",
+      "v5",
+      "v6",
+      "v7",
+      "v8",
+      "v9"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "campaign-O1-zvdgNzq",
+    "log_present": true,
+    "snapshots": [
+      "v0",
+      "v1"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "campaign-O2-Fjweu3m",
+    "log_present": true,
+    "snapshots": [
+      "v0",
+      "v1",
+      "v2"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "campaign-S1-qXiB758",
+    "log_present": true,
+    "snapshots": [
+      "v0",
+      "v1"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "campaign-S2-xZPTJeM",
+    "log_present": true,
+    "snapshots": [
+      "v0",
+      "v1"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "campaign-S3-Lhwt3ro",
+    "log_present": true,
+    "snapshots": [
+      "v0",
+      "v1",
+      "v2"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  }
+]
