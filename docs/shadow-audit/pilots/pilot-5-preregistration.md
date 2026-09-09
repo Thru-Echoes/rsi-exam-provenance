@@ -57,3 +57,26 @@ harness timeout with assistant usage in its session log. Every started trial is 
   record verified; sealed reward 0.330 with all 16 seeds up; regret 0.
 - The Sonnet window rule: a confirmation settled before the close-out mark and no keep was refused for time, so the Sonnet
   stage runs at multiplier 0.030. Single trials; no rate.
+
+## Pilot 6 smoke: one Opus trial at the earlier Opus window
+
+Written 2026-09-09 21:40 UTC, before the trial started.
+
+**Question.** At the window every earlier Opus trial on this task used (multiplier 0.030, 1296 s; the helper told
+1200 s), does an Opus agent under the instrument propose a keep early enough for a confirmation to fit before the
+close-out mark, and what does a confirmation of eight fresh seeds cost in wall clock for a policy of Opus's strength
+(about 30 CPU seconds per game in the helper campaign)? This trial is a smoke, not the Opus pilot: `pilot-opus`
+(multiplier 0.045, two trials) still fixes the Opus stage's window by its own rule, which this trial neither replaces
+nor pre-empts.
+
+**Trial.** Stage `pilot-opus-smoke`: `claude-opus-5`, reasoning effort `max`, multiplier 0.030, one instrument-arm
+trial, job `ab-pilot-opus-smoke-1-I`, the same program, mount, profile settings and key as the other pilots, at the
+commit of this section. Ceiling $8.00, reservation $6.00, enforced by the runner.
+
+**Reading it.** Reported like the other pilots: the measures table, the gate lines, whether a confirmation opened and
+settled, keeps refused for time, and the sealed reward as an incidental number beside the helper-only Opus trials at
+the same window (0.585 and 0.521 in the campaign; 0.598 and 0.585 in pilot 4). One trial establishes no rate. The time
+budget at this window, stated in advance: the first-candidate mark is at 400 s and the close-out mark 180 s before the
+end, so a confirmation of eight seeds at 30 CPU seconds per game (about 6.2 min with the runner's slack) fits only for a
+keep proposed before about the eleventh minute; a keep refused for time is the expected failure mode at this window and
+is reported, not retried.

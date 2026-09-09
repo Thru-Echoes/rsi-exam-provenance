@@ -61,6 +61,25 @@
     "key": "operator",
     "seed": 20260911
   },
+  "pilot-opus-smoke": {
+    "model": "claude-opus-5",
+    "rates": "opus",
+    "effort": "max",
+    "multiplier": 0.03,
+    "window": 1200,
+    "ceiling": 8.0,
+    "reservation": 6.0,
+    "blocks": 1,
+    "order": [
+      "1-I"
+    ],
+    "floor": 8,
+    "cap": 16,
+    "planning_rule": "estimate-aware",
+    "min_effect_fraction": 0.025,
+    "key": "operator",
+    "seed": 20260911
+  },
   "pilot-opus": {
     "model": "claude-opus-5",
     "rates": "opus",
