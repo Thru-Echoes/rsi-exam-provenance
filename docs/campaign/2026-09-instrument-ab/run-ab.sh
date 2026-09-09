@@ -153,7 +153,7 @@ run_trial() {
   fi
   return 0
 }
-STARTED=0; RULE=""; BLOCKED=""; CURRENT_BLOCK=""
+STARTED=0; RULE=""; BLOCKED=""; CURRENT_BLOCK=""; LIMITED=""
 for T in $ORDER; do
   BLOCK=${T%%-*}
   if [ "$BLOCK" != "$CURRENT_BLOCK" ]; then       # the first trial of a block: the rules are judged here and only here
@@ -162,10 +162,11 @@ for T in $ORDER; do
     CURRENT_BLOCK=$BLOCK
   fi
   if done_already "$T"; then echo "$(date -u +%H:%M:%S) ab-$STAGE-$T already finished; not replaced"; continue; fi
-  if [ -n "${LIMIT:-}" ] && [ "$STARTED" -ge "$LIMIT" ]; then echo "$(date -u +%H:%M:%S) LIMIT=$LIMIT reached; the rest of the order is not started"; break; fi
+  if [ -n "${LIMIT:-}" ] && [ "$STARTED" -ge "$LIMIT" ]; then echo "$(date -u +%H:%M:%S) LIMIT=$LIMIT reached; the rest of the order is not started"; LIMITED=1; break; fi
   STARTED=$((STARTED + 1))
   run_trial "$T"
 done
 # One terminal line, distinct by outcome: COMPLETE when every trial of the order ran (or LIMIT ended it), else the rule.
 if [ -n "$RULE" ]; then echo "$(date -u +%H:%M:%S) AB-$STAGE-STOPPED-BY-RULE ($RULE)"; exit 3; fi
+if [ -n "$LIMITED" ]; then echo "$(date -u +%H:%M:%S) AB-$STAGE-COMPLETE-LIMITED ($STARTED of $(echo "$ORDER" | wc -w | tr -d ' ') trials started under LIMIT)"; exit 0; fi
 echo "$(date -u +%H:%M:%S) AB-$STAGE-COMPLETE"

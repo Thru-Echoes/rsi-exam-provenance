@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Check the pre-registered false-keep criterion over calibration sidecars. Usage: check_calibration.py <dir> <max> <max_upper>.
 
-Reads every ``<dir>/*best1.json`` and ``<dir>/*best3.json`` (both selection conditions are gated); for rows at effect
+Reads every ``<dir>/*best1.json`` and ``<dir>/*best3.json`` (both selection conditions are gated; files of the accepted
+rule, named ``current-*``, are reported and never gated); for rows at effect
 multiples 0 and 1 reports the false-keep probability and its exact one-sided 95 percent binomial (Clopper-Pearson) upper
 bound, the same bound for every count including zero, and says whether every row is within the criterion. Each bound is
 marginal to its cell; no simultaneous coverage across cells is claimed. Reads only; standard library only.
@@ -39,6 +40,7 @@ checked = 0
 print("| file | distribution | effect | false_keep | exact upper bound | trials | within |")
 print("|---|---|---|---|---|---|---|")
 for path in sorted(glob.glob(f"{folder}/*best1.json") + glob.glob(f"{folder}/*best3.json")):
+    reference = path.rsplit("/", 1)[-1].startswith("current-")   # the accepted rule's files: reported, never gated
     doc = json.load(open(path))
     rows = doc["rows"] if isinstance(doc, dict) else doc
     trials = int((doc.get("params") or {}).get("trials", 0)) if isinstance(doc, dict) else 0
@@ -50,6 +52,9 @@ for path in sorted(glob.glob(f"{folder}/*best1.json") + glob.glob(f"{folder}/*be
         k = round(p * n)
         bound = upper_bound(k, n) if n else 1.0
         ok = p <= limit and bound <= upper_limit
+        if reference:
+            print(f"| {path.rsplit('/', 1)[-1]} | {row['distribution']} | {row['effect_multiple']} | {p:.4f} | {bound:.4f} | {n} | reference, not gated |")
+            continue
         worst = max(worst, bound)
         checked += 1
         if not ok:
