@@ -51,6 +51,23 @@ action; they are recorded separately, so a revert on inconclusive evidence is ne
 the change hurt. The interval is never the probability the decision was right and never a
 statement about the sealed reward.
 
+### The gate in motion
+
+Two captured rollouts, rendered from their own files by `docs/figures/make_instrument_animation.py`
+(every row is a recorded event; the plain line under each ruling is rendered from the recorded fields
+and the gate's own line is printed beneath it). First, a rollout under the exam's own program: the
+agent kept nine of nine candidates, and the sealed seeds, scored afterwards, say four of those keeps
+made the policy worse; the record could report it only after the grade.
+
+![Before the instrument: the agent decided alone; the record could only report afterwards](docs/figures/instrument-before.svg)
+
+Then the instrument's Haiku pilot: each keep the agent proposed was screened on the public seeds,
+confirmed on fresh seeds or overruled, and finalize checked safety before the submission; the sealed
+column, revealed last, is the after-the-fact check on the gate itself (here it says the rule was
+conservative at Haiku scale, which the pilot note stated before the trial).
+
+![Under the instrument: every keep is measured before it sticks](docs/figures/instrument-now.svg)
+
 ## Status
 
 Ten real rollouts of `game2048_policy_search` have run (four on `claude-haiku-4-5`, six on
