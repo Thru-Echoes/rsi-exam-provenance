@@ -20,6 +20,12 @@ cd "$RSI_EXAM_ROOT"
 JOB_NAME="$1"; SECONDS_BUDGET="$2"; MULT="$3"; K="${4:-1}"; EFFORT="${5:-max}"
 PROGRAM="${6:-$PWD/infra/prompts/autoresearch.md}"
 TEMPLATE="${7:-$PWD/infra/prompts/autoresearch.j2}"
+RUNBOOK="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# A program that tells the agent to run /app/provenance.py needs the helper mounted; the runbook's compose
+# overlay is RSI-Exam's mount.yaml plus that one read-only mount. MOUNT_YAML overrides the choice.
+if [ -z "${MOUNT_YAML:-}" ] && grep -q '/app/provenance.py' "$PROGRAM"; then MOUNT_YAML="$RUNBOOK/mount-provenance.yaml"; fi
+MOUNT_YAML="${MOUNT_YAML:-$PWD/infra/prompts/mount.yaml}"
+export ARB_PROVENANCE_PY="${ARB_PROVENANCE_PY:-$RUNBOOK/provenance.py}"
 
 [ -f .env.gateway ] || { echo "no $RSI_EXAM_ROOT/.env.gateway" >&2; exit 2; }
 set -a; source .env.gateway; set +a
@@ -37,14 +43,14 @@ export ARB_OUTPUT_TOKEN_LIMIT="${ARB_OUTPUT_TOKEN_LIMIT:-400000}"
 export ARB_PROGRAM="$PROGRAM"
 export ARB_BUDGET_PY="$PWD/infra/prompts/budget.py"
 
-echo "job=$JOB_NAME model=$MODEL budget=${SECONDS_BUDGET}s mult=$MULT k=$K effort=$EFFORT program=$(basename "$PROGRAM") via $HOST"
+echo "job=$JOB_NAME model=$MODEL budget=${SECONDS_BUDGET}s mult=$MULT k=$K effort=$EFFORT program=$(basename "$PROGRAM") mount=$(basename "$MOUNT_YAML") via $HOST"
 set -x
 # With ANTHROPIC_BASE_URL set the adapter pins its four model aliases itself.
 harbor run -p tasks/game2048_policy_search -a claude-code -m "$MODEL" -y -n 1 -k "$K" \
   --job-name "$JOB_NAME" \
   --agent-timeout-multiplier "$MULT" \
   --ak prompt_template_path="$TEMPLATE" \
-  --extra-docker-compose "$PWD/infra/prompts/mount.yaml" \
+  --extra-docker-compose "$MOUNT_YAML" \
   --ak disallowed_tools="WebSearch,WebFetch" \
   --ak reasoning_effort="$EFFORT" \
   --allow-agent-host "$HOST"
