@@ -53,11 +53,25 @@ statement about the sealed reward.
 
 ### The gate in motion
 
-The instrument's Haiku pilot, rendered from the rollout's own files by
-`docs/figures/make_instrument_animation.py`: every row is a recorded event, the plain line under each
-ruling is rendered from the recorded fields, and the gate's own line is printed beneath it. The same
-rendering of a rollout from before the instrument, where the agent decided alone, is in
-[`docs/overview.md`, section 2](docs/overview.md#2-the-problem-addressed).
+Three captured rollouts, rendered from their own files by `docs/figures/make_instrument_animation.py`:
+every row is a recorded event, the plain line under each ruling is rendered from the recorded fields,
+and the gate's own line is printed beneath it. Nothing in the figures is invented.
+
+First, a rollout from before the instrument, under the exam's own program: the agent kept nine of nine
+candidates, and the sealed seeds, scored afterwards, say four of those keeps made the policy worse. The
+record could report it only after the grade.
+
+![Before the instrument: the agent decided alone; the record could only report afterwards](docs/figures/instrument-before.svg)
+
+Then the first Opus trial of the pre-registered comparison (one trial of it, no claim): in one 32-minute
+window the agent wrote three candidates, the gate confirmed two of them on fresh seeds, one on top of the
+other, the agent reverted the third itself after the preview, and finalize submitted the confirmed head,
+which scored 0.551 on the exam's sealed seeds. The hidden-seed column joins the figure once the sealed
+retrospective of that stage has run.
+
+![Under the instrument at Opus scale: two keeps confirmed on fresh seeds in one window](docs/figures/instrument-opus.svg)
+
+Last, the instrument's Haiku pilot, the rollout the reading below walks through number by number.
 
 ![Under the instrument: every keep is measured before it sticks](docs/figures/instrument-now.svg)
 
@@ -100,7 +114,7 @@ afterwards which version was measured on which games with what result.
 
 **The honest trade-off.** Measuring costs time (a confirmation runs both versions on fresh games, one to four
 minutes for a strong program), and the rule is deliberately cautious: it will sometimes discard a real
-improvement it could not tell from luck, as it did twice in the pilot above. Whether the trade is worth it is
+improvement it could not tell from luck, as it did twice in the Haiku pilot shown last. Whether the trade is worth it is
 the question the pre-registered A/B answers: same model, same window, gate on against gate off, judged by the
 hidden-game score of what each one submits.
 

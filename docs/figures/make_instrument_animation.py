@@ -121,7 +121,10 @@ def score_of(log: dict[str, str]) -> float | None:
 
 
 def get_rows(report: dict, helper: dict[str, dict[str, str]]) -> list[Row]:
-    """Project the report's versions (and the helper's lines for them) into rows, baseline excluded."""
+    """Project the report's versions (and the helper's lines for them) into rows, baseline excluded.
+
+    ``report`` is a sealed-retrospective report or, before one exists, a record (``versions`` with ``version_id``,
+    ``status`` and ``parent_ids`` only); with a record the sealed fields stay None."""
     means = {v["version_id"]: v.get("sealed_mean") for v in report["versions"]}
     visible = {v["version_id"]: v.get("visible_score") for v in report["versions"]}
     rows: list[Row] = []
@@ -382,12 +385,14 @@ def build(mode: str, rows: list[Row], args: argparse.Namespace) -> tuple[Scene, 
         y += 12 + LINE
     axis_bottom = y - 8
 
-    # the sealed column, revealed last
+    # the sealed column, revealed last (only when the sealed retrospective exists)
+    scored = any(r.delta is not None for r in rows)
     sealed_t = finalize_t + 1.4
     head_y = ROW_TOP - 30
-    s.add(sealed_t, text(SEALED_X, head_y, "HIDDEN SEEDS, SCORED LATER", fill="var(--ink3)", size=11, weight="700")
-          + text(SEALED_X, head_y + 15, "new version minus its parent, 16 seeds", fill="var(--ink3)", size=11))
-    for j, r in enumerate(rows):
+    if scored:
+        s.add(sealed_t, text(SEALED_X, head_y, "HIDDEN SEEDS, SCORED LATER", fill="var(--ink3)", size=11, weight="700")
+              + text(SEALED_X, head_y + 15, "new version minus its parent, 16 seeds", fill="var(--ink3)", size=11))
+    for j, r in enumerate(rows if scored else []):
         yy = y_of[r.version]
         if r.delta is None:
             txt, kind = "no measured parent", "within"
@@ -397,13 +402,15 @@ def build(mode: str, rows: list[Row], args: argparse.Namespace) -> tuple[Scene, 
         tag = sealed_tag(r)
         s.add(sealed_t + 0.25 + j * 0.16, text(SEALED_X, yy, txt, fill=f"var(--c-{kind})", size=12.5, weight="650", cls="mono")
               + (text(SEALED_X, yy + 14, tag, fill=f"var(--c-{kind})", size=10.5) if tag else ""))
-    end_t = sealed_t + 0.25 + len(rows) * 0.16
+    end_t = sealed_t + 0.25 + (len(rows) * 0.16 if scored else 0)
     submitted = [r for r in rows if r.status == "submitted"]
-    if submitted and submitted[0].reward is not None:
+    reward = submitted[0].reward if submitted and submitted[0].reward is not None else args.exam_reward
+    if submitted and reward is not None:
         end_t += 0.6
         sy = axis_bottom + 26
         s.add(end_t, text(SEALED_X, sy, f"submitted: {submitted[0].version}", weight="650")
-              + text(SEALED_X, sy + 16, f"exam reward {submitted[0].reward:.4f}", weight="650"))
+              + text(SEALED_X, sy + 16, f"exam reward {reward:.4f}", weight="650")
+              + ("" if scored else text(SEALED_X, sy + 32, "hidden-seed column: not scored yet", fill="var(--ink3)", size=10.5)))
         axis_bottom = max(axis_bottom, sy + 8)
 
     # left card: the captured facts and the ledger
@@ -416,8 +423,9 @@ def build(mode: str, rows: list[Row], args: argparse.Namespace) -> tuple[Scene, 
                   ("overruled by the gate", str(sum(1 for r in rows if "(overruled)" in r.proposal))),
                   ("reverted by the agent itself", str(sum(1 for r in rows if r.gate_kind == "none" and r.status == "reverted"))),
                   ("rulings in the decision log", str(sum(1 for r in rows if r.gate_kind != "none"))),
-                  ("record verified offline", "yes" if args.record_verified else "no"),
-                  ("hidden seeds disagreed", f"{len(disagree)} of {len(rows)}")]
+                  ("record verified offline", "yes" if args.record_verified else "no")]
+        if scored:
+            ledger.append(("hidden seeds disagreed", f"{len(disagree)} of {len(rows)}"))
     else:
         ledger = [("decisions the agent made", str(len(rows))),
                   ("kept or submitted", str(len(kept))),
@@ -479,7 +487,9 @@ def render_gif(frames: list[tuple[str, int]], path: Path, height: int) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--mode", choices=("before", "now"), required=True)
-    ap.add_argument("--sealed", required=True, help="sealed-retrospective report.json")
+    ap.add_argument("--sealed", default=None, help="sealed-retrospective report.json")
+    ap.add_argument("--record", default=None, help="the rollout's record (capsule.json), used for the versions before a sealed report exists")
+    ap.add_argument("--exam-reward", type=float, default=None, help="the grader's reward of the submission, shown when no sealed report exists")
     ap.add_argument("--helper-log", default=None, help="the helper's methods/experiment_log.md (instrument rollouts)")
     ap.add_argument("--name", required=True, help="output basename")
     ap.add_argument("-o", "--out", default="docs/figures")
@@ -493,9 +503,18 @@ def main() -> int:
     ap.add_argument("--record-verified", action="store_true", help="the offline verifier passed the rollout's record")
     args = ap.parse_args()
 
-    report = json.loads(Path(args.sealed).read_text(encoding="utf-8"))
-    if report.get("schema") != "rsi-exam-sealed-retrospective/v1":
-        print(f"error: {args.sealed} is not a rsi-exam-sealed-retrospective/v1 report", file=sys.stderr)
+    if args.sealed:
+        report = json.loads(Path(args.sealed).read_text(encoding="utf-8"))
+        if report.get("schema") != "rsi-exam-sealed-retrospective/v1":
+            print(f"error: {args.sealed} is not a rsi-exam-sealed-retrospective/v1 report", file=sys.stderr)
+            return 2
+    elif args.record:
+        report = json.loads(Path(args.record).read_text(encoding="utf-8"))
+        if "versions" not in report:
+            print(f"error: {args.record} has no versions", file=sys.stderr)
+            return 2
+    else:
+        print("error: pass --sealed (a sealed-retrospective report) or --record (the rollout's record)", file=sys.stderr)
         return 2
     helper = parse_helper_log(Path(args.helper_log).read_text(encoding="utf-8")) if args.helper_log else {}
     rows = get_rows(report, helper)
