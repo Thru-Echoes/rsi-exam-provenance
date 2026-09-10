@@ -6,7 +6,7 @@ because both upstreams move.
 
 ## What this directory is
 
-`~/Developer/rsi-exam-fork` is a clone of the operator's fork `Thru-Echoes/RSI-Exam` (remote `origin`)
+`~/Developer/rsi-exam-upstream` is a clone of the operator's fork `Thru-Echoes/RSI-Exam` (remote `origin`)
 with the upstream `aiming-lab/RSI-Exam` as remote `upstream`. It exists for one purpose: to send the
 organizers of RSI-Exam small pull requests that fix or extend their evaluation pipeline, as the
 contribution offered to them by email on 2026-09-09 under their advisor track ("a pipeline or evaluation
