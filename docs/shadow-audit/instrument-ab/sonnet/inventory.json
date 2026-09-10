@@ -1,0 +1,74 @@
+[
+  {
+    "rollout": "ab-sonnet-1-H-SeA7iww",
+    "log_present": true,
+    "decision_log_present": false,
+    "snapshots": [
+      "v0",
+      "v1",
+      "v2"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "ab-sonnet-1-I-xtakhda",
+    "log_present": true,
+    "decision_log_present": false,
+    "snapshots": [
+      "v0",
+      "v1"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "ab-sonnet-2-H-C2M2YpQ",
+    "log_present": true,
+    "decision_log_present": false,
+    "snapshots": [
+      "v0",
+      "v1",
+      "v2",
+      "v3"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "ab-sonnet-2-I-SdrMhjg",
+    "log_present": true,
+    "decision_log_present": true,
+    "snapshots": [
+      "v0",
+      "v1",
+      "v2"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "ab-sonnet-3-H-bWAJ7UE",
+    "log_present": true,
+    "decision_log_present": false,
+    "snapshots": [
+      "v0",
+      "v1",
+      "v2",
+      "v3"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "ab-sonnet-3-I-jWw94xB",
+    "log_present": true,
+    "decision_log_present": true,
+    "snapshots": [
+      "v0",
+      "v1"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  }
+]
