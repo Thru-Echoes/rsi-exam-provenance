@@ -316,7 +316,7 @@ the program: "save the self-check's output there". Do this only if asked; it is 
 
 ## Handoff checklist for the session that implements this
 
-1. Start TRACE (`/trace-session`; the project is pinned to `rsi-exam-fork`).
+1. Start TRACE (`/trace-session`; the project is pinned to `rsi-exam-upstream`).
 2. `git fetch upstream` and confirm `upstream/main` still matches the facts above; note any drift.
 3. Do G1 completely (branch, edit, regenerate, transcript, pull-request text) and show it. Stop for the word.
 4. Download the task, do H1 and H2 the same way, show them. Stop for the word.
