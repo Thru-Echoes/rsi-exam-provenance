@@ -60,6 +60,28 @@ class TestSizing(unittest.TestCase):
         self.assertEqual(out["rule"], seeds.SIZING_RULE)
         self.assertEqual(seeds.confirmation_size(DELTAS, min_effect=103.0, level=0.9, floor=16, cap=32)["size"], 32)
 
+    def test_the_estimate_aware_rule_plans_against_the_larger_effect(self) -> None:
+        # mean 1000, sd about 300: the accepted rule resolves a minimum effect of 50 and needs ~1560 seeds;
+        # the estimate-aware rule plans against 950 and needs the floor.
+        wide = [1000.0 + d for d in (-450.0, -300.0, -150.0, -50.0, 50.0, 150.0, 300.0, 450.0)]
+        accepted = seeds.confirmation_size(wide, min_effect=50.0, level=0.9, floor=16, cap=64)
+        aware = seeds.confirmation_size(wide, min_effect=50.0, level=0.9, floor=16, cap=64, rule="estimate-aware")
+        self.assertTrue(accepted["exploratory"])
+        self.assertNotIn("planning_rule", accepted)
+        self.assertEqual(accepted["rule"], seeds.SIZING_RULE)
+        self.assertEqual((aware["planned"], aware["size"], aware["exploratory"]), (16, 16, False))
+        self.assertEqual((aware["planning_rule"], aware["planning_effect"], aware["screening_mean"]), ("estimate-aware", 950.0, 1000.0))
+        self.assertEqual(aware["rule"], seeds.ESTIMATE_AWARE_RULE)
+        self.assertEqual(aware["screening_sd"], accepted["screening_sd"])
+        # a candidate whose screening mean is below twice the minimum effect plans exactly as the accepted rule does
+        low = [20.0 + d for d in (-45.0, -30.0, -15.0, -5.0, 5.0, 15.0, 30.0, 45.0)]
+        same = seeds.confirmation_size(low, min_effect=50.0, level=0.9, floor=16, cap=64, rule="estimate-aware")
+        self.assertEqual(same["planning_effect"], 50.0)
+        self.assertEqual(same["planned"], seeds.confirmation_size(low, min_effect=50.0, level=0.9, floor=16, cap=64)["planned"])
+        with self.assertRaises(seeds.SeedsError):
+            seeds.confirmation_size(wide, min_effect=50.0, level=0.9, floor=16, cap=64, rule="guess")
+        self.assertEqual(seeds.PLANNING_RULES, ("min-effect", "estimate-aware"))
+
     def test_floor_applies_when_the_deltas_are_tight_or_constant(self) -> None:
         out = seeds.confirmation_size([0.0] * 8, min_effect=103.0, level=0.9, floor=16, cap=64)
         self.assertEqual((out["size"], out["planned"], out["exploratory"]), (16, 16, False))

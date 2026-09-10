@@ -52,7 +52,7 @@ from pathlib import Path
 from typing import Any
 
 from seeds import SEEDS_ALGORITHM, SeedsError, confirmation_size, derive_seeds, read_suite, write_suite
-from task_profile import ProfileError, load_profile, resolve_min_effect
+from task_profile import ProfileError, load_profile, resolve_min_effect, resolve_planning_rule
 from treedigest import TreeDigestError, file_sha256, method_tree_sha256
 
 SCHEMA = "rsi-exam-decision-log/v1"
@@ -537,7 +537,7 @@ def build_gated_line(args: argparse.Namespace, methods: Path, log_lines: list[di
                 )
             deltas = paired_deltas(inputs["parent_scores"], inputs["candidate_scores"], direction)
             plan = confirmation_size(deltas, min_effect=min_effect, level=level, floor=int(conf["floor"]),
-                                     cap=int(conf["max_seeds"]))
+                                     cap=int(conf["max_seeds"]), rule=resolve_planning_rule(profile))
             if plan["exploratory"]:
                 disposition = "revert"
             else:
@@ -585,7 +585,8 @@ def build_gated_line(args: argparse.Namespace, methods: Path, log_lines: list[di
         raise GateError("the provisional line's min_effect does not follow from the profile and the parent's visible result")
     deltas = paired_deltas(inputs["parent_scores"], inputs["candidate_scores"], direction)
     expected_sizing = confirmation_size(deltas, min_effect=float(open_line["min_effect"]), level=level,
-                                        floor=int(conf["floor"]), cap=int(conf["max_seeds"]))
+                                        floor=int(conf["floor"]), cap=int(conf["max_seeds"]),
+                                        rule=str(sizing.get("planning_rule", "min-effect")))
     if expected_sizing != sizing or sizing["exploratory"]:
         raise GateError("the provisional line's confirmation plan does not follow from its screening deltas")
     earlier = log_lines[: int(open_line["line"]) - 1]

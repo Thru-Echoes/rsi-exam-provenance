@@ -12,12 +12,17 @@ fact, it does not hide the seeds. Compliance is measured, not assumed.
 
 Planning rule: with s the sample standard deviation of the screening deltas and z the normal
 quantile for the interval level, the planned suite size is the smallest n with z * s / sqrt(n)
-below half the minimum effect, at least ``floor``. It is a normal-approximation planning size
-computed from screening data, not a guarantee about the realized bootstrap interval. When the
-profile's cap is below the planned size the plan is ``exploratory`` and the gate does not open a
-confirmation: an under-planned confirmation is never allowed to keep.
+below half the planning effect, at least ``floor``. Under the accepted rule (``min-effect``) the
+planning effect is the minimum effect. Under the ``estimate-aware`` rule, which a profile may
+select, it is the larger of the minimum effect and the screening mean less the minimum effect, so
+a candidate whose screening estimate is far above the minimum effect plans the size needed to
+tell that estimate from the minimum effect rather than the size needed to resolve the minimum
+effect itself. Either way it is a normal-approximation planning size computed from screening data,
+not a guarantee about the realized bootstrap interval. When the profile's cap is below the
+planned size the plan is ``exploratory`` and the gate does not open a confirmation: an
+under-planned confirmation is never allowed to keep.
 
-Exports ``derive_seeds``, ``confirmation_size``, ``write_suite`` (creates one file exclusively),
+Exports ``derive_seeds``, ``confirmation_size`` (with ``PLANNING_RULES``), ``write_suite`` (creates one file exclusively),
 ``read_suite``, and a CLI. Standard library only.
 """
 from __future__ import annotations
@@ -35,6 +40,9 @@ from typing import Any
 
 SEEDS_ALGORITHM = "rsi-exam-gate/hmac-seeds/1"
 SIZING_RULE = "normal-approximation planning size from screening SD: smallest n with z*s/sqrt(n) < min_effect/2"
+ESTIMATE_AWARE_RULE = ("normal-approximation planning size from screening SD against e = max(min_effect, "
+                       "screening_mean - min_effect): smallest n with z*s/sqrt(n) < e/2")
+PLANNING_RULES = ("min-effect", "estimate-aware")
 MAX_COUNTER = 1_000_000
 
 
@@ -68,8 +76,16 @@ def derive_seeds(*, key_hex: str, rollout_id: str, candidate_digest: str, look_i
     return seeds
 
 
-def confirmation_size(deltas: list[float], *, min_effect: float, level: float, floor: int, cap: int) -> dict[str, Any]:
-    """The planning size and whether the cap makes the plan exploratory; every input and output is recorded."""
+def confirmation_size(deltas: list[float], *, min_effect: float, level: float, floor: int, cap: int,
+                      rule: str = "min-effect") -> dict[str, Any]:
+    """The planning size and whether the cap makes the plan exploratory; every input and output is recorded.
+
+    ``rule`` is ``min-effect`` (the accepted rule; the output is exactly what it always was) or
+    ``estimate-aware`` (the output also carries ``planning_rule``, ``planning_effect`` and
+    ``screening_mean``, so a reader can tell the two plans apart and recompute either).
+    """
+    if rule not in PLANNING_RULES:
+        raise SeedsError(f"unknown planning rule {rule!r}; choose one of {', '.join(PLANNING_RULES)}")
     if not min_effect > 0.0:
         raise SeedsError("min_effect must be above zero to size a confirmation suite")
     if floor < 2 or cap < floor:
@@ -77,11 +93,17 @@ def confirmation_size(deltas: list[float], *, min_effect: float, level: float, f
     if not 0.0 < level < 1.0:
         raise SeedsError("level must lie strictly between 0 and 1")
     sd = statistics.stdev(deltas) if len(deltas) >= 2 else 0.0
+    mean = statistics.fmean(deltas) if deltas else 0.0
+    effect = min_effect if rule == "min-effect" else max(min_effect, mean - min_effect)
     z = statistics.NormalDist().inv_cdf(0.5 + level / 2.0)
-    planned = floor if sd == 0.0 else max(floor, math.floor((2.0 * z * sd / min_effect) ** 2) + 1)
+    planned = floor if sd == 0.0 else max(floor, math.floor((2.0 * z * sd / effect) ** 2) + 1)
     size = min(planned, cap)
-    return {"rule": SIZING_RULE, "size": size, "planned": planned, "floor": floor, "cap": cap,
-            "exploratory": size < planned, "screening_sd": sd, "z": z}
+    out: dict[str, Any] = {"rule": SIZING_RULE if rule == "min-effect" else ESTIMATE_AWARE_RULE, "size": size,
+                           "planned": planned, "floor": floor, "cap": cap, "exploratory": size < planned,
+                           "screening_sd": sd, "z": z}
+    if rule != "min-effect":
+        out.update({"planning_rule": rule, "planning_effect": effect, "screening_mean": mean})
+    return out
 
 
 def suite_bytes(seeds: list[int], *, max_moves: int) -> bytes:

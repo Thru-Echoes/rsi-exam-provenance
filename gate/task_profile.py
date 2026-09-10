@@ -32,6 +32,7 @@ MIN_EFFECT_KINDS = ("absolute", "fraction_of_parent_visible_mean")
 DIRECTIONS = ("higher", "lower")
 EVALUATOR_FILES = ("evaluate.py", "game2048.py")
 CONFIRMATION_KEYS = ("floor", "max_seeds", "max_moves", "cpu_seconds_per_game")
+PLANNING_RULES = ("min-effect", "estimate-aware")   # profile.confirmation.planning_rule; absent means min-effect
 
 
 class ProfileError(ValueError):
@@ -85,8 +86,11 @@ def check_profile(profile: Any) -> dict[str, Any]:
     if p.get("confirm_policy") != PROFILE_CONFIRM_POLICY:
         raise ProfileError("profile.confirm_policy must be 'always'; the screening-only rule exists only in replay mode")
     confirmation = p.get("confirmation")
-    if not isinstance(confirmation, dict) or set(confirmation) != set(CONFIRMATION_KEYS):
-        raise ProfileError(f"profile.confirmation must have exactly the keys {', '.join(CONFIRMATION_KEYS)}")
+    if not isinstance(confirmation, dict) or set(confirmation) - {"planning_rule"} != set(CONFIRMATION_KEYS):
+        raise ProfileError(f"profile.confirmation must have exactly the keys {', '.join(CONFIRMATION_KEYS)}"
+                           " (and optionally planning_rule)")
+    if confirmation.get("planning_rule", PLANNING_RULES[0]) not in PLANNING_RULES:
+        raise ProfileError(f"profile.confirmation.planning_rule must be one of {', '.join(PLANNING_RULES)}")
     bounds: dict[str, int] = {}
     for key in CONFIRMATION_KEYS:
         count = confirmation.get(key)
@@ -137,3 +141,11 @@ def resolve_min_effect(profile: Mapping[str, Any], parent_scores: Mapping[int, f
     if not math.isfinite(mean) or mean <= 0.0:
         raise ProfileError("fraction_of_parent_visible_mean needs a positive parent mean")
     return float(rule["fraction"]) * mean
+
+
+def resolve_planning_rule(profile: Mapping[str, Any]) -> str:
+    """The planning rule the profile selects; ``min-effect`` when it names none. Pure function."""
+    rule = profile["confirmation"].get("planning_rule", PLANNING_RULES[0])
+    if rule not in PLANNING_RULES:
+        raise ProfileError(f"profile.confirmation.planning_rule must be one of {', '.join(PLANNING_RULES)}")
+    return str(rule)

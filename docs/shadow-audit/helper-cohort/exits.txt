@@ -1,0 +1,10 @@
+campaign-H1-hoG9P2f exit=0
+campaign-H2-R8sDt8Y exit=0
+campaign-H3-RbhgqQB exit=0
+campaign-H4-LWzeis7 exit=0
+campaign-H6-3qz6CEn exit=0
+campaign-O1-zvdgNzq exit=0
+campaign-O2-Fjweu3m exit=0
+campaign-S1-qXiB758 exit=1
+campaign-S2-xZPTJeM exit=0
+campaign-S3-Lhwt3ro exit=0

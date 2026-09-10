@@ -53,6 +53,21 @@ class OverlayCarriesTheConventions(unittest.TestCase):
         for sentence in REQUIRED:
             self.assertIn(sentence, text, sentence)
 
+    def test_every_helper_command_the_loop_names_exists(self):
+        # The loop tells the agent which commands to run; the helper must accept exactly those, or the
+        # agent is told to run something that refuses.
+        import re, subprocess, sys
+        loop = OVERLAY.read_text(encoding="utf-8").split("LOOP FOREVER", 1)[1]
+        named = set(re.findall(r"python3 /app/provenance\.py ([a-z]+)((?: --[a-z-]+)*)", loop))
+        self.assertTrue(named, "the loop names no helper command")
+        helper = REPO / "runbook" / "provenance.py"
+        top = subprocess.run([sys.executable, str(helper), "--help"], capture_output=True, text=True).stdout
+        for command, options in named:
+            self.assertIn(command, top, f"the loop names `{command}`, which the helper does not have")
+            sub = subprocess.run([sys.executable, str(helper), command, "--help"], capture_output=True, text=True).stdout
+            for option in options.split():
+                self.assertIn(option, sub, f"the loop passes {option} to {command}, which does not take it")
+
     def test_the_template_embeds_the_instruction(self):
         text = TEMPLATE.read_text(encoding="utf-8")
         self.assertIn("{{ instruction }}", text)

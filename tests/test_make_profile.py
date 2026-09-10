@@ -71,6 +71,18 @@ class ProfileFromTaskFiles(unittest.TestCase):
             self.assertEqual(profile["confirmation"]["max_seeds"], 16)
             self.assertEqual(profile["min_effect"]["fraction"], 0.1)
 
+    def test_the_planning_rule_is_a_flag_and_the_default_writes_no_key(self):
+        with tempfile.TemporaryDirectory() as temp:
+            out = Path(temp) / "profile.json"
+            self.assertEqual(make("--task-dir", str(TASK), "--rollout-id", "r", "--output", str(out),
+                                  "--planning-rule", "estimate-aware").returncode, 0)
+            profile = json.loads(out.read_text())
+            self.assertEqual(profile["confirmation"]["planning_rule"], "estimate-aware")
+            self.assertEqual(task_profile.resolve_planning_rule(task_profile.check_profile(profile)), "estimate-aware")
+            plain = Path(temp) / "plain.json"
+            self.assertEqual(make("--task-dir", str(TASK), "--rollout-id", "r", "--output", str(plain)).returncode, 0)
+            self.assertNotIn("planning_rule", json.loads(plain.read_text())["confirmation"])
+
     def test_an_existing_output_is_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "profile.json"
