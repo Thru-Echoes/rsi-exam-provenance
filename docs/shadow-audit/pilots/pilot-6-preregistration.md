@@ -30,3 +30,17 @@ that trial shows, and both pilot trials are reported as they were, so the stage'
 while the first cost at most $16.00 (earlier full-window Opus trials cost $2.70 to $4.97; a longer window costs more
 tokens); if the first trial cost more than that, the second is not started and the Opus stage runs at the window
 the first trial's outcome selects, with that said; the runner's rules; every started trial reported.
+
+## Outcome (from `docs/shadow-audit/instrument-ab/pilot-opus/endpoints.md`)
+
+`ab-pilot-opus-1-I`: the agent ran 1545 s of the 1900 s told and finished on its own; first evaluate at 20.3 min and
+first decide at 25.0 min of the runner's clock (the agent spent the first twenty minutes on one rewrite). v1, a bitboard
+expectimax at 31.4 CPU s per game, scored 104,352 on the public seeds against the starter's 2,060; the screening
+cleared (+111,416, interval 75,465 to 153,610 over 8 seeds) and the confirmation on 8 fresh seeds settled in 4.6 min
+before the close-out mark: kept. No keep refused for time, no blocked gate, finalize ran, the record verifies. Exam
+reward 0.6284 (valid fraction 0.875: two of the sixteen sealed games were invalid under the grader although all eight
+public-seed games and the confirmation's games were valid, a limit of a safety check on eight seeds). Cost $4.96.
+The pre-registered rule selects multiplier 0.045 (the helper told 1900 s) for the Opus stage, and no second pilot trial
+runs. The sealed retrospective could not measure v1 (an invalid game under the runner's in-process evaluator), so the
+endpoints' final-selection regret is not defined for this trial and the retrospective's stated limit on strong
+policies applies; the primary endpoint comes from the grader and is unaffected.
