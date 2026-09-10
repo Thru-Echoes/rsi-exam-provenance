@@ -75,22 +75,11 @@ improvement it could not tell from luck, as it did twice in the Haiku pilot show
 the question the pre-registered A/B answers: same model, same window, gate on against gate off, judged by the
 hidden-game score of what each one submits.
 
-## Three candidate openers for the README
+## The two illustrations in the README
 
-All three are illustrations, not measured runs, built by `figures/make_comparison_animation.py` from
-the same invented tries. Pick one, or two.
-
-**Lanes.** Two lanes, four tries, the same steps top and bottom. Easiest to follow. Linear only, so it
-does not show that a rejected try is abandoned and the next one starts from the last good version.
-
-![Lanes](figures/with-and-without.svg)
-
-**Tree.** Six tries as a chain when the agent decides alone, and as a pruned tree under the gate. Shows
-the real mechanism, a rejected try never becomes anyone's parent. Busier, with smaller labels.
+Both are illustrations, not measured runs, built by `figures/make_comparison_animation.py` from the same
+invented tries. The tree opens the README. The curves sit under the gate's rule.
 
 ![Tree](figures/with-and-without-tree.svg)
-
-**Curves.** Two charts, what the agent sees on practice games against what the hidden games would say.
-Makes the core point in one shape. More abstract, and it lists no decisions.
 
 ![Curves](figures/with-and-without-curves.svg)
