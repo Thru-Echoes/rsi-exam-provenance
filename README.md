@@ -71,6 +71,15 @@ retrospective of that stage has run.
 
 ![Under the instrument at Opus scale: two keeps confirmed on fresh seeds in one window](docs/figures/instrument-opus.svg)
 
+The same workflow without the gate is not a hypothetical: every block of the comparison pairs an
+instrument trial with a helper-only trial of the same model at the same window. This is the trial paired
+with the one above. The agent wrote one candidate, a deeper search costing 94 CPU seconds a game, kept it
+on its own and submitted it; it scored 0.608 on the sealed seeds, above the instrument trial's 0.551, so
+this block favours the helper. A confirmation of that policy would not have fit the instrument's window,
+which is one way the gate changes what an agent builds, and it is part of what the comparison measures.
+
+![Without the gate: the paired helper-only trial, the agent deciding alone](docs/figures/instrument-opus-helper.svg)
+
 Last, the instrument's Haiku pilot, the rollout the reading below walks through number by number.
 
 ![Under the instrument: every keep is measured before it sticks](docs/figures/instrument-now.svg)

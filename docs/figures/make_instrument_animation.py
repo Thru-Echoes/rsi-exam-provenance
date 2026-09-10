@@ -307,6 +307,13 @@ def build(mode: str, rows: list[Row], args: argparse.Namespace) -> tuple[Scene, 
         steps = ["1  The agent writes a new version, scores it on the 8 public seeds, and proposes to keep it.",
                  "2  The gate checks the improvement on those seeds, then on fresh seeds the agent never saw.",
                  "3  Only a confirmed improvement stays; every ruling is logged; finalize checks safety before submission."]
+    elif mode == "helper":
+        title = "Without the gate: the same model and window, the agent deciding alone."
+        sub = (f"{args.model} under {args.program}, {args.date} ({args.rollout}), the trial paired with the instrument's in the "
+               "same block. The helper records every version and decision; nothing rules on a keep.")
+        steps = ["1  The agent writes a new version, scores it on the 8 public seeds, and keeps it on its own.",
+                 "2  The helper writes the decision down; nothing checks it during the run.",
+                 "3  The hidden seeds, scored later, say whether each keep was right."]
     else:
         title = "Before: the agent decided alone; the record could only report afterwards."
         sub = (f"{args.model} under {args.program}, {args.date} ({args.rollout}). Each version the agent kept became the new "
@@ -373,7 +380,10 @@ def build(mode: str, rows: list[Row], args: argparse.Namespace) -> tuple[Scene, 
         else:
             label = "KEPT" if r.status == "kept" else r.status.upper()
             cx = right_edge - chip_width(label)
-            g.append(text(x, y, fit(evidence, cx - 10 - x), fill="var(--ink2)"))
+            g.append(text(x, y, fit(r.change or evidence, cx - 10 - x), fill="var(--ink)" if r.change else "var(--ink2)"))
+            if r.change:
+                g.append(text(TEXT_X, y + LINE, fit(evidence, right_edge - TEXT_X), fill="var(--ink2)"))
+                used += 1
             g.append(chip(cx, y, label, r.decided)[0])
             s.add(at, "".join(g))
             y += 12 + used * LINE
@@ -431,8 +441,9 @@ def build(mode: str, rows: list[Row], args: argparse.Namespace) -> tuple[Scene, 
                   ("kept or submitted", str(len(kept))),
                   ("reverted", str(len(rows) - len(kept))),
                   ("checked during the run", "0"),
-                  ("record verified offline", "yes" if args.record_verified else "no"),
-                  ("keeps that made it worse", f"{len(disagree)} of {len(measured)}")]
+                  ("record verified offline", "yes" if args.record_verified else "no")]
+        if scored:
+            ledger.append(("keeps that made it worse", f"{len(disagree)} of {len(measured)}"))
     facts: list[str] = []
     for f in (f"{args.model} · {args.date}", args.program, args.window):
         facts.extend(wrap(f, 40))
@@ -457,9 +468,12 @@ def build(mode: str, rows: list[Row], args: argparse.Namespace) -> tuple[Scene, 
         foot = ("Every row is an event from the rollout's own files (the helper's log, the decision log, the sealed retrospective). The plain "
                 "line under each ruling is rendered from the recorded fields; the gate's own line is printed beneath it. The hidden seeds are "
                 "analysis data and never tune the rule.")
-    else:
+    elif scored:
         foot = ("Every row is an event from the rollout's own files: the record built after the run and the sealed retrospective. "
                 "The hidden seeds are analysis data; they check decisions after the fact and never tune the rule.")
+    else:
+        foot = ("Every row is an event from the rollout's own files: the record built after the run and the helper's log. "
+                "The hidden-seed column joins once the sealed retrospective of this stage has run.")
     for i, ln in enumerate(wrap(foot, 150)):
         s.static.append(text(PAD, height - 30 + i * 15, ln, fill="var(--ink3)", size=11.5))
     cycle = end_t + 5.0
@@ -486,7 +500,7 @@ def render_gif(frames: list[tuple[str, int]], path: Path, height: int) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--mode", choices=("before", "now"), required=True)
+    ap.add_argument("--mode", choices=("before", "now", "helper"), required=True)
     ap.add_argument("--sealed", default=None, help="sealed-retrospective report.json")
     ap.add_argument("--record", default=None, help="the rollout's record (capsule.json), used for the versions before a sealed report exists")
     ap.add_argument("--exam-reward", type=float, default=None, help="the grader's reward of the submission, shown when no sealed report exists")
