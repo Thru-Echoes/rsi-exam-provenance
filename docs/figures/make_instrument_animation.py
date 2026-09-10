@@ -189,24 +189,24 @@ def gloss(gate: str) -> str:
     numbers = ""
     if m:
         est, lo, hi, seeds = float(m.group(1)), float(m.group(2)), float(m.group(3)), int(m.group(4))
-        numbers = f"mean {fmt(est, signed=True)}, interval {fmt(lo)} to {fmt(hi)} over {seeds} seeds"
+        numbers = f"Mean {fmt(est, signed=True)}, range {fmt(lo)} to {fmt(hi)} over {seeds} games."
     plan = re.search(r"the plan needs (\d+) fresh seeds and the cap is (\d+)", gate)
     if gate.startswith("revert at screening"):
         if plan:
-            return (f"Too close to call on the public seeds ({numbers}): confirming it would need {int(plan.group(1)):,} fresh "
-                    f"seeds and the cap is {plan.group(2)}. Reverted.")
-        return f"Worse on the public seeds ({numbers}). Reverted."
+            return (f"Too close to call on the practice games. {numbers} A confirmation would need {int(plan.group(1)):,} fresh "
+                    f"games. The cap is {plan.group(2)}. Reverted.")
+        return f"Worse on the practice games. {numbers} Reverted."
     if gate.startswith("keep, confirmed"):
-        return f"Better on the public seeds, then confirmed on fresh seeds the agent never saw ({numbers}). Kept."
+        return f"Better on the practice games. Confirmed on fresh games the agent never saw. {numbers} Kept."
     if gate.startswith("revert at confirmation"):
-        return f"Looked better on the public seeds, but the fresh seeds did not confirm it ({numbers}). Reverted."
+        return f"Looked better on the practice games. The fresh games did not confirm it. {numbers} Reverted."
     if gate.startswith("not consulted (the agent reverted)"):
         return "The agent reverted on its own after reading the gate's preview."
     if "refused for safety" in gate:
         reason = re.search(r"\((.*)\)", gate)
-        return f"Refused before any ruling: the policy failed the safety check ({reason.group(1) if reason else 'see below'}). Reverted."
+        return f"Refused before any ruling. The policy failed the safety check ({reason.group(1) if reason else 'see the log'}). Reverted."
     if "would run past the close-out mark" in gate:
-        return "Refused: its confirmation would not finish before the window closes. Reverted."
+        return "Refused. Its confirmation would not finish before the window closes. Reverted."
     return ""
 
 
@@ -302,24 +302,24 @@ def build(mode: str, rows: list[Row], args: argparse.Namespace) -> tuple[Scene, 
     now = mode == "now"
     if now:
         title = "Now: the instrument checks every keep during the run."
-        sub = (f"{args.model} under the instrument, {args.date} ({args.rollout}). The agent still writes the versions and still "
-               "decides what to try next; what changes is that a keep only sticks once it has been measured.")
+        sub = (f"{args.model} under the instrument, {args.date}. The agent still writes the versions and still decides what "
+               "to try next. What changes is that a keep only sticks once it has been measured.")
         steps = ["1  The agent writes a new version, scores it on the 8 public seeds, and proposes to keep it.",
                  "2  The gate checks the improvement on those seeds, then on fresh seeds the agent never saw.",
-                 "3  Only a confirmed improvement stays; every ruling is logged; finalize checks safety before submission."]
+                 "3  Only a confirmed improvement stays. Every ruling is logged. A safety check runs before submission."]
     elif mode == "helper":
         title = "Without the gate: the same model and window, the agent deciding alone."
-        sub = (f"{args.model} under {args.program}, {args.date} ({args.rollout}), the trial paired with the instrument's in the "
-               "same block. The helper records every version and decision; nothing rules on a keep.")
+        sub = (f"{args.model} under {args.program}, {args.date}. The trial paired with the instrument's in the same block. "
+               "The helper records every version and decision. Nothing rules on a keep.")
         steps = ["1  The agent writes a new version, scores it on the 8 public seeds, and keeps it on its own.",
-                 "2  The helper writes the decision down; nothing checks it during the run.",
+                 "2  The helper writes the decision down. Nothing checks it during the run.",
                  "3  The hidden seeds, scored later, say whether each keep was right."]
     else:
         title = "Before: the agent decided alone; the record could only report afterwards."
-        sub = (f"{args.model} under {args.program}, {args.date} ({args.rollout}). Each version the agent kept became the new "
-               "starting point for the next one, checked by nobody during the run.")
+        sub = (f"{args.model} under {args.program}, {args.date}. Each version the agent kept became the new starting point "
+               "for the next one. Nobody checked it during the run.")
         steps = ["1  The agent writes a new version and decides on its own to keep it.",
-                 "2  Nothing checks that decision while the run is going; the record only writes it down.",
+                 "2  Nothing checks that decision while the run is going. The record only writes it down.",
                  "3  After the run, the hidden seeds show which keeps actually made the policy worse."]
     s.static.append(text(PAD, PAD + 28, title, size=26, weight="700"))
     for i, line in enumerate(wrap(sub, 138)):
@@ -362,7 +362,7 @@ def build(mode: str, rows: list[Row], args: argparse.Namespace) -> tuple[Scene, 
             gate_y = y + 2 * LINE + 4
             gc, gw = chip(TEXT_X, gate_y, "gate", "gate")
             plain = wrap(gloss(r.gate), 82) if r.gate else []
-            verbatim = wrap(r.gate, 86) if r.gate else []
+            verbatim = wrap(r.gate, 86) if (r.gate and args.verbatim) else []
             block = [gc]
             yy = gate_y
             for ln in plain:
@@ -451,8 +451,8 @@ def build(mode: str, rows: list[Row], args: argparse.Namespace) -> tuple[Scene, 
     lgy = ly + 82 + len(facts) * 17 + 18
     card_h = (lgy + 30 + len(ledger) * 24) - ly + 4
     s.static.append(f'<rect x="{PAD}" y="{ly}" width="{LEFT_W}" height="{card_h}" rx="14" fill="var(--card)" stroke="var(--line)" stroke-width="1.25"/>')
-    s.static.append(f'<text x="{PAD + 20}" y="{ly + 28}" font-size="11" font-weight="700" fill="var(--ink3)" letter-spacing="1.2">THE ROLLOUT</text>')
-    s.static.append(text(PAD + 20, ly + 52, args.rollout, size=14, weight="650", cls="mono"))
+    s.static.append(f'<text x="{PAD + 20}" y="{ly + 28}" font-size="11" font-weight="700" fill="var(--ink3)" letter-spacing="1.2">ONE REAL ROLLOUT</text>')
+    s.static.append(text(PAD + 20, ly + 52, args.label or f"{args.model}, {args.date}", size=14, weight="650"))
     for i, f in enumerate(facts):
         s.static.append(text(PAD + 20, ly + 76 + i * 17, f, fill="var(--ink2)"))
     s.static.append(f'<line x1="{PAD + 20}" y1="{lgy - 12}" x2="{PAD + LEFT_W - 20}" y2="{lgy - 12}" stroke="var(--line)"/>')
@@ -465,14 +465,13 @@ def build(mode: str, rows: list[Row], args: argparse.Namespace) -> tuple[Scene, 
 
     height = max(axis_bottom + 30, ly + card_h + 20) + 40
     if now:
-        foot = ("Every row is an event from the rollout's own files (the helper's log, the decision log, the sealed retrospective). The plain "
-                "line under each ruling is rendered from the recorded fields; the gate's own line is printed beneath it. The hidden seeds are "
-                "analysis data and never tune the rule.")
+        foot = ("Every row is an event from the rollout's own files. The plain line under each ruling is rendered from the recorded "
+                "fields. The hidden seeds are analysis data and never tune the rule.")
     elif scored:
-        foot = ("Every row is an event from the rollout's own files: the record built after the run and the sealed retrospective. "
-                "The hidden seeds are analysis data; they check decisions after the fact and never tune the rule.")
+        foot = ("Every row is an event from the rollout's own files, the record built after the run and the sealed retrospective. "
+                "The hidden seeds are analysis data. They check decisions after the fact and never tune the rule.")
     else:
-        foot = ("Every row is an event from the rollout's own files: the record built after the run and the helper's log. "
+        foot = ("Every row is an event from the rollout's own files, the record built after the run and the helper's log. "
                 "The hidden-seed column joins once the sealed retrospective of this stage has run.")
     for i, ln in enumerate(wrap(foot, 150)):
         s.static.append(text(PAD, height - 30 + i * 15, ln, fill="var(--ink3)", size=11.5))
@@ -508,7 +507,9 @@ def main() -> int:
     ap.add_argument("--name", required=True, help="output basename")
     ap.add_argument("-o", "--out", default="docs/figures")
     ap.add_argument("--gif", default=None, help="directory for the GIF (needs playwright and Pillow)")
-    ap.add_argument("--rollout", required=True)
+    ap.add_argument("--rollout", required=True, help="the job name, kept in the file for traceability, not drawn")
+    ap.add_argument("--label", default=None, help="the plain name drawn on the card (default: model and date)")
+    ap.add_argument("--verbatim", action="store_true", help="print the gate's own line under each plain-language ruling")
     ap.add_argument("--model", required=True)
     ap.add_argument("--program", required=True)
     ap.add_argument("--window", required=True)
