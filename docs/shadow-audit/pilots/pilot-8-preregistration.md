@@ -76,3 +76,59 @@ score. The grader's reward is reported because it is there, and no claim rests o
 $21.00 of ceilings stays inside it. Any harbor non-zero exit, missing job directory, or trial that did not
 end normally or by the harness timeout with assistant usage in its session log stops the probe. Every
 started trial is reported. If the plumbing trial does not print 202.5, no Opus trial starts.
+
+## Outcome
+
+Both trials ran the full loop, finished on their own, and their records build and verify. `init` stated
+`safety margins 202.5 cpu s per game and 4.5 s per move` in both, and in the plumbing trial before them.
+
+| trial | versions built (public CPU s per game) | head | confirmed keeps | grader's reward | valid fraction | cost |
+|---|---|---|---|---|---|---|
+| probe-margin-1 | 13.3, 24.3 | v1 at 13.3 | 1 | 0.5304 | 1.0 | $6.99 |
+| probe-margin-2 | 13.3, 19.6 | v1 at 13.3 | 1 | 0.4849 | 1.0 | $4.73 |
+
+**The pre-registered rule, applied.** Both heads cost 13.3 CPU seconds per game, which is at or below 14.
+The stated margin is **not supported** as the cause of the cheap policies in the Opus stage. Raising it from
+112.5 to 202.5 did not change what the agents submitted. One agent still wrote that it was keeping cost "far
+under the margins" while measuring itself against the raised number, so the language of caution attaches to
+a margin existing, not to its value.
+
+**What the trials show instead, from the helper's own preview lines.** Both agents built a second version
+that was better on the public seeds and more expensive, and both abandoned it after reading the gate's
+preview, which in each case said the improvement could not be confirmed within the cap:
+
+- `probe-margin-1`, v2 at 71,544 against v1's 52,042: `estimate +19502.0, interval [-2283.0, 46190.0] at
+  level 0.9, minimum effect 1301.1; verdict inconclusive. A keep would be reverted without confirming
+  (exploratory): the plan needs 68 fresh seeds and the cap is 16.`
+- `probe-margin-2`, v2 at 82,299 against v1's 68,904: `estimate +13395.0, interval [-16426.0, 48357.0] at
+  level 0.9, minimum effect 1722.6; verdict inconclusive. A keep would be reverted without confirming
+  (exploratory): the plan needs 279 fresh seeds and the cap is 16.`
+
+Neither keep was refused for safety, for time, or by a ruling. The agents read that a keep was unconfirmable
+and reverted the candidate themselves, so these appear in the log as the agent's own reverts.
+
+**Why this bites harder as the agent improves.** The minimum effect is 2.5 percent of the parent's visible
+mean, so it rises as the parent gets stronger, while the per-seed spread of 2048 scores rises at least as
+fast. At Opus strength eight screening seeds leave intervals thousands of points wide, the planning rule
+asks for 68 or 279 fresh seeds, and the cap is 16. The gate can confirm the first large jump from the weak
+starter and then very little after it. Two of the three instrument trials in the Opus stage also stopped
+after their single confirmed keep.
+
+**The clearest statement of the cost is the agent's own.** `probe-margin-1` measured a depth ladder before
+choosing: its schedule scored 61,416 at 14.8 CPU seconds per game, one notch deeper 80,508 at 37.9, two
+notches deeper 133,204 at 76.0, and it wrote "Score rises steeply with depth; the binding constraint is my
+own window, not the 225 s/game CPU budget. Submitting the cheap schedule first to bank the gain safely, then
+deepening if the clock allows." It banked the cheap version and the window closed. The policy it had already
+measured at 76 CPU seconds per game would have been legal under the grader's limit, and the helper-arm trial
+that scored highest in the whole stage submitted one costing 94.4.
+
+**What this does and does not establish.** Two trials on one task establish no rate, and the rewards here
+(0.530 and 0.485, against the helper arm's 0.608, 0.602 and 0.533) rest on nothing. What is direct is the
+mechanism: the preview text that each agent read, and the candidate each abandoned after reading it. The
+margin question is answered in the negative. The confirmation cap is now the candidate explanation, and it
+is a property of the gate's rule rather than of the wording around it.
+
+**Follow-up this suggests, not run here.** The cap of 16 was chosen so a confirmation of an expensive policy
+fits the window. A test that raises the cap, or that lets a screening interval clearly above the minimum
+effect stand without a full confirmation, is the next single-variable probe. It needs its own
+pre-registration.

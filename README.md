@@ -28,13 +28,14 @@ run; the record and verifier work on any rollout.
 
 ## In one picture
 
-![The same agent and the same four tries, alone and with the gate](docs/figures/with-and-without.svg)
+![Six tries. Alone they chain. With the gate, the bad ones get pruned](docs/figures/with-and-without-tree.svg)
 
-An illustration, not a measured run. Alone, the agent keeps whatever looks better on the practice games
-it can see, and luck gets kept too. With the gate, a keep only sticks after fresh games agree, and the
-final version passes a safety check before it is submitted. Every ruling is written down with a
-fingerprint of the code and the games it ran on. Real rollouts, animated from their own files with a
-plain-language reading, are in [docs/in-motion.md](docs/in-motion.md).
+An illustration, not a measured run. Every try an agent makes starts from the version it currently
+trusts. Alone, that is always the last thing it kept, so a lucky keep becomes the parent of everything
+after it and the mistake compounds. With the gate, a try the fresh games reject is thrown away and the
+next try starts again from the last confirmed version, so a bad branch never becomes anyone's parent.
+Every ruling is written down with a fingerprint of the code and the games it ran on. Real rollouts,
+animated from their own files with a plain-language reading, are in [docs/in-motion.md](docs/in-motion.md).
 
 ## How it attaches to a rollout
 
@@ -60,6 +61,18 @@ confirmation that clears the task's positive minimum effect keeps. The verdict (
 action; they are recorded separately, so a revert on inconclusive evidence is never read as proof
 the change hurt. The interval is never the probability the decision was right and never a
 statement about the sealed reward.
+
+### What the rule buys, and what it costs
+
+![What the agent sees, and what is real](docs/figures/with-and-without-curves.svg)
+
+The same illustration from the other side. The grey line is the score on the practice games, the only
+number the agent can see. The coloured line is what the hidden games would say at that moment. Alone,
+the two drift apart at every lucky keep, and the agent watches a number climb that is not really
+climbing. With the gate they stay together, because a keep only sticks when fresh games agree. The
+cost is on the same picture: a rejected try is a real attempt thrown away, and some of those would
+have been improvements the eight practice games were simply too few to prove.
+
 
 ## Status
 

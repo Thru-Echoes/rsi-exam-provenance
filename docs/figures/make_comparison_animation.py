@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 """Draw the illustration of an agent improving a program alone and with the gate, in three variants.
 
-    lanes   two horizontal lanes, the same four tries in lockstep, cards left to right
-    tree    the same story as a branching timeline: rejected tries are pruned branches under a red X
+    tree    a branching timeline. rejected tries are pruned branches under a red X. the README's opener
     curves  two charts, what the agent sees on practice games against what the hidden games would say
 
 All three are illustrations, not measured runs; the tries and numbers are invented to be typical. The
 real rollouts, rendered from their own files, are in docs/in-motion.md.
 
-Outputs, per variant: docs/figures/with-and-without[-tree|-curves].svg (animated, loops), the same name
+Outputs, per variant: docs/figures/with-and-without-[tree|curves].svg (animated, loops), the same name
 with -still.svg (the last frame), and with --gif DIR a GIF rendered through a headless Chromium (needs
 the playwright and Pillow packages). Run from the repository root:
-    python3 docs/figures/make_comparison_animation.py [--variant lanes|tree|curves|all] [--gif DIR]
+    python3 docs/figures/make_comparison_animation.py [--variant tree|curves|all] [--gif DIR]
 Side effects: writes those files.
 """
 from __future__ import annotations
@@ -24,15 +23,15 @@ from xml.sax.saxutils import escape
 FADE = 0.35
 HOLD = 10.0     # seconds the finished picture stays before the loop restarts
 
-# the tries every variant tells: (short title, what the practice games say, whether the hidden games agree)
-TRIES = [
+# the six tries both variants tell: (short title, what the practice games say, whether the hidden games agree)
+TRIES6 = [
     ("Try 1. a smarter search", "practice games. better", True),
     ("Try 2. a small tweak", "practice games. a bit better", False),
     ("Try 3. a shortcut", "practice games. better", False),
     ("Try 4. a deeper search", "practice games. much better", True),
+    ("Try 5. bigger tables", "practice games. a bit better", False),
+    ("Try 6. tuned search", "practice games. better", True),
 ]
-TRIES6 = TRIES + [("Try 5. bigger tables", "practice games. a bit better", False),
-                  ("Try 6. tuned search", "practice games. better", True)]
 
 STYLE = ("<style>:root{--surface:#fcfcfb;--card:#ffffff;--line:#e4e3de;--ink:#0b0b0b;--ink2:#52514e;--ink3:#78776f;"
          "--c-keep:#1B7F5A;--c-revert:#B7472A;--c-gate:#3B6FD4;--c-warn:#C2731B;}"
@@ -100,54 +99,6 @@ def header(s: Scene, pad: int, title: str, lines: list[str]) -> None:
 def footer(s: Scene, pad: int, at: float, lines: list[str]) -> None:
     for i, ln in enumerate(lines):
         s.add(at + i * 0.6, text(pad, s.h - 44 + i * 18, ln, size=12.5))
-
-
-# ------------------------------------------------------------------ lanes ---
-
-def build_lanes() -> Scene:
-    W, H, PAD = 1320, 500, 40
-    LANE_X, STEP_W, CARD_W = 250, 214, 200
-    lanes = {"alone": 138, "gate": 330}
-    s = Scene(W, H, "An agent improving a program alone, and the same tries with the gate")
-    header(s, PAD, "The same agent, the same four tries. Alone, and with the gate.",
-           ["The agent has a few hours to improve a program. It can only score itself on practice games it sees again and again.",
-            "The final exam is on hidden games. Fresh games are new ones the gate draws to check a claim. An illustration, not a measured run."])
-    for name, y in lanes.items():
-        s.static.append(text(PAD, y - 4, "ALONE" if name == "alone" else "WITH THE GATE", fill="var(--ink3)", size=11, weight="700"))
-        s.static.append(text(PAD, y + 14, "keeps what looks better" if name == "alone" else "keeps only what fresh games confirm", fill="var(--ink3)", size=11))
-        s.static.append(f'<line x1="{LANE_X - 16}" y1="{y + 50}" x2="{W - PAD}" y2="{y + 50}" stroke="var(--line)" stroke-width="2"/>')
-        s.static.append(f'<path d="M {W - PAD - 8} {y + 45} L {W - PAD} {y + 50} L {W - PAD - 8} {y + 55}" fill="none" stroke="var(--line)" stroke-width="2"/>')
-    t = 0.6
-    for i, (title, practice, real) in enumerate(TRIES):
-        x = LANE_X + i * STEP_W
-        for name, y in lanes.items():
-            at = t + i * 1.7 + (0.25 if name == "gate" else 0)
-            s.add(at, f'<rect x="{x}" y="{y - 22}" width="{CARD_W}" height="112" rx="10" fill="var(--card)" stroke="var(--line)"/>'
-                  + text(x + 12, y, title, weight="650") + text(x + 12, y + 20, practice, fill="var(--ink2)", size=11.5))
-            if name == "alone":
-                s.add(at + 0.4, chip(x + 12, y + 46, "kept", "keep"))
-                if not real:
-                    s.add(11.2, text(x + 12, y + 74, "hidden games say worse", fill="var(--c-warn)", size=11, weight="650"))
-            else:
-                s.add(at + 0.7, text(x + 12, y + 40, "fresh games agree" if real else "fresh games say no", fill="var(--c-gate)", size=11.5, weight="650"))
-                s.add(at + 1.1, chip(x + 12, y + 66, "kept" if real else "thrown away", "keep" if real else "revert")
-                      + ("" if real else big_x(x, y - 22, CARD_W, 112)))
-        s.add(t + i * 1.7, text(x + CARD_W / 2, lanes["gate"] - 34, "same try", fill="var(--ink3)", size=10, anchor="middle"))
-    xe = LANE_X + 4 * STEP_W + 6
-    t_end = t + 4 * 1.7 + 0.6
-    for name, y in lanes.items():
-        s.add(t_end + (0.25 if name == "gate" else 0), text(xe, y, "Time is up", weight="650")
-              + text(xe, y + 20, "submits the last version" if name == "alone" else "safety check, then submits", fill="var(--ink2)", size=11.5))
-    t_reveal = t_end + 1.6
-    for name, y in lanes.items():
-        good = name == "gate"
-        h, color = (62, "var(--c-keep)") if good else (30, "var(--c-warn)")
-        s.add(t_reveal, f'<rect x="{xe}" y="{y + 88 - h}" width="22" height="{h}" rx="3" fill="{color}" fill-opacity="0.85"/>'
-              + text(xe + 30, y + 78, "hidden games", fill="var(--ink3)", size=10.5)
-              + text(xe + 30, y + 92, "its best version" if good else "worse than try 1", fill=color, size=11.5, weight="650"))
-    footer(s, PAD, t_reveal + 0.8, ["Two of the four keeps were luck. Alone, they stayed and everything after was built on them.",
-                                    "With the gate, each ruling is written down with a fingerprint of the code and the games it ran on. Anyone can check it later."])
-    return s
 
 
 # ------------------------------------------------------------------- tree ---
@@ -286,7 +237,7 @@ def build_curves() -> Scene:
     return s
 
 
-BUILDERS = {"lanes": ("with-and-without", build_lanes), "tree": ("with-and-without-tree", build_tree), "curves": ("with-and-without-curves", build_curves)}
+BUILDERS = {"tree": ("with-and-without-tree", build_tree), "curves": ("with-and-without-curves", build_curves)}
 
 
 def write_gif(scene: Scene, path: Path) -> None:
