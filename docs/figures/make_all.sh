@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Regenerate every figure from the committed sources (run from the repository root).
+set -euo pipefail
+G="${GIF_DIR:-}"; GA=(); [ -n "$G" ] && GA=(--gif "$G")
+M=docs/figures/make_instrument_animation.py
+python3 docs/figures/make_comparison_animation.py "${GA[@]}"
+python3 $M --mode before --sealed docs/shadow-audit/sealed-retrospective/preflight-B-longer-eKGshRf/report.json --name instrument-before --label "Haiku, the exam's own program" --rollout preflight-B-longer --model claude-haiku-4-5 --program "the exam's own program, no helper" --window "10-minute agent budget. finished on its own at 8.3 min" --date 2026-09-07 --record-verified "${GA[@]}"
+python3 $M --mode now --sealed docs/shadow-audit/instrument-ab/pilot-haiku/sealed/ab-pilot-haiku-1-I-fwC86gk/report.json --helper-log docs/shadow-audit/instrument-ab/pilot-haiku/experiment_log.md --name instrument-now --label "Haiku pilot under the instrument" --rollout ab-pilot-haiku-1-I --model claude-haiku-4-5 --program "the instrument. helper and gate mounted read-only" --window "340-second window. finished on its own at 159 s" --date 2026-09-09 --finalize "safety check passed. v2 stays as the head. submitted" --record-verified "${GA[@]}"
+python3 $M --mode now --record docs/figures/sources/ab-opus-1-I/capsule.json --helper-log docs/figures/sources/ab-opus-1-I/experiment_log.md --name instrument-opus --label "Opus trial under the instrument" --rollout ab-opus-1-I --model claude-opus-5 --program "the instrument. helper and gate mounted read-only" --window "32-minute window. finished on its own at 25 min" --date 2026-09-10 --finalize "safety check passed. v3 stays as the head. submitted" --record-verified --exam-reward 0.5511 "${GA[@]}"
+python3 $M --mode helper --record docs/figures/sources/ab-opus-1-H/capsule.json --helper-log docs/figures/sources/ab-opus-1-H/experiment_log.md --name instrument-opus-helper --label "Opus trial, helper only" --rollout ab-opus-1-H --model claude-opus-5 --program "the helper alone, no gate" --window "32-minute window" --date 2026-09-10 --record-verified --exam-reward 0.6084 "${GA[@]}"
