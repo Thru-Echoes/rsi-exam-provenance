@@ -5,7 +5,9 @@ Inputs: --task-dir (the task directory holding environment/evaluate.py, environm
 environment/visible_seeds.json), --rollout-id, --output, and optionally --replication-key-hex (64 hex
 characters; a fresh random key is generated when omitted), --max-seeds (the confirmation cap; the default
 of 64 is a host CPU budget, four evaluations of at most 64 games each per pair), and --min-effect-fraction
-(default 0.025 of the parent's visible mean).
+(default 0.025 of the parent's visible mean), --floor (the confirmation floor; the default of 16 is the documented
+rule, the sealed suite's size; the in-rollout instrument uses a smaller floor because a confirmation must fit inside
+the agent's window) and --planning-rule.
 
 Output: the profile JSON, sorted keys, which gate/task_profile.check_profile accepts, with the evaluator
 and visible-suite digests read from the task files and the operator's rule filled in. It is written
@@ -47,7 +49,8 @@ EVALUATOR_FILES = ("evaluate.py", "game2048.py")
 AUDIT_KEY_PLACEHOLDER = b"unused-shadow-audit-key-v1"
 
 
-def get_profile(task_dir: Path, rollout_id: str, key_hex: str, *, max_seeds: int, min_effect_fraction: float) -> dict:
+def get_profile(task_dir: Path, rollout_id: str, key_hex: str, *, max_seeds: int, min_effect_fraction: float,
+                floor: int = FLOOR) -> dict:
     """The profile document, with digests read from the task files. Pure apart from file reads."""
     env = task_dir / "environment"
     for name in (*EVALUATOR_FILES, "visible_seeds.json"):
@@ -65,7 +68,7 @@ def get_profile(task_dir: Path, rollout_id: str, key_hex: str, *, max_seeds: int
         "resamples": RESAMPLES,
         "bootstrap_seed": BOOTSTRAP_SEED,
         "confirm_policy": "always",
-        "confirmation": {"floor": FLOOR, "max_seeds": max_seeds, "max_moves": MAX_MOVES,
+        "confirmation": {"floor": floor, "max_seeds": max_seeds, "max_moves": MAX_MOVES,
                          "cpu_seconds_per_game": CPU_SECONDS_PER_GAME},
         "visible_suite_sha256": treedigest.file_sha256(env / "visible_seeds.json"),
         "replication_key": key_hex,
@@ -92,6 +95,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--replication-key-hex", default=None)
     parser.add_argument("--max-seeds", type=int, default=MAX_SEEDS)
+    parser.add_argument("--floor", type=int, default=FLOOR)
     parser.add_argument("--min-effect-fraction", type=float, default=MIN_EFFECT_FRACTION)
     parser.add_argument("--planning-rule", choices=task_profile.PLANNING_RULES, default=task_profile.PLANNING_RULES[0],
                         help="the confirmation planning rule; the default writes no key and means the accepted rule")
@@ -101,7 +105,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     key_hex = args.replication_key_hex or secrets.token_hex(32)
     profile = get_profile(args.task_dir, args.rollout_id, key_hex, max_seeds=args.max_seeds,
-                          min_effect_fraction=args.min_effect_fraction)
+                          min_effect_fraction=args.min_effect_fraction, floor=args.floor)
     if args.planning_rule != task_profile.PLANNING_RULES[0]:
         profile["confirmation"]["planning_rule"] = args.planning_rule
     try:
@@ -110,8 +114,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"refused: {exc}", file=sys.stderr)
         return 2
     write_private(args.output, json.dumps(profile, indent=2, sort_keys=True) + "\n")
-    print(json.dumps({"output": str(args.output), "rollout_id": args.rollout_id, "max_seeds": args.max_seeds,
-                      "min_effect_fraction": args.min_effect_fraction, "planning_rule": args.planning_rule}))
+    print(json.dumps({"output": str(args.output), "rollout_id": args.rollout_id, "floor": args.floor,
+                      "max_seeds": args.max_seeds, "min_effect_fraction": args.min_effect_fraction,
+                      "planning_rule": args.planning_rule}))
     return 0
 
 

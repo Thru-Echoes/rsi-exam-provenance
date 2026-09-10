@@ -1,0 +1,25 @@
+[
+  {
+    "rollout": "ab-pilot-opus-1-I-zyiT7Bf",
+    "log_present": true,
+    "decision_log_present": true,
+    "snapshots": [
+      "v0",
+      "v1"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  },
+  {
+    "rollout": "ab-pilot-opus-smoke-1-I-PSDZnkG",
+    "log_present": true,
+    "decision_log_present": true,
+    "snapshots": [
+      "v0",
+      "v1",
+      "v2"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  }
+]

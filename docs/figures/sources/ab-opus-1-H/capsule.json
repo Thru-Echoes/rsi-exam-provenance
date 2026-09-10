@@ -1,0 +1,101 @@
+{
+  "benchmark": {
+    "name": "RSI-Exam",
+    "release": "0.1@bc36dadb405b",
+    "task_id": "autoresearch-arena/game2048_policy_search"
+  },
+  "capsule_id": "ab-opus-1-H-gZWCHaL",
+  "final_submission": {
+    "locator": "artifacts/app/methods/main",
+    "method_tree_sha256": "53dafe6613078aa34d52ebc57b62271d475f00dbb6c84e999225fd5d3e534f40",
+    "tree_sha256": "02a45480eaf86bacd5e8353962c4fb8eca5e3c96c8294a7488030afde572a2cd",
+    "version_id": "v1",
+    "version_ids": [
+      "v1"
+    ]
+  },
+  "freeze": {
+    "grader_digest": "4518e26559338d6a3cad8b9366e06708378511c259a116e0413ed617d99faf47",
+    "task_digest": "c21113afb48e7dc632d78c0aa9a22ac6d4876007a24044300a92a472b7d54ff6"
+  },
+  "hidden_evaluation": {
+    "binding": {
+      "basis": "job_directory",
+      "job_id": "game2048_policy_search__gZWCHaL"
+    },
+    "reward": 0.60840837,
+    "reward_locator": "verifier/reward.json",
+    "reward_sha256": "9b60d37c05d7be456846fb5fc5c000d2b522a771e571e6d49ed54c2efccca2f5",
+    "score_details_locator": "verifier/score_details.json",
+    "score_details_sha256": "25474497ea2e4bc3688e1bcc21438cd21b5892b87828ca822a7c2c4f1b8360c3"
+  },
+  "rollout": {
+    "budget_hours": 12.0,
+    "config_digest": "171ecca525981b3291836be390244c8ce021fd68805f894861d64bf856df3b29",
+    "harness": "claude-code",
+    "id": "game2048_policy_search__gZWCHaL",
+    "model": "claude-opus-5"
+  },
+  "schema_version": "proofpress/rsi-exam-trajectory/v3",
+  "source": {
+    "exclusions": [
+      "__pycache__/",
+      "*.pyc",
+      "*.pyo"
+    ],
+    "experiment_log": {
+      "locator": "artifacts/app/methods/experiment_log.md",
+      "sha256": "3505758c22e8356cf40b75fa4a23b0af8d060eb208659d5d4f195fe71bd9ae9a"
+    },
+    "trajectory": {
+      "format": "ATIF",
+      "locator": "agent/trajectory.json",
+      "sha256": "754c1552af5b0ed1500887f693973cb1b8f3d83a975eeb612f5c5da15a9bf808"
+    },
+    "versions_root": {
+      "locator": "artifacts/app/methods/versions"
+    }
+  },
+  "versions": [
+    {
+      "artifact": {
+        "locator": "artifacts/app/methods/versions/v0",
+        "method_tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+        "tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+        "type": "directory"
+      },
+      "log": {
+        "line": 1
+      },
+      "ordinal": 1,
+      "parent_ids": [],
+      "status": "baseline",
+      "version_id": "v0",
+      "visible": {
+        "recorded_in": "experiment_log",
+        "score": 2060.0
+      }
+    },
+    {
+      "artifact": {
+        "locator": "artifacts/app/methods/versions/v1",
+        "method_tree_sha256": "53dafe6613078aa34d52ebc57b62271d475f00dbb6c84e999225fd5d3e534f40",
+        "tree_sha256": "53dafe6613078aa34d52ebc57b62271d475f00dbb6c84e999225fd5d3e534f40",
+        "type": "directory"
+      },
+      "log": {
+        "line": 7
+      },
+      "ordinal": 2,
+      "parent_ids": [
+        "v0"
+      ],
+      "status": "submitted",
+      "version_id": "v1",
+      "visible": {
+        "recorded_in": "experiment_log",
+        "score": 91499.5
+      }
+    }
+  ]
+}

@@ -104,5 +104,18 @@ class TestMethodTreeDigest(unittest.TestCase):
             treedigest.method_tree_sha256(only_cache)
 
 
+class NonRegularFilesAreRefused(unittest.TestCase):
+    def test_a_fifo_named_py_is_refused_before_it_is_opened(self):
+        import os
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "policy.py").write_text("x = 1\n", encoding="utf-8")
+            os.mkfifo(root / "pipe.py")
+            with self.assertRaises(treedigest.TreeDigestError) as caught:
+                treedigest.method_files(root)
+            self.assertIn("non-regular file: pipe.py", str(caught.exception))
+
+
 if __name__ == "__main__":
     unittest.main()

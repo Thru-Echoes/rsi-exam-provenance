@@ -44,7 +44,7 @@ directory.
 - **Verdict**: `clears` when `interval.lower > min_effect`; `below` when `interval.upper < 0`;
   otherwise `inconclusive` (which includes an interval that is entirely positive but under the
   minimum effect). `min_effect >= 0`; every number finite.
-- **Disposition on a non-replication line**: `below` gives `revert`; `clears` gives `keep`, or
+- **Disposition on a non-replication line**: an exploratory confirmation plan (gated mode; see "Confirmation size") takes precedence and gives `revert`; otherwise `below` gives `revert`; `clears` gives `keep`, or
   `provisional` when the gate runs with confirmation required or a `holdout` block is present and
   does not clear; `inconclusive` gives `provisional`.
 - **Replication line**: `replicates == version_id`, the same `parent_id` as the open provisional
@@ -167,9 +167,7 @@ and makes every later gate call refuse.
 
 **Further limits of Milestone 1.** The evaluation child runs as the same user as the agent, so policy
 code could write to files the agent can write to; the grader's own sandbox drops privileges to an unprivileged user; the host-side shadow audit runs the
-runner inside a throwaway container with no network and the operator's uid instead, and a privilege drop
-with a per-move limit in the runner belongs to the deferred in-container instrument (`ROADMAP.md`,
-Milestone 4). The runner publishes the result and then the receipt as two files; a
+runner inside a throwaway container with no network and the operator's uid instead, and a privilege drop and a grader-equivalent per-move limit in the runner remain undone: the in-rollout instrument (the instrument overlay) runs the runner and this gate inside the agent's container as the agent's user, with the profile and its key readable there, and it cannot close a confirmation the runner refuses, because this contract resolves a provisional decision only by a confirmation line; the post-rollout verifier's comparison of every line's and receipt's profile_sha256 with the operator's copy remains the check that the intended profile was used. The runner publishes the result and then the receipt as two files; a
 crash between them leaves a result the next run refuses to overwrite, which the operator removes by
 hand. The gate accepts whichever profile path it is given; the post-rollout verifier's comparison of
 `profile_sha256` with the operator's mounted digest is the check that the intended profile was used.
@@ -232,7 +230,7 @@ excluded from method-tree digests.
 `decision:missing_for_kept_version`, `decision:log_line_mismatch`, `decision:verdict_inconsistent`,
 `decision:disposition_inconsistent`, `decision:evidence_digest_mismatch`,
 `decision:interval_not_reproducible` (recomputed from the bound result files under the recorded
-algorithm), `receipt:missing` and `receipt:mismatch` (integrity failures on gated runs, coverage
+algorithm), `decision:sizing_inconsistent` (the plan's `exploratory` flag does not equal `size < planned`, or an exploratory screening carries a suite), `receipt:missing` and `receipt:mismatch` (integrity failures on gated runs, coverage
 notes on official-protocol rollouts), `protocol:stacked_provisional`,
 `protocol:unresolved_provisional_submitted`, `protocol:kept_against_verdict`,
 `protocol:unconfirmed_keep`, `protocol:action_contradiction` (experiment-log prose contradicts the

@@ -17,7 +17,17 @@ when it is mounted, as ``selfcheck.py`` does.
 CLI: ``--profile`` (the task profile; metric, CPU budget, and evaluator digests come from it),
 ``--task-root`` (default /app), ``--policy-dir`` (normally methods/versions/v<N>), ``--suite``,
 ``--output``, ``--receipt`` (default: the output with ``.json`` replaced by ``.receipt.json``),
-``--wall-seconds`` (default: CPU budget plus 60).
+``--wall-seconds`` (default: CPU budget plus 60), ``--safety-report`` (optional; see below).
+
+Submission safety. A policy tree whose Python files exceed the grader's 10 MB cap is refused before
+anything runs (exit 2), as the grader would score it zero. With ``--safety-report PATH`` the child
+also times every ``choose_move`` call on the wall clock and the parent publishes, after the receipt,
+a document of schema ``rsi-exam-gate-safety/v1`` at PATH (under a ``results`` directory, written
+once): the policy digest and byte size, the games, the CPU seconds and CPU seconds per game, the
+slowest move in seconds, and the result's digest. The result and the receipt are byte-for-byte what
+they are without the flag; the report is what the in-rollout helper reads before it lets a candidate
+become the head, against margins below the grader's limits (225 CPU seconds per game, 5 seconds per
+move in the grader's own sandboxed process, which this in-process timing can only underestimate).
 
 Exit codes: 0 written; 1 the evaluator raised; 2 bad input or an evaluator file that differs from
 the profile; 4 CPU budget exhausted; 5 a game was invalid; 6 wall clock exceeded. Only exit 0
@@ -37,6 +47,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 from types import ModuleType
@@ -44,9 +55,11 @@ from typing import Any
 
 from seeds import SeedsError, read_suite
 from task_profile import ProfileError, load_profile
-from treedigest import TreeDigestError, file_sha256, method_tree_sha256
+from treedigest import TreeDigestError, file_sha256, method_files, method_tree_sha256
 
 RECEIPT_SCHEMA = "rsi-exam-gate-receipt/v1"
+SAFETY_SCHEMA = "rsi-exam-gate-safety/v1"
+POLICY_MAX_BYTES = 10_000_000             # the grader's cap on the staged source, in bytes
 EVALUATOR_FILES = ("evaluate.py", "game2048.py")
 POLICY_TREES = ("main", "versions")
 EVIDENCE_ROOT = "results"
@@ -131,7 +144,7 @@ def publish(path: Path, payload: bytes) -> None:
 
 
 def run(*, profile_path: Path, task_root: Path, policy_dir: Path, suite: Path, output: Path, receipt: Path,
-        wall_seconds: int | None) -> dict[str, Any]:
+        wall_seconds: int | None, safety: Path | None = None) -> dict[str, Any]:
     """Parent side: check, evaluate in a child, validate, publish. Returns the receipt document."""
     profile, profile_sha = load_profile(profile_path)
     for name in EVALUATOR_FILES:
@@ -142,6 +155,10 @@ def run(*, profile_path: Path, task_root: Path, policy_dir: Path, suite: Path, o
             raise RunnerError(f"{name} in {task_root} differs from the digest the profile pins")
     if not (policy_dir / "policy.py").is_file():
         raise RunnerError(f"policy.py not found in {policy_dir}")
+    policy_bytes = sum((policy_dir / rel).stat().st_size for rel in method_files(policy_dir))
+    if policy_bytes > POLICY_MAX_BYTES:
+        raise RunnerError(f"policy source is {policy_bytes:,} bytes, over the grader's {POLICY_MAX_BYTES:,} byte cap; "
+                          "the grader scores such a submission zero")
     if not suite.is_file():
         raise RunnerError(f"suite not found: {suite}")
     seeds, max_moves = read_suite(suite)
@@ -151,6 +168,12 @@ def run(*, profile_path: Path, task_root: Path, policy_dir: Path, suite: Path, o
         raise RunnerError("the receipt path must differ from the output path")
     if output.exists() or receipt.exists():
         raise RunnerError("output or receipt already exists; evidence is written once")
+    if safety is not None:
+        check_output_path(safety)
+        if safety.resolve() in (output.resolve(), receipt.resolve()):
+            raise RunnerError("the safety report path must differ from the output and receipt paths")
+        if safety.exists():
+            raise RunnerError("safety report already exists; evidence is written once")
     policy_digest = method_tree_sha256(policy_dir)
     cpu_budget = int(profile["confirmation"]["cpu_seconds_per_game"])
     limit = wall_seconds if wall_seconds is not None else cpu_budget * len(seeds) + 60
@@ -162,7 +185,7 @@ def run(*, profile_path: Path, task_root: Path, policy_dir: Path, suite: Path, o
         env["PYTHONDONTWRITEBYTECODE"] = "1"
         child = subprocess.Popen(
             [sys.executable, str(Path(__file__).resolve()), "--child", str(task_root), str(policy_dir), str(suite),
-             str(tmp_result), str(cpu_budget)],
+             str(tmp_result), str(cpu_budget), "1" if safety is not None else "0"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env, start_new_session=True,
         )
         try:
@@ -196,6 +219,19 @@ def run(*, profile_path: Path, task_root: Path, policy_dir: Path, suite: Path, o
         "timestamp": os.environ.get("DECIDE_FIXED_TIMESTAMP") or datetime.now(UTC).isoformat(),
     }
     publish(receipt, (json.dumps(document, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+    if safety is not None:
+        report: dict[str, Any] = {
+            "schema": SAFETY_SCHEMA,
+            "policy_method_tree_sha256": policy_digest,
+            "policy_bytes": policy_bytes,
+            "games": len(seeds),
+            "cpu_seconds": result["cpu_seconds"],
+            "cpu_seconds_per_game": result["cpu_seconds_per_game"],
+            "max_move_seconds": meta["max_move_seconds"],
+            "result_sha256": document["result_sha256"],
+            "timestamp": document["timestamp"],
+        }
+        publish(safety, (json.dumps(report, indent=2, sort_keys=True) + "\n").encode("utf-8"))
     if BUDGET_HOOK.exists():
         sys.stdout.flush()
         subprocess.run([sys.executable, str(BUDGET_HOOK)], check=False)
@@ -212,11 +248,40 @@ def _load_module(name: str, path: Path) -> ModuleType:
     return module
 
 
-def child_main(task_root: Path, policy_dir: Path, suite: Path, out: Path, cpu_budget: int) -> int:
+def _time_moves(evaluate: ModuleType) -> dict[str, float]:
+    """Wrap the evaluator's policy loader so every ``choose_move`` call is timed on the wall clock.
+
+    Returns the live statistics dict (``max_move_seconds``). Side effect: rebinds ``load_policy`` on
+    the evaluator module; the evaluator looks the name up when it runs, so the policy it loads has its
+    ``choose_move`` replaced by the timing wrapper. Nothing about the game or the score changes.
+    """
+    stats = {"max_move_seconds": 0.0}
+    original = getattr(evaluate, "load_policy")
+
+    def load_policy(path: Path) -> ModuleType:
+        module = original(path)
+        inner = getattr(module, "choose_move")
+
+        def choose_move(board: Any) -> Any:
+            started = time.perf_counter()
+            try:
+                return inner(board)
+            finally:
+                stats["max_move_seconds"] = max(stats["max_move_seconds"], time.perf_counter() - started)
+
+        setattr(module, "choose_move", choose_move)
+        return module
+
+    setattr(evaluate, "load_policy", load_policy)
+    return stats
+
+
+def child_main(task_root: Path, policy_dir: Path, suite: Path, out: Path, cpu_budget: int, timed: bool = False) -> int:
     """Child side: pinned evaluator by exact path, policy dir first on sys.path, CPU budget armed."""
     sys.dont_write_bytecode = True
     _load_module("game2048", task_root / "game2048.py")
     evaluate = _load_module("evaluate", task_root / "evaluate.py")
+    stats = _time_moves(evaluate) if timed else None
     sys.path.insert(0, str(policy_dir))
     games = len(json.loads(suite.read_text(encoding="utf-8"))["seeds"])
     budget = cpu_budget * games
@@ -235,7 +300,8 @@ def child_main(task_root: Path, policy_dir: Path, suite: Path, out: Path, cpu_bu
     result["cpu_seconds_per_game"] = round(used / games, 1)
     result["cpu_budget_per_game"] = cpu_budget
     out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({"python": platform.python_version()}))
+    print(json.dumps({"python": platform.python_version(),
+                      "max_move_seconds": round(stats["max_move_seconds"], 6) if stats is not None else None}))
     return 0
 
 
@@ -243,8 +309,8 @@ def main(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
     if argv[:1] == ["--child"]:
-        task_root, policy_dir, suite, out, cpu_budget = argv[1:6]
-        return child_main(Path(task_root), Path(policy_dir), Path(suite), Path(out), int(cpu_budget))
+        task_root, policy_dir, suite, out, cpu_budget, timed = argv[1:7]
+        return child_main(Path(task_root), Path(policy_dir), Path(suite), Path(out), int(cpu_budget), timed == "1")
     parser = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
     parser.add_argument("--profile", type=Path, required=True)
     parser.add_argument("--task-root", type=Path, default=Path("/app"))
@@ -253,11 +319,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--receipt", type=Path, default=None)
     parser.add_argument("--wall-seconds", type=int, default=None)
+    parser.add_argument("--safety-report", type=Path, default=None)
     args = parser.parse_args(argv)
     receipt = args.receipt or receipt_path_for(args.output)
     try:
         document = run(profile_path=args.profile, task_root=args.task_root, policy_dir=args.policy_dir,
-                       suite=args.suite, output=args.output, receipt=receipt, wall_seconds=args.wall_seconds)
+                       suite=args.suite, output=args.output, receipt=receipt, wall_seconds=args.wall_seconds,
+                       safety=args.safety_report)
     except CpuExceeded as exc:
         print(f"runner: {exc}", file=sys.stderr)
         return EXIT_CPU

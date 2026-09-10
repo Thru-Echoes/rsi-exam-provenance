@@ -22,8 +22,17 @@ PROGRAM="${6:-$PWD/infra/prompts/autoresearch.md}"
 TEMPLATE="${7:-$PWD/infra/prompts/autoresearch.j2}"
 RUNBOOK="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # A program that tells the agent to run /app/provenance.py needs the helper mounted; the runbook's compose
-# overlay is RSI-Exam's mount.yaml plus that one read-only mount. MOUNT_YAML overrides the choice.
-if [ -z "${MOUNT_YAML:-}" ] && grep -q '/app/provenance.py' "$PROGRAM"; then MOUNT_YAML="$RUNBOOK/mount-provenance.yaml"; fi
+# overlay is RSI-Exam's mount.yaml plus that one read-only mount. A program that names /app/gate/ is the
+# instrument overlay and needs the gate's scripts (ARB_GATE_DIR, a directory of the gate's *.py) and the
+# rollout's task profile (ARB_PROFILE) mounted too. MOUNT_YAML overrides the choice.
+if [ -z "${MOUNT_YAML:-}" ] && grep -q '/app/gate/' "$PROGRAM"; then
+  MOUNT_YAML="$RUNBOOK/mount-instrument.yaml"
+  : "${ARB_GATE_DIR:?the instrument overlay needs ARB_GATE_DIR, a directory holding the gate scripts}"
+  : "${ARB_PROFILE:?the instrument overlay needs ARB_PROFILE, the task profile written for this rollout}"
+  [ -f "$ARB_GATE_DIR/decide.py" ] && [ -f "$ARB_GATE_DIR/evaluate_suite.py" ] || { echo "ARB_GATE_DIR lacks the gate: $ARB_GATE_DIR" >&2; exit 2; }
+  [ -f "$ARB_PROFILE" ] || { echo "profile not found: $ARB_PROFILE" >&2; exit 2; }
+  export ARB_GATE_DIR ARB_PROFILE
+elif [ -z "${MOUNT_YAML:-}" ] && grep -q '/app/provenance.py' "$PROGRAM"; then MOUNT_YAML="$RUNBOOK/mount-provenance.yaml"; fi
 MOUNT_YAML="${MOUNT_YAML:-$PWD/infra/prompts/mount.yaml}"
 export ARB_PROVENANCE_PY="${ARB_PROVENANCE_PY:-$RUNBOOK/provenance.py}"
 

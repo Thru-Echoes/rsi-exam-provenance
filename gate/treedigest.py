@@ -53,6 +53,10 @@ def method_files(root: Path) -> list[str]:
             continue
         if child.suffix != ".py":
             raise TreeDigestError(f"method tree contains a non-Python file the grader would reject: {rel.as_posix()}")
+        if not child.is_file():
+            # A FIFO, socket or device named *.py is not a regular file: the grader refuses it, and opening it to
+            # hash it could block forever.
+            raise TreeDigestError(f"method tree contains a non-regular file: {rel.as_posix()}")
         rels.append(rel.as_posix())
     if not rels:
         raise TreeDigestError(f"method tree has no Python files: {root}")

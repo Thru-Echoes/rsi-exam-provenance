@@ -1,0 +1,5 @@
+# Deviations from the manifest, stage sonnet
+
+| step | what happened | how it was handled |
+|---|---|---|
+| sealed-suite retrospective | the retrospective runner scores each snapshot on the sixteen sealed seeds under a twenty-minute wall limit; the strong Sonnet policies of this stage take about a minute a game, so each such snapshot ran the full twenty minutes and was reported `wall_clock_exceeded` (unmeasured). After twelve hours the step had finished three of the six rollouts (1-H, 1-I, 2-H), with the Opus stage waiting behind it. | the step was stopped from the operator's session at 17:48 UTC on 2026-09-10 after three rollouts; the endpoints were produced with the three sealed reports available (the other three trials show "no sealed report" in the sealed-disagreement table and no regret); the Opus stage started. The three remaining rollouts (2-I, 3-I, 3-H) are to be scored after the Opus stage with a longer wall limit, as a diagnostic, and the tables regenerated. The primary endpoint (the grader's reward of each submission) does not depend on the retrospective. |
