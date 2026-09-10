@@ -1,0 +1,14 @@
+campaign-H1 TOTAL: $0.9054
+campaign-H2 TOTAL: $0.9456
+campaign-H3 TOTAL: $1.0406
+campaign-H4 TOTAL: $0.8605
+campaign-H5 TOTAL: $1.1030
+campaign-H6 TOTAL: $1.3127
+campaign-O1 TOTAL: $4.0806
+campaign-O2 TOTAL: $3.6888
+campaign-S1 TOTAL: $0.3803
+campaign-S2 TOTAL: $0.4064
+campaign-S3 TOTAL: $0.4722
+OPERATOR-KEY-H TOTAL: $6.1678
+OPERATOR-KEY-S TOTAL: $1.2589
+ALL-OPUS-JOBS TOTAL: $85.5957

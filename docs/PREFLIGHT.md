@@ -494,6 +494,127 @@ Over the cohort: 12 pairs, 10 comparable record-backed, 1 agree, 9 disagree, 4 c
 
 The same diagnostic over the helper-overlay campaign's records is reported with that campaign below.
 
+## The helper-overlay campaign
+
+The campaign manifest (`docs/campaign/2026-09-helper-overlay/manifest.md`, commit `5c483ad`, committed before the first
+trial started) fixed eleven trials under the helper-backed provenance overlay (`runbook/autoresearch-provenance.md`
+with `runbook/mount-provenance.yaml`): six `claude-haiku-4-5-20251001` and three `claude-sonnet-5` trials at
+reasoning effort `low` and agent timeout multiplier 0.008 (345.6 s; the helper told 340 s) on the operator's key, in
+an order drawn once before the first trial (H3, S1, H6, H4, H1, H5, S2, S3, H2), and up to two `claude-opus-5` trials at
+effort `max` and multiplier 0.030 (1296 s; the helper told 1200 s) through the collaborator's gateway, admitted one at
+a time by the gateway's $100.00 ceiling.
+
+As run (`~/rsi-shadow/campaign.log` and `campaign2.log`, the runner's own lines): H3, S1 and H6 ran in the drawn order.
+The runner's arm-stop check then clobbered the trial variable, so the starts it logged for H4, H1 and H5 at 15:24 UTC
+were no-op invocations that ended within two seconds each with no job directory and no spend, and S2 started at 15:25
+under the defective runner and finished on its own. The runner was fixed (commit `c1ce65a`, which also refuses to
+replace a finished trial) and restarted at 15:36; it ran H4, H1, H5, S3, H2, then O1 and O2 through the gateway. Every
+trial named by the manifest ran exactly once; the deviation from the drawn order is that S2 ran before H4, H1 and H5.
+
+Per trial, from the harness's own outputs in each job directory (`docs/shadow-audit/helper-cohort/trials.md`):
+
+| trial | agent execution s | how the agent stopped | agent steps | snapshots | v0 present | log present | main equals v0 | sealed reward (incidental) |
+|---|---|---|---|---|---|---|---|---|
+| campaign-H1 | 265 | agent finished | 49 | 10 | True | True | False | 0.19354212 |
+| campaign-H2 | 274 | agent finished | 55 | 10 | True | True | False | 0.2043194 |
+| campaign-H3 | 281 | agent finished | 50 | 9 | True | True | False | 0.14868332 |
+| campaign-H4 | 257 | agent finished | 40 | 7 | True | True | False | 0.09384983 |
+| campaign-H5 | 267 | agent finished | 71 | 5 | True | True | False | 0.14273383 |
+| campaign-H6 | 339 | agent finished | 63 | 13 | True | True | False | 0.21062443 |
+| campaign-O1 | 862 | agent finished | 23 | 2 | True | True | False | 0.58542111 |
+| campaign-O2 | 956 | agent finished | 24 | 3 | True | True | False | 0.52101864 |
+| campaign-S1 | 348 | harness timeout | 10 | 2 | True | True | False | 0.17856798 |
+| campaign-S2 | 289 | agent finished | 14 | 2 | True | True | False | 0.29844793 |
+| campaign-S3 | 348 | harness timeout | 17 | 3 | True | True | False | 0.44393779 |
+
+What the helper recorded, read from each record and job directory (`campaign_measures.py` over the job directories):
+
+| trial | versions in record | kept | reverted | submitted (the kept head) | pairs kept-or-reverted | pairs incl. submitted | undecided at stop | snapshots with a log block | first init (min) | first evaluate (min) | finalize run |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| campaign-H1 | 10 | 3 | 5 | 1 | 8 | 9 | none | 10 of 10 | 0.2 | 0.5 | yes |
+| campaign-H2 | 10 | 3 | 5 | 1 | 8 | 9 | none | 10 of 10 | 0.1 | 0.5 | yes |
+| campaign-H3 | 9 | 1 | 6 | 1 | 7 | 8 | none | 9 of 9 | 0.1 | 0.5 | yes |
+| campaign-H4 | 7 | 2 | 3 | 1 | 5 | 6 | none | 7 of 7 | 0.1 | 0.5 | yes |
+| campaign-H5 | no record | | | | | | | | | | |
+| campaign-H6 | 13 | 5 | 6 | 1 | 11 | 12 | none | 13 of 13 | 0.1 | 0.5 | yes |
+| campaign-O1 | 2 | 0 | 0 | 1 | 0 | 1 | none | 2 of 2 | 0.8 | 8.8 | yes |
+| campaign-O2 | 3 | 1 | 0 | 1 | 1 | 2 | none | 3 of 3 | 1.1 | 8.9 | yes |
+| campaign-S1 | 2 | 0 | 0 | 1 | 0 | 1 | v1 | 2 of 2 | 0.1 | 2.4 | no |
+| campaign-S2 | 2 | 0 | 0 | 1 | 0 | 1 | none | 2 of 2 | 0.2 | 2.5 | yes |
+| campaign-S3 | 3 | 1 | 0 | 1 | 1 | 2 | none | 3 of 3 | 0.0 | 0.6 | yes |
+
+Spend, priced from the session logs with the rate cards (`docs/shadow-audit/helper-cohort/spend.md`): the six Haiku
+trials $6.17 and the three Sonnet trials $1.26 on the operator's key, $7.43 in all against the manifest's ceilings; the
+two Opus trials $4.08 and $3.69 through the gateway, after which the gateway token's verified spend stood at $85.60 of
+its $100.00 ceiling. The three no-op starts cost nothing.
+
+Records (`docs/shadow-audit/helper-cohort/records.md`): the producer built and the verifier passed 10 of the 11 records.
+H5 was refused (`submitted_not_snapshotted`): its `main/` held an edit made after the last decision, the window the
+helper cannot close without a signal from the harness before the stop.
+
+The shadow audit ran over the ten verified records under the accepted planning rule (floor 16, cap 64), with each
+run's inputs manifest committed and pushed before evaluation and its report committed after
+(`docs/shadow-audit/helper-cohort/<rollout>/report.json`; the tables in `summary.md`):
+
+| rollout | versions | pairs | with disposition | record-backed comparable | agree | disagree | task-starter pairs | confirmed | exploratory | screening below | evaluation failed | not replayable | other failures | median planned | cpu s | audit kind | exit |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| campaign-H1-hoG9P2f | 10 | 9 | 9 | 9 | 5 | 4 | 0 | 0 | 6 | 3 | 0 | 0 | 0 | 5897 | 83 | screening-and-feasibility | 0 |
+| campaign-H2-R8sDt8Y | 10 | 9 | 9 | 9 | 5 | 4 | 0 | 0 | 8 | 1 | 0 | 0 | 0 | 13467 | 97 | screening-and-feasibility | 0 |
+| campaign-H3-RbhgqQB | 9 | 8 | 8 | 8 | 6 | 2 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 8993 | 3 | screening-and-feasibility | 0 |
+| campaign-H4-LWzeis7 | 7 | 6 | 6 | 6 | 3 | 3 | 0 | 0 | 6 | 0 | 0 | 0 | 0 | 3981 | 7 | screening-and-feasibility | 0 |
+| campaign-H6-3qz6CEn | 13 | 12 | 12 | 12 | 6 | 6 | 0 | 0 | 11 | 1 | 0 | 0 | 0 | 10565 | 8 | screening-and-feasibility | 0 |
+| campaign-O1-zvdgNzq | 2 | 1 | 1 | 1 | 0 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 16443551 | 251 | screening-and-feasibility | 0 |
+| campaign-O2-Fjweu3m | 3 | 2 | 2 | 2 | 0 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 964903 | 394 | screening-and-feasibility | 0 |
+| campaign-S1-qXiB758 | 2 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |  | 0 | screening-and-feasibility | 1 |
+| campaign-S2-xZPTJeM | 2 | 1 | 1 | 1 | 0 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 62699 | 156 | screening-and-feasibility | 0 |
+| campaign-S3-Lhwt3ro | 3 | 2 | 2 | 2 | 0 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 422826 | 260 | screening-and-feasibility | 0 |
+
+Over the cohort: 61 versions, 51 pairs, 50 with a gate disposition and comparable to the agent's recorded status;
+25 agree and 25 disagree; 0 confirmed, 45 exploratory, 5 reverted at screening, 1 evaluation failed; 1259 CPU seconds.
+The evaluation that failed is S1's only pair (`docs/shadow-audit/helper-cohort/dispositions.md`): the replay could not
+evaluate `v1`, the policy that exhausted the sealed suite's pooled CPU budget under the grader (valid fraction 0.44),
+so the pair carries no gate disposition and enters no agree or disagree count; the record itself verifies. Under the
+accepted rule every Opus pair and every Sonnet pair the replay could evaluate planned more confirmation seeds than the
+cap allows, so the audit reverted them as exploratory, the finding about the rule the development cohort already
+showed.
+
+The same records under the estimate-aware planning rule (floor 16, cap 64), as a diagnostic and not as the accepted
+rule (`docs/shadow-audit/helper-cohort-estimate-aware/summary.md`, inputs manifests committed and pushed before
+evaluation):
+
+| rollout | versions | pairs | with disposition | record-backed comparable | agree | disagree | task-starter pairs | confirmed | exploratory | screening below | evaluation failed | not replayable | other failures | median planned | cpu s | audit kind | exit |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| campaign-H1-hoG9P2f | 10 | 9 | 9 | 9 | 6 | 3 | 0 | 3 | 3 | 3 | 0 | 0 | 0 | 438 | 105 | confirmation-and-screening | 0 |
+| campaign-H2-R8sDt8Y | 10 | 9 | 9 | 9 | 7 | 2 | 0 | 2 | 6 | 1 | 0 | 0 | 0 | 9307 | 108 | confirmation-and-screening | 0 |
+| campaign-H3-RbhgqQB | 9 | 8 | 8 | 8 | 7 | 1 | 0 | 2 | 6 | 0 | 0 | 0 | 0 | 7227 | 5 | confirmation-and-screening | 0 |
+| campaign-H4-LWzeis7 | 7 | 6 | 6 | 6 | 4 | 2 | 0 | 2 | 4 | 0 | 0 | 0 | 0 | 915 | 9 | confirmation-and-screening | 0 |
+| campaign-H6-3qz6CEn | 13 | 12 | 12 | 12 | 7 | 5 | 0 | 2 | 9 | 1 | 0 | 0 | 0 | 7726 | 11 | confirmation-and-screening | 0 |
+| campaign-O1-zvdgNzq | 2 | 1 | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 16 | 640 | confirmation-and-screening | 0 |
+| campaign-O2-Fjweu3m | 3 | 2 | 2 | 2 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 34 | 2640 | confirmation-and-screening | 0 |
+| campaign-S1-qXiB758 | 2 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |  | 0 | screening-and-feasibility | 1 |
+| campaign-S2-xZPTJeM | 2 | 1 | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 16 | 743 | confirmation-and-screening | 0 |
+| campaign-S3-Lhwt3ro | 3 | 2 | 2 | 2 | 1 | 1 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 977 | 607 | confirmation-and-screening | 0 |
+
+Over the cohort under this rule: the same 51 pairs and 50 dispositions; 36 agree and 14 disagree; 16 confirmed (11
+confirmed keeps, 5 confirmed reverts), 29 exploratory, 5 reverted at screening, 1 evaluation failed; 4868 CPU seconds.
+Both Opus pairs and both Sonnet pairs the replay could evaluate confirmed at the floor, which is what the instrument's
+planning rule was chosen on.
+
+Limits, as every report states them:
+
+- The pairs are record-recoverable candidate-parent-status tuples, not the agent's action history.
+- The policy is imported into the evaluator's process, as in the task's own self-check; the container protects the
+  operator's machine, not the result, against a policy written to manipulate the evaluator.
+- The disagreement counts are descriptive and directionless; nothing here says who was right.
+- An interval describes the measured effect on the seeds evaluated; it is not the probability a decision was right and
+  not a statement about the sealed reward.
+- Anchoring starts at the commit that carries the inputs manifest; nothing inside the rollout is authenticated.
+- The eight-seed screening interval is a screening heuristic on reused seeds, not a stable inference about the
+  policy; the confirmation on fresh seeds is what decides.
+- The replay configuration, including the replication key, is mounted where the policy can read it; after the rollout
+  that key protects nothing, because every candidate was fixed before it existed.
+- Eleven trials on one task establish no rate; the counts describe these rollouts.
+
 ## Limits of this observation
 
 Two windows stay with the agent under the helper, and the counts above include them: an edit made after the last decision and never evaluated, which leaves `main/` equal to no snapshot and the record refused (`campaign-H5`), and a candidate still undecided when the window closes, which the record reports as the submission it was, its log line reading reverted until decided (`campaign-S1`, one Opus pilot). A closing step cannot run after an abrupt stop; only a signal from the harness before the stop would close the second window, which is now one of the asks upstream.

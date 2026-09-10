@@ -1,0 +1,784 @@
+{
+  "complete": true,
+  "coverage": {
+    "not_replayable": [
+      {
+        "candidate_id": "v0",
+        "reason": "lineage_root"
+      }
+    ],
+    "pairs_planned": 8,
+    "record_backed": 8,
+    "task_starter_reconstruction": 0,
+    "versions_in_record": 9,
+    "versions_with_recorded_action": 8
+  },
+  "inputs": {
+    "allow_projection": false,
+    "anchor_commit": "ff95e3020dafb94ead19e7bdd2654d36890e1c04",
+    "capsule": {
+      "built_here": false,
+      "locator": "capsule.json",
+      "sha256": "7c6bcf0964b7e8fc959dc83aa0dfa139864802dc11310ddf5ae325fdc17316dd"
+    },
+    "container": {
+      "digest": "python@sha256:9d2e5553305c7c7b0097999bb17187c69b921ccd6bc9d40e4bb5ebe652c00285",
+      "image": "python@sha256:9d2e5553305c7c7b0097999bb17187c69b921ccd6bc9d40e4bb5ebe652c00285"
+    },
+    "created_utc": "2026-09-09T17:57:59.087603+00:00",
+    "evaluator": {
+      "evaluate.py": "642d194eab0c4f1e116a70d7d78d8b5e13197cbfb92e0d6a09dbba6c2a494c86",
+      "game2048.py": "3c1059f3a26b5d5ee014ae51f19147e05a31ddf60fd7d371a48e7c4101cef077"
+    },
+    "execution_model": "same-process-evaluator",
+    "expected_snapshot_digests": {
+      "v0": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+      "v1": "b6650e01aa94709b5cf7064eedcfa88d7899cd2ee72feb12a2b5902a7e6d726f",
+      "v2": "09c3b6ead5cc57029c6a5f97dd2220c0afb9b56ec020ed7e0562ee0cfc089720",
+      "v3": "ec69af2bf85e3fa535c61883e53727a601d4330d2895cdec2bec61de85dce68e",
+      "v4": "3e769a2c36ea5f37cd9d524d59a6ad8068df2a8e07fabc3ccd1cc010b005154d",
+      "v5": "0e51224b0701a387310371219eab8e854ad04e492db9154a9889f8321d191b48",
+      "v6": "2963e6b2a233738068e5b48439283a4c4f4af2dae28bfeb2d15cfc3e96af0b76",
+      "v7": "17e44e460a4174f4832627e892f3872247e98a7514fa3a3b22f44af9ea8f2299",
+      "v8": "f52f9c2d20ace6a3ad61876e7540fc70bc07ec244a34535a29505aa899e95c19"
+    },
+    "gate_commit": "17d53e6dd128d74f41763a1ab2db9117aa2edbbe",
+    "gate_sources": {
+      "calibrate.py": "99338b1ed8fcc4a4668e9f7b67c2591cf64e946c726d57bd51a33746792e0a24",
+      "decide.py": "ca5764e0075282e62bc7335504ba16a06fad79283353ccf252391c491b79e892",
+      "evaluate_suite.py": "8a254c81c7c9871e0ba5536a9de725f81131d61fac89c45baeb5e72fb21e18aa",
+      "restore.py": "1bd8f70eb2e775c8744c0183dcde1d3c3b5996d91a107538f6427ae59f9ead02",
+      "sealed_eval.py": "24b21e046fecbf0bbfb69186a4ebacdf5b4d6eeb59c1df0942f4f56c40e2c0e6",
+      "seeds.py": "89c18f28e67c8b3f3b15f201f10fbbc232fdf9b3079268dd2d2f2f56524da571",
+      "shadow_replay.py": "6c5383e354ffc5e59642e317c186bf7daf5ed4f974dd8cdc15e60151e5a405ba",
+      "task_profile.py": "d619cd82db0fcbb92e2a8ab116d7b85551d4c184e709475a96b6cc33d9bb5748",
+      "trace_from_decisions.py": "b4fd1d750259d200cc30b1f3811841695d744f08407fe24dcd47e2cadeacd0ed",
+      "treedigest.py": "6fa2729c92b1b89a57ee087f9112110cf37faf10eb7fd58e7a8a65bf255e68b9"
+    },
+    "gate_tree_clean": true,
+    "profile_sha256": "84120c8090584889a1f41b9736e172121cb8badfc2476580f588a9f9e043493a",
+    "task_starter_method_tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+    "visible_suite_sha256": "117c4cb7c2f19eb47fe70949a4f7c3ba2c4ff48da89bfb204dae5b30a7e4528a"
+  },
+  "inputs_manifest_sha256": "fa74cce4aede00b2c925028cfabf6d588870be14b1ec0ff6f4021ed007b688f2",
+  "job": "campaign-H3/game2048_policy_search__RbhgqQB",
+  "limits": [
+    "The pairs are record-recoverable candidate-parent-status tuples, not the agent's action history.",
+    "The policy is imported into the evaluator's process, as in the task's own self-check; the container protects the operator's machine, not the result, against a policy written to manipulate the evaluator.",
+    "The disagreement counts are descriptive and directionless; nothing here says who was right.",
+    "An interval describes the measured effect on the seeds evaluated; it is not the probability a decision was right and not a statement about the sealed reward.",
+    "Anchoring starts at the commit that carries the inputs manifest; nothing inside the rollout is authenticated.",
+    "The eight-seed screening interval is a screening heuristic on reused seeds, not a stable inference about the policy; the confirmation on fresh seeds is what decides.",
+    "The replay configuration, including the replication key, is mounted where the policy can read it; after the rollout that key protects nothing, because every candidate was fixed before it existed."
+  ],
+  "mode": "capsule",
+  "pairs": [
+    {
+      "agree": true,
+      "candidate_id": "v1",
+      "candidate_method_tree_sha256": "b6650e01aa94709b5cf7064eedcfa88d7899cd2ee72feb12a2b5902a7e6d726f",
+      "candidate_source": "artifacts/app/methods/versions/v1",
+      "cpu_seconds": 0.1,
+      "gate": {
+        "confirmation": null,
+        "disposition": "revert",
+        "evaluation_failed": null,
+        "failure_policy_action": null,
+        "outcome": "exploratory",
+        "refusal": null,
+        "screening": {
+          "disposition": "revert",
+          "estimate": -45.0,
+          "interval": {
+            "level": 0.9,
+            "lower": -572.0,
+            "upper": 540.5
+          },
+          "line": 1,
+          "look_index": null,
+          "min_effect": 51.5,
+          "sample_size": 8,
+          "sizing": {
+            "cap": 64,
+            "exploratory": true,
+            "floor": 16,
+            "planned": 4140,
+            "planning_effect": 51.5,
+            "planning_rule": "estimate-aware",
+            "rule": "normal-approximation planning size from screening SD against e = max(min_effect, screening_mean - min_effect): smallest n with z*s/sqrt(n) < e/2",
+            "screening_mean": -45.0,
+            "screening_sd": 1007.2735477515529,
+            "size": 64,
+            "z": 1.6448536269514715
+          },
+          "verdict": "inconclusive"
+        },
+        "screening_deltas": {
+          "deltas": [
+            -512.0,
+            88.0,
+            -200.0,
+            1340.0,
+            -412.0,
+            1548.0,
+            -1120.0,
+            -1092.0
+          ],
+          "max": 1548.0,
+          "median": -306.0,
+          "min": -1120.0,
+          "seeds": [
+            104729,
+            130363,
+            155921,
+            181081,
+            205759,
+            232003,
+            260003,
+            287117
+          ]
+        }
+      },
+      "omitted_files": {
+        "v0": [],
+        "v1": []
+      },
+      "parent_id": "v0",
+      "parent_method_tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+      "parent_source": "artifacts/app/methods/versions/v0",
+      "parent_source_kind": "snapshot",
+      "projected": false,
+      "recorded_status": "reverted"
+    },
+    {
+      "agree": false,
+      "candidate_id": "v2",
+      "candidate_method_tree_sha256": "09c3b6ead5cc57029c6a5f97dd2220c0afb9b56ec020ed7e0562ee0cfc089720",
+      "candidate_source": "artifacts/app/methods/versions/v2",
+      "cpu_seconds": 0.7,
+      "gate": {
+        "confirmation": {
+          "disposition": "revert",
+          "estimate": 509.7391304347826,
+          "interval": {
+            "level": 0.9,
+            "lower": -49.391304347826086,
+            "upper": 1071.4782608695652
+          },
+          "line": 3,
+          "look_index": 1,
+          "min_effect": 51.5,
+          "sample_size": 46,
+          "sizing": {
+            "cap": 64,
+            "exploratory": false,
+            "floor": 16,
+            "planned": 46,
+            "planning_effect": 675.5,
+            "planning_rule": "estimate-aware",
+            "rule": "normal-approximation planning size from screening SD against e = max(min_effect, screening_mean - min_effect): smallest n with z*s/sqrt(n) < e/2",
+            "screening_mean": 727.0,
+            "screening_sd": 1384.7029593794784,
+            "size": 46,
+            "z": 1.6448536269514715
+          },
+          "verdict": "inconclusive"
+        },
+        "disposition": "revert",
+        "evaluation_failed": null,
+        "failure_policy_action": null,
+        "outcome": "confirmed_revert",
+        "refusal": null,
+        "screening": {
+          "disposition": "provisional",
+          "estimate": 727.0,
+          "interval": {
+            "level": 0.9,
+            "lower": 18.5,
+            "upper": 1514.5
+          },
+          "line": 2,
+          "look_index": 1,
+          "min_effect": 51.5,
+          "sample_size": 8,
+          "sizing": {
+            "cap": 64,
+            "exploratory": false,
+            "floor": 16,
+            "planned": 46,
+            "planning_effect": 675.5,
+            "planning_rule": "estimate-aware",
+            "rule": "normal-approximation planning size from screening SD against e = max(min_effect, screening_mean - min_effect): smallest n with z*s/sqrt(n) < e/2",
+            "screening_mean": 727.0,
+            "screening_sd": 1384.7029593794784,
+            "size": 46,
+            "z": 1.6448536269514715
+          },
+          "verdict": "inconclusive"
+        },
+        "screening_deltas": {
+          "deltas": [
+            512.0,
+            1224.0,
+            3412.0,
+            1712.0,
+            -164.0,
+            512.0,
+            -868.0,
+            -524.0
+          ],
+          "max": 3412.0,
+          "median": 512.0,
+          "min": -868.0,
+          "seeds": [
+            104729,
+            130363,
+            155921,
+            181081,
+            205759,
+            232003,
+            260003,
+            287117
+          ]
+        }
+      },
+      "omitted_files": {
+        "v0": [],
+        "v2": []
+      },
+      "parent_id": "v0",
+      "parent_method_tree_sha256": "72267d6fb29d7742042559306b4a3440d7b484a7d87f2173ec4e81c1bf676b85",
+      "parent_source": "artifacts/app/methods/versions/v0",
+      "parent_source_kind": "snapshot",
+      "projected": false,
+      "recorded_status": "kept"
+    },
+    {
+      "agree": true,
+      "candidate_id": "v3",
+      "candidate_method_tree_sha256": "ec69af2bf85e3fa535c61883e53727a601d4330d2895cdec2bec61de85dce68e",
+      "candidate_source": "artifacts/app/methods/versions/v3",
+      "cpu_seconds": 0.2,
+      "gate": {
+        "confirmation": null,
+        "disposition": "revert",
+        "evaluation_failed": null,
+        "failure_policy_action": null,
+        "outcome": "exploratory",
+        "refusal": null,
+        "screening": {
+          "disposition": "revert",
+          "estimate": -97.5,
+          "interval": {
+            "level": 0.9,
+            "lower": -1196.0,
+            "upper": 1194.5
+          },
+          "line": 4,
+          "look_index": null,
+          "min_effect": 69.675,
+          "sample_size": 8,
+          "sizing": {
+            "cap": 64,
+            "exploratory": true,
+            "floor": 16,
+            "planned": 10878,
+            "planning_effect": 69.675,
+            "planning_rule": "estimate-aware",
+            "rule": "normal-approximation planning size from screening SD against e = max(min_effect, screening_mean - min_effect): smallest n with z*s/sqrt(n) < e/2",
+            "screening_mean": -97.5,
+            "screening_sd": 2208.9821185333303,
+            "size": 64,
+            "z": 1.6448536269514715
+          },
+          "verdict": "inconclusive"
+        },
+        "screening_deltas": {
+          "deltas": [
+            760.0,
+            -2120.0,
+            -2164.0,
+            4440.0,
+            -436.0,
+            -696.0,
+            1120.0,
+            -1684.0
+          ],
+          "max": 4440.0,
+          "median": -566.0,
+          "min": -2164.0,
+          "seeds": [
+            104729,
+            130363,
+            155921,
+            181081,
+            205759,
+            232003,
+            260003,
+            287117
+          ]
+        }
+      },
+      "omitted_files": {
+        "v2": [],
+        "v3": []
+      },
+      "parent_id": "v2",
+      "parent_method_tree_sha256": "09c3b6ead5cc57029c6a5f97dd2220c0afb9b56ec020ed7e0562ee0cfc089720",
+      "parent_source": "artifacts/app/methods/versions/v2",
+      "parent_source_kind": "snapshot",
+      "projected": false,
+      "recorded_status": "reverted"
+    },
+    {
+      "agree": true,
+      "candidate_id": "v4",
+      "candidate_method_tree_sha256": "3e769a2c36ea5f37cd9d524d59a6ad8068df2a8e07fabc3ccd1cc010b005154d",
+      "candidate_source": "artifacts/app/methods/versions/v4",
+      "cpu_seconds": 1.2,
+      "gate": {
+        "confirmation": {
+          "disposition": "keep",
+          "estimate": 2989.4117647058824,
+          "interval": {
+            "level": 0.9,
+            "lower": 1798.5882352941176,
+            "upper": 4245.411764705882
+          },
+          "line": 6,
+          "look_index": 2,
+          "min_effect": 69.675,
+          "sample_size": 17,
+          "sizing": {
+            "cap": 64,
+            "exploratory": false,
+            "floor": 16,
+            "planned": 17,
+            "planning_effect": 3278.825,
+            "planning_rule": "estimate-aware",
+            "rule": "normal-approximation planning size from screening SD against e = max(min_effect, screening_mean - min_effect): smallest n with z*s/sqrt(n) < e/2",
+            "screening_mean": 3348.5,
+            "screening_sd": 4083.7139608799384,
+            "size": 17,
+            "z": 1.6448536269514715
+          },
+          "verdict": "clears"
+        },
+        "disposition": "keep",
+        "evaluation_failed": null,
+        "failure_policy_action": null,
+        "outcome": "confirmed_keep",
+        "refusal": null,
+        "screening": {
+          "disposition": "provisional",
+          "estimate": 3348.5,
+          "interval": {
+            "level": 0.9,
+            "lower": 1124.0,
+            "upper": 5559.5
+          },
+          "line": 5,
+          "look_index": 2,
+          "min_effect": 69.675,
+          "sample_size": 8,
+          "sizing": {
+            "cap": 64,
+            "exploratory": false,
+            "floor": 16,
+            "planned": 17,
+            "planning_effect": 3278.825,
+            "planning_rule": "estimate-aware",
+            "rule": "normal-approximation planning size from screening SD against e = max(min_effect, screening_mean - min_effect): smallest n with z*s/sqrt(n) < e/2",
+            "screening_mean": 3348.5,
+            "screening_sd": 4083.7139608799384,
+            "size": 17,
+            "z": 1.6448536269514715
+          },
+          "verdict": "clears"
+        },
+        "screening_deltas": {
+          "deltas": [
+            9508.0,
+            6696.0,
+            -2216.0,
+            3400.0,
+            4148.0,
+            6096.0,
+            -376.0,
+            -468.0
+          ],
+          "max": 9508.0,
+          "median": 3774.0,
+          "min": -2216.0,
+          "seeds": [
+            104729,
+            130363,
+            155921,
+            181081,
+            205759,
+            232003,
+            260003,
+            287117
+          ]
+        }
+      },
+      "omitted_files": {
+        "v2": [],
+        "v4": []
+      },
+      "parent_id": "v2",
+      "parent_method_tree_sha256": "09c3b6ead5cc57029c6a5f97dd2220c0afb9b56ec020ed7e0562ee0cfc089720",
+      "parent_source": "artifacts/app/methods/versions/v2",
+      "parent_source_kind": "snapshot",
+      "projected": false,
+      "recorded_status": "submitted"
+    },
+    {
+      "agree": true,
+      "candidate_id": "v5",
+      "candidate_method_tree_sha256": "0e51224b0701a387310371219eab8e854ad04e492db9154a9889f8321d191b48",
+      "candidate_source": "artifacts/app/methods/versions/v5",
+      "cpu_seconds": 0.9,
+      "gate": {
+        "confirmation": null,
+        "disposition": "revert",
+        "evaluation_failed": null,
+        "failure_policy_action": null,
+        "outcome": "exploratory",
+        "refusal": null,
+        "screening": {
+          "disposition": "revert",
+          "estimate": -577.0,
+          "interval": {
+            "level": 0.9,
+            "lower": -3464.5,
+            "upper": 2443.0
+          },
+          "line": 7,
+          "look_index": null,
+          "min_effect": 153.38750000000002,
+          "sample_size": 8,
+          "sizing": {
+            "cap": 64,
+            "exploratory": true,
+            "floor": 16,
+            "planned": 13827,
+            "planning_effect": 153.38750000000002,
+            "planning_rule": "estimate-aware",
+            "rule": "normal-approximation planning size from screening SD against e = max(min_effect, screening_mean - min_effect): smallest n with z*s/sqrt(n) < e/2",
+            "screening_mean": -577.0,
+            "screening_sd": 5482.547374559176,
+            "size": 64,
+            "z": 1.6448536269514715
+          },
+          "verdict": "inconclusive"
+        },
+        "screening_deltas": {
+          "deltas": [
+            -8772.0,
+            -3512.0,
+            9372.0,
+            -3020.0,
+            -2396.0,
+            -1700.0,
+            1372.0,
+            4040.0
+          ],
+          "max": 9372.0,
+          "median": -2048.0,
+          "min": -8772.0,
+          "seeds": [
+            104729,
+            130363,
+            155921,
+            181081,
+            205759,
+            232003,
+            260003,
+            287117
+          ]
+        }
+      },
+      "omitted_files": {
+        "v4": [],
+        "v5": []
+      },
+      "parent_id": "v4",
+      "parent_method_tree_sha256": "3e769a2c36ea5f37cd9d524d59a6ad8068df2a8e07fabc3ccd1cc010b005154d",
+      "parent_source": "artifacts/app/methods/versions/v4",
+      "parent_source_kind": "snapshot",
+      "projected": false,
+      "recorded_status": "reverted"
+    },
+    {
+      "agree": true,
+      "candidate_id": "v6",
+      "candidate_method_tree_sha256": "2963e6b2a233738068e5b48439283a4c4f4af2dae28bfeb2d15cfc3e96af0b76",
+      "candidate_source": "artifacts/app/methods/versions/v6",
+      "cpu_seconds": 0.6,
+      "gate": {
+        "confirmation": null,
+        "disposition": "revert",
+        "evaluation_failed": null,
+        "failure_policy_action": null,
+        "outcome": "exploratory",
+        "refusal": null,
+        "screening": {
+          "disposition": "revert",
+          "estimate": -443.0,
+          "interval": {
+            "level": 0.9,
+            "lower": -2332.5,
+            "upper": 1473.5
+          },
+          "line": 8,
+          "look_index": null,
+          "min_effect": 153.38750000000002,
+          "sample_size": 8,
+          "sizing": {
+            "cap": 64,
+            "exploratory": true,
+            "floor": 16,
+            "planned": 5483,
+            "planning_effect": 153.38750000000002,
+            "planning_rule": "estimate-aware",
+            "rule": "normal-approximation planning size from screening SD against e = max(min_effect, screening_mean - min_effect): smallest n with z*s/sqrt(n) < e/2",
+            "screening_mean": -443.0,
+            "screening_sd": 3452.3279102657675,
+            "size": 64,
+            "z": 1.6448536269514715
+          },
+          "verdict": "inconclusive"
+        },
+        "screening_deltas": {
+          "deltas": [
+            -548.0,
+            -4820.0,
+            312.0,
+            828.0,
+            -2720.0,
+            -4604.0,
+            3892.0,
+            4116.0
+          ],
+          "max": 4116.0,
+          "median": -118.0,
+          "min": -4820.0,
+          "seeds": [
+            104729,
+            130363,
+            155921,
+            181081,
+            205759,
+            232003,
+            260003,
+            287117
+          ]
+        }
+      },
+      "omitted_files": {
+        "v4": [],
+        "v6": []
+      },
+      "parent_id": "v4",
+      "parent_method_tree_sha256": "3e769a2c36ea5f37cd9d524d59a6ad8068df2a8e07fabc3ccd1cc010b005154d",
+      "parent_source": "artifacts/app/methods/versions/v4",
+      "parent_source_kind": "snapshot",
+      "projected": false,
+      "recorded_status": "reverted"
+    },
+    {
+      "agree": true,
+      "candidate_id": "v7",
+      "candidate_method_tree_sha256": "17e44e460a4174f4832627e892f3872247e98a7514fa3a3b22f44af9ea8f2299",
+      "candidate_source": "artifacts/app/methods/versions/v7",
+      "cpu_seconds": 0.5,
+      "gate": {
+        "confirmation": null,
+        "disposition": "revert",
+        "evaluation_failed": null,
+        "failure_policy_action": null,
+        "outcome": "exploratory",
+        "refusal": null,
+        "screening": {
+          "disposition": "revert",
+          "estimate": -741.0,
+          "interval": {
+            "level": 0.9,
+            "lower": -3088.0,
+            "upper": 1843.0
+          },
+          "line": 9,
+          "look_index": null,
+          "min_effect": 153.38750000000002,
+          "sample_size": 8,
+          "sizing": {
+            "cap": 64,
+            "exploratory": true,
+            "floor": 16,
+            "planned": 9015,
+            "planning_effect": 153.38750000000002,
+            "planning_rule": "estimate-aware",
+            "rule": "normal-approximation planning size from screening SD against e = max(min_effect, screening_mean - min_effect): smallest n with z*s/sqrt(n) < e/2",
+            "screening_mean": -741.0,
+            "screening_sd": 4426.848863146658,
+            "size": 64,
+            "z": 1.6448536269514715
+          },
+          "verdict": "inconclusive"
+        },
+        "screening_deltas": {
+          "deltas": [
+            -4080.0,
+            -3184.0,
+            -1432.0,
+            -708.0,
+            -2404.0,
+            -5732.0,
+            4048.0,
+            7564.0
+          ],
+          "max": 7564.0,
+          "median": -1918.0,
+          "min": -5732.0,
+          "seeds": [
+            104729,
+            130363,
+            155921,
+            181081,
+            205759,
+            232003,
+            260003,
+            287117
+          ]
+        }
+      },
+      "omitted_files": {
+        "v4": [],
+        "v7": []
+      },
+      "parent_id": "v4",
+      "parent_method_tree_sha256": "3e769a2c36ea5f37cd9d524d59a6ad8068df2a8e07fabc3ccd1cc010b005154d",
+      "parent_source": "artifacts/app/methods/versions/v4",
+      "parent_source_kind": "snapshot",
+      "projected": false,
+      "recorded_status": "reverted"
+    },
+    {
+      "agree": true,
+      "candidate_id": "v8",
+      "candidate_method_tree_sha256": "f52f9c2d20ace6a3ad61876e7540fc70bc07ec244a34535a29505aa899e95c19",
+      "candidate_source": "artifacts/app/methods/versions/v8",
+      "cpu_seconds": 0.5,
+      "gate": {
+        "confirmation": null,
+        "disposition": "revert",
+        "evaluation_failed": null,
+        "failure_policy_action": null,
+        "outcome": "exploratory",
+        "refusal": null,
+        "screening": {
+          "disposition": "revert",
+          "estimate": -535.0,
+          "interval": {
+            "level": 0.9,
+            "lower": -2858.0,
+            "upper": 1933.5
+          },
+          "line": 10,
+          "look_index": null,
+          "min_effect": 153.38750000000002,
+          "sample_size": 8,
+          "sizing": {
+            "cap": 64,
+            "exploratory": true,
+            "floor": 16,
+            "planned": 8972,
+            "planning_effect": 153.38750000000002,
+            "planning_rule": "estimate-aware",
+            "rule": "normal-approximation planning size from screening SD against e = max(min_effect, screening_mean - min_effect): smallest n with z*s/sqrt(n) < e/2",
+            "screening_mean": -535.0,
+            "screening_sd": 4416.376148576373,
+            "size": 64,
+            "z": 1.6448536269514715
+          },
+          "verdict": "inconclusive"
+        },
+        "screening_deltas": {
+          "deltas": [
+            -4872.0,
+            -3148.0,
+            6896.0,
+            -2752.0,
+            -2440.0,
+            -4656.0,
+            3452.0,
+            3240.0
+          ],
+          "max": 6896.0,
+          "median": -2596.0,
+          "min": -4872.0,
+          "seeds": [
+            104729,
+            130363,
+            155921,
+            181081,
+            205759,
+            232003,
+            260003,
+            287117
+          ]
+        }
+      },
+      "omitted_files": {
+        "v4": [],
+        "v8": []
+      },
+      "parent_id": "v4",
+      "parent_method_tree_sha256": "3e769a2c36ea5f37cd9d524d59a6ad8068df2a8e07fabc3ccd1cc010b005154d",
+      "parent_source": "artifacts/app/methods/versions/v4",
+      "parent_source_kind": "snapshot",
+      "projected": false,
+      "recorded_status": "reverted"
+    }
+  ],
+  "profile_sha256": "84120c8090584889a1f41b9736e172121cb8badfc2476580f588a9f9e043493a",
+  "rollout_id": "game2048_policy_search__RbhgqQB",
+  "run_started_utc": "2026-09-09T18:00:29.170867+00:00",
+  "schema": "rsi-exam-shadow-replay/v1",
+  "summary": {
+    "audit_kind": "confirmation-and-screening",
+    "confirmed": 2,
+    "cpu_seconds": 4.7,
+    "failure_policy": {
+      "action": "revert",
+      "evaluation_failed": 0
+    },
+    "outcomes": {
+      "confirmed_keep": 1,
+      "confirmed_revert": 1,
+      "evaluation_failed": 0,
+      "exploratory": 6,
+      "gate_refused": 0,
+      "infrastructure_failed": 0,
+      "not_replayable": 0,
+      "screening_below": 0
+    },
+    "pairs": 8,
+    "projected": 0,
+    "record_backed": {
+      "agree": 7,
+      "comparable": 8,
+      "disagree": 1,
+      "pairs": 8
+    },
+    "task_starter": {
+      "agree": 0,
+      "comparable": 0,
+      "disagree": 0,
+      "pairs": 0
+    },
+    "undetermined": 0,
+    "with_disposition": 8
+  }
+}
