@@ -6,7 +6,7 @@ because both upstreams move.
 
 ## What this directory is
 
-`~/Developer/rsi-exam-upstream` is a clone of the operator's fork `Thru-Echoes/RSI-Exam` (remote `origin`)
+`~/Developer/rsi-exam-fork` is a clone of the operator's fork `Thru-Echoes/RSI-Exam` (remote `origin`)
 with the upstream `aiming-lab/RSI-Exam` as remote `upstream`. It exists for one purpose: to send the
 organizers of RSI-Exam small pull requests that fix or extend their evaluation pipeline, as the
 contribution offered to them by email on 2026-09-09 under their advisor track ("a pipeline or evaluation
@@ -316,7 +316,7 @@ the program: "save the self-check's output there". Do this only if asked; it is 
 
 ## Handoff checklist for the session that implements this
 
-1. Start TRACE (`/trace-session`; the project is pinned to `rsi-exam-upstream`).
+1. Start TRACE (`/trace-session`; the project is pinned to `rsi-exam-fork`).
 2. `git fetch upstream` and confirm `upstream/main` still matches the facts above; note any drift.
 3. Do G1 completely (branch, edit, regenerate, transcript, pull-request text) and show it. Stop for the word.
 4. Download the task, do H1 and H2 the same way, show them. Stop for the word.
