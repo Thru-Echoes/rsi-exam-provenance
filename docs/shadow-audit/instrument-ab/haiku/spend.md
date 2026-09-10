@@ -1,0 +1,9 @@
+ab-haiku-1-H TOTAL: $0.6894
+ab-haiku-1-I TOTAL: $0.5508
+ab-haiku-2-H TOTAL: $0.5322
+ab-haiku-2-I TOTAL: $0.6651
+ab-haiku-3-H TOTAL: $0.8855
+ab-haiku-3-I TOTAL: $0.9333
+ab-haiku-4-H TOTAL: $1.0349
+ab-haiku-4-I TOTAL: $0.5545
+STAGE-haiku TOTAL: $5.8457
