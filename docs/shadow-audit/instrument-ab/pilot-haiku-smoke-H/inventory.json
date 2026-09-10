@@ -1,0 +1,15 @@
+[
+  {
+    "rollout": "ab-pilot-haiku-smoke-H-1-H-w2esany",
+    "log_present": true,
+    "decision_log_present": false,
+    "snapshots": [
+      "v0",
+      "v1",
+      "v2",
+      "v3"
+    ],
+    "symlinks": [],
+    "non_python_files": []
+  }
+]

@@ -1,0 +1,196 @@
+{
+  "_campaign": {
+    "ceiling": 120.0,
+    "note": "hard ceiling over every ab-* job, pilots included, priced at each stage's rate card; a trial starts only while the campaign's priced spend plus the trial's reservation stays within it; no block starts after cutoff_utc",
+    "cutoff_utc": "2026-09-13T12:00:00Z"
+  },
+  "pilot-haiku-smoke": {
+    "model": "claude-haiku-4-5-20251001",
+    "rates": "haiku",
+    "effort": "low",
+    "multiplier": 0.002,
+    "window": 80,
+    "ceiling": 1.0,
+    "reservation": 0.6,
+    "blocks": 1,
+    "order": [
+      "1-I"
+    ],
+    "floor": 8,
+    "cap": 16,
+    "planning_rule": "estimate-aware",
+    "min_effect_fraction": 0.025,
+    "key": "operator",
+    "seed": 20260911
+  },
+  "pilot-haiku-smoke-H": {
+    "model": "claude-haiku-4-5-20251001",
+    "rates": "haiku",
+    "effort": "low",
+    "multiplier": 0.002,
+    "window": 80,
+    "ceiling": 1.0,
+    "reservation": 0.6,
+    "blocks": 1,
+    "order": [
+      "1-H"
+    ],
+    "floor": 8,
+    "cap": 16,
+    "planning_rule": "estimate-aware",
+    "min_effect_fraction": 0.025,
+    "key": "operator",
+    "seed": 20260911
+  },
+  "pilot-haiku": {
+    "model": "claude-haiku-4-5-20251001",
+    "rates": "haiku",
+    "effort": "low",
+    "multiplier": 0.008,
+    "window": 340,
+    "ceiling": 3.0,
+    "reservation": 2.6,
+    "blocks": 1,
+    "order": [
+      "1-I"
+    ],
+    "floor": 8,
+    "cap": 16,
+    "planning_rule": "estimate-aware",
+    "min_effect_fraction": 0.025,
+    "key": "operator",
+    "seed": 20260911
+  },
+  "pilot-sonnet": {
+    "model": "claude-sonnet-5",
+    "rates": "sonnet",
+    "effort": "low",
+    "multiplier": 0.03,
+    "window": 1200,
+    "ceiling": 4.0,
+    "reservation": 3.0,
+    "blocks": 1,
+    "order": [
+      "1-I"
+    ],
+    "floor": 8,
+    "cap": 16,
+    "planning_rule": "estimate-aware",
+    "min_effect_fraction": 0.025,
+    "key": "operator",
+    "seed": 20260911
+  },
+  "pilot-opus-smoke": {
+    "model": "claude-opus-5",
+    "rates": "opus",
+    "effort": "max",
+    "multiplier": 0.03,
+    "window": 1200,
+    "ceiling": 8.0,
+    "reservation": 6.0,
+    "blocks": 1,
+    "order": [
+      "1-I"
+    ],
+    "floor": 8,
+    "cap": 16,
+    "planning_rule": "estimate-aware",
+    "min_effect_fraction": 0.025,
+    "key": "operator",
+    "seed": 20260911
+  },
+  "pilot-opus": {
+    "model": "claude-opus-5",
+    "rates": "opus",
+    "effort": "max",
+    "multiplier": 0.045,
+    "window": 1900,
+    "ceiling": 24.0,
+    "reservation": 8.0,
+    "blocks": 2,
+    "order": [
+      "1-I",
+      "2-I"
+    ],
+    "floor": 8,
+    "cap": 16,
+    "planning_rule": "estimate-aware",
+    "min_effect_fraction": 0.025,
+    "key": "operator",
+    "seed": 20260911
+  },
+  "haiku": {
+    "model": "claude-haiku-4-5-20251001",
+    "rates": "haiku",
+    "effort": "low",
+    "multiplier": 0.008,
+    "window": 340,
+    "key": "operator",
+    "ceiling": 22.0,
+    "reservation": 2.6,
+    "blocks": 4,
+    "seed": 20260911,
+    "floor": 8,
+    "cap": 16,
+    "planning_rule": "estimate-aware",
+    "min_effect_fraction": 0.025,
+    "order": [
+      "1-I",
+      "1-H",
+      "2-H",
+      "2-I",
+      "3-H",
+      "3-I",
+      "4-I",
+      "4-H"
+    ]
+  },
+  "sonnet": {
+    "model": "claude-sonnet-5",
+    "rates": "sonnet",
+    "effort": "low",
+    "multiplier": 0.03,
+    "window": 1200,
+    "key": "operator",
+    "ceiling": 20.0,
+    "reservation": 3.0,
+    "blocks": 3,
+    "seed": 20260911,
+    "floor": 8,
+    "cap": 16,
+    "planning_rule": "estimate-aware",
+    "min_effect_fraction": 0.025,
+    "order": [
+      "1-I",
+      "1-H",
+      "2-H",
+      "2-I",
+      "3-I",
+      "3-H"
+    ]
+  },
+  "opus": {
+    "model": "claude-opus-5",
+    "rates": "opus",
+    "effort": "max",
+    "multiplier": 0.045,
+    "window": 1900,
+    "key": "operator",
+    "ceiling": 50.0,
+    "reservation": 8.0,
+    "blocks": 3,
+    "seed": 20260911,
+    "floor": 8,
+    "cap": 16,
+    "planning_rule": "estimate-aware",
+    "min_effect_fraction": 0.025,
+    "order": [
+      "1-I",
+      "1-H",
+      "2-H",
+      "2-I",
+      "3-H",
+      "3-I"
+    ]
+  }
+}

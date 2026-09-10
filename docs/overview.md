@@ -135,6 +135,13 @@ foot in either direction. The one who measures tallest is partly tall and partly
 keep re-measuring the same eight people, the luck does not go away; it becomes part of the
 record. That is why the gate measures again on fresh seeds before it trusts a winner.
 
+![Before the instrument: the agent decided alone; the record could only report afterwards](figures/instrument-before.svg)
+
+A captured rollout under the exam's own program (preflight-B-longer, 2026-09-07), rendered from its record and
+its sealed retrospective by `figures/make_instrument_animation.py`: the agent kept nine of nine candidates, and
+the sealed seeds, scored afterwards, say four of those keeps made the policy worse. The record could report it
+only after the grade. The README shows the same rendering of a rollout under the instrument.
+
 ## 3. What this repository adds, component by component
 
 Two layers. Inside the loop (gated rollouts only, recorded as modified-program runs because one
