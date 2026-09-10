@@ -83,6 +83,22 @@ class ProfileFromTaskFiles(unittest.TestCase):
             self.assertEqual(make("--task-dir", str(TASK), "--rollout-id", "r", "--output", str(plain)).returncode, 0)
             self.assertNotIn("planning_rule", json.loads(plain.read_text())["confirmation"])
 
+    def test_the_floor_is_a_flag_the_profile_rules_still_bound(self):
+        with tempfile.TemporaryDirectory() as temp:
+            out = Path(temp) / "profile.json"
+            proc = make("--task-dir", str(TASK), "--rollout-id", "r", "--output", str(out), "--floor", "8",
+                        "--max-seeds", "16", "--planning-rule", "estimate-aware")
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            profile = task_profile.check_profile(json.loads(out.read_text()))
+            self.assertEqual((profile["confirmation"]["floor"], profile["confirmation"]["max_seeds"]), (8, 16))
+            self.assertEqual(json.loads(proc.stdout)["floor"], 8)
+            # A floor above the cap, or under two, is refused by the profile's own rules, not silently clamped.
+            bad = Path(temp) / "bad.json"
+            proc = make("--task-dir", str(TASK), "--rollout-id", "r", "--output", str(bad), "--floor", "32", "--max-seeds", "16")
+            self.assertEqual(proc.returncode, 2)
+            self.assertIn("max_seeds must be at least the floor", proc.stderr)
+            self.assertFalse(bad.exists())
+
     def test_an_existing_output_is_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "profile.json"
