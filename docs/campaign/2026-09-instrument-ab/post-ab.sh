@@ -2,7 +2,10 @@
 # After one A/B stage has ended: records and inventory, the inputs manifests (committed and pushed before any
 # evaluation), the shadow replays, the sealed-suite retrospective, then the tables and the endpoints. Nothing is
 # written into a job directory. STAGE=<name> runs one stage's cohort; STEP=<records|manifests|replays|sealed|tables>
-# runs one step (default: all, in that order); COMMIT=1 lets the records, manifests and tables steps commit (the
+# runs one step (default: all, in that order); WALL_SECONDS raises the sealed step's per-snapshot limit from its
+# default of 1200 when a cohort holds policies too slow to finish sixteen games inside it, which would otherwise
+# report them unmeasured and leave a table that covers the cheap policies of one arm and not the slow ones of the
+# other; COMMIT=1 lets the records, manifests and tables steps commit (the
 # manifests step also pushes and records the anchor commit). Run from the worktree that carries this file.
 #
 #   RSI_EXAM_ROOT=... AUDIT_ROOT=... STAGE=haiku [STEP=...] [COMMIT=1] post-ab.sh
@@ -130,7 +133,8 @@ if step sealed; then
     CAP=(); [ -f "$RECORDS/$ID/capsule.json" ] && CAP=(--capsule "$RECORDS/$ID/capsule.json")
     rm -rf "$RECORDS/$ID/sealed-work"; rm -f "$SEALED/$ID/report.json"
     python3 gate/sealed_eval.py --job-dir "$J" --task-dir "$TASK" --profile "$RECORDS/$ID/replay-profile.json" ${CAP[@]+"${CAP[@]}"} \
-      --workdir "$RECORDS/$ID/sealed-work" --container "$IMAGE" --output "$SEALED/$ID/report.json" > "$RECORDS/$ID/sealed.log" 2>&1
+      --workdir "$RECORDS/$ID/sealed-work" --container "$IMAGE" --wall-seconds "${WALL_SECONDS:-1200}" \
+      --output "$SEALED/$ID/report.json" > "$RECORDS/$ID/sealed.log" 2>&1
     echo "$ID exit=$?" | tee -a "$SEALED/exits.txt"
   done
   echo SEALED-DONE
