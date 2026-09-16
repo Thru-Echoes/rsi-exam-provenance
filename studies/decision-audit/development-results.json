@@ -1,0 +1,396 @@
+{
+  "cases": [
+    {
+      "case": "aliased_holdout",
+      "description": "A held-out replicate whose evidence is the same files as the primary measurement.",
+      "evidence_file_digests": {
+        "outcome": "accept",
+        "references": 6
+      },
+      "expected_local_outcomes": {
+        "converter": "reject",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "input_sha256": "6004587716ac2c59d5d8c9857721c07fd8ba313951fc5fef071d103c757a1028",
+      "measured_local_outcomes": {
+        "converter": "reject",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "validation_details": {
+        "converter": {
+          "outcome": "reject",
+          "reason": "line 2: holdout evidence aliases the primary evidence"
+        },
+        "gate_loader": {
+          "outcome": "accept"
+        },
+        "profile_verifier": {
+          "errors": [
+            "decision:holdout:interval_evidence_incomplete:v3:2"
+          ],
+          "outcome": "reject",
+          "stage": "verifier"
+        }
+      }
+    },
+    {
+      "case": "confirmation_without_provisional",
+      "description": "A replication line with no open provisional to resolve.",
+      "evidence_file_digests": {
+        "outcome": "accept",
+        "references": 4
+      },
+      "expected_local_outcomes": {
+        "converter": "reject",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "input_sha256": "012ad4097c6dbe0679fbf47b76120f17b5a21148e65da582759d0b2d2fe3bb27",
+      "measured_local_outcomes": {
+        "converter": "reject",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "validation_details": {
+        "converter": {
+          "outcome": "reject",
+          "reason": "line 2: replication without an open provisional decision"
+        },
+        "gate_loader": {
+          "outcome": "accept"
+        },
+        "profile_verifier": {
+          "outcome": "reject",
+          "reason": "producer_error: decision_log_confirmation_without_provisional:2",
+          "stage": "producer"
+        }
+      }
+    },
+    {
+      "case": "descendant_of_open_provisional",
+      "description": "A decision that builds on a version whose provisional decision is still open.",
+      "evidence_file_digests": {
+        "outcome": "accept",
+        "references": 6
+      },
+      "expected_local_outcomes": {
+        "converter": "reject",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "input_sha256": "e4c92c12038605a3ae67b28784a18468a0a6df7ea8bd03cd758fb336bf8800ea",
+      "measured_local_outcomes": {
+        "converter": "reject",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "validation_details": {
+        "converter": {
+          "outcome": "reject",
+          "reason": "line 3 builds on v3 while its provisional decision is unresolved"
+        },
+        "gate_loader": {
+          "outcome": "accept"
+        },
+        "profile_verifier": {
+          "outcome": "reject",
+          "reason": "producer_error: decision_log_unknown_version:v4",
+          "stage": "producer"
+        }
+      }
+    },
+    {
+      "case": "digest_list_disagreement",
+      "description": "evidence_digests states a digest the evidence entry does not.",
+      "evidence_file_digests": {
+        "outcome": "accept",
+        "references": 6
+      },
+      "expected_local_outcomes": {
+        "converter": "reject",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "input_sha256": "d9bc1fa756a7107ed05604da4986f98d837370b2329400725241ca5dffbed495",
+      "measured_local_outcomes": {
+        "converter": "reject",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "validation_details": {
+        "converter": {
+          "outcome": "reject",
+          "reason": "line 1: evidence_digests do not match evidence"
+        },
+        "gate_loader": {
+          "outcome": "accept"
+        },
+        "profile_verifier": {
+          "errors": [
+            "decision:evidence_digest_mismatch:v2:1:parent"
+          ],
+          "outcome": "reject",
+          "stage": "verifier"
+        }
+      }
+    },
+    {
+      "case": "duplicate_evidence_role",
+      "description": "The same evidence role appears twice on one decision.",
+      "evidence_file_digests": {
+        "outcome": "accept",
+        "references": 7
+      },
+      "expected_local_outcomes": {
+        "converter": "reject",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "input_sha256": "6977fc6c81e33f1d447f2eb717028874b126fdd305839b6b7f6b8f88d41c8c59",
+      "measured_local_outcomes": {
+        "converter": "reject",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "validation_details": {
+        "converter": {
+          "outcome": "reject",
+          "reason": "line 1: evidence roles must be unique, known, and start with parent, candidate"
+        },
+        "gate_loader": {
+          "outcome": "accept"
+        },
+        "profile_verifier": {
+          "errors": [
+            "decision:evidence_duplicate_role:v2:1"
+          ],
+          "outcome": "reject",
+          "stage": "verifier"
+        }
+      }
+    },
+    {
+      "case": "lower_is_better_orientation",
+      "description": "A rollout whose raw metric is better when smaller, so deltas are negated.",
+      "evidence_file_digests": {
+        "outcome": "accept",
+        "references": 6
+      },
+      "expected_local_outcomes": {
+        "converter": "accept",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "input_sha256": "6763dd25b09eb2094308d2081c5378bec7e706316ae59d2f7962b0ad0c16496e",
+      "measured_local_outcomes": {
+        "converter": "accept",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "validation_details": {
+        "converter": {
+          "outcome": "accept"
+        },
+        "gate_loader": {
+          "outcome": "accept"
+        },
+        "profile_verifier": {
+          "errors": [
+            "decision:interval_not_reproducible:v2:1",
+            "decision:estimate_not_reproducible:v2:1",
+            "decision:interval_not_reproducible:v3:2",
+            "decision:estimate_not_reproducible:v3:2",
+            "decision:interval_not_reproducible:v3:3",
+            "decision:estimate_not_reproducible:v3:3"
+          ],
+          "outcome": "reject",
+          "stage": "verifier"
+        }
+      }
+    },
+    {
+      "case": "mixed_contracts",
+      "description": "One log whose lines declare two different contract versions.",
+      "evidence_file_digests": {
+        "outcome": "accept",
+        "references": 6
+      },
+      "expected_local_outcomes": {
+        "converter": "reject",
+        "gate_loader": "reject",
+        "profile_verifier": "reject"
+      },
+      "input_sha256": "0bd76fc05c65d33ee561ef87d35130e16f13b85bd630b9dd5b79f3efa8cee7c1",
+      "measured_local_outcomes": {
+        "converter": "reject",
+        "gate_loader": "reject",
+        "profile_verifier": "reject"
+      },
+      "validation_details": {
+        "converter": {
+          "outcome": "reject",
+          "reason": "line 2: schema is not rsi-exam-decision-log/v1"
+        },
+        "gate_loader": {
+          "outcome": "reject",
+          "reason": "<temporary>/decisions.jsonl:2: not a rsi-exam-decision-log/v1 line"
+        },
+        "profile_verifier": {
+          "outcome": "reject",
+          "reason": "producer_error: decision_log_foreign_schema:2",
+          "stage": "producer"
+        }
+      }
+    },
+    {
+      "case": "non_canonical_locator",
+      "description": "An evidence locator carries dot segments instead of the canonical relative path.",
+      "evidence_file_digests": {
+        "outcome": "accept",
+        "references": 6
+      },
+      "expected_local_outcomes": {
+        "converter": "reject",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "input_sha256": "f23e4056db0bfd1fd19395aa19df6406d2da4139cb0c564f401b715cae847da9",
+      "measured_local_outcomes": {
+        "converter": "reject",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "validation_details": {
+        "converter": {
+          "outcome": "reject",
+          "reason": "line 1: bad evidence locator './results/v1/../v1/visible_result.json'"
+        },
+        "gate_loader": {
+          "outcome": "accept"
+        },
+        "profile_verifier": {
+          "errors": [
+            "decision:evidence_locator_not_canonical:v2:1:parent"
+          ],
+          "outcome": "reject",
+          "stage": "verifier"
+        }
+      }
+    },
+    {
+      "case": "replication_reduction",
+      "description": "A confirmation run on fewer seeds than the screening it resolves.",
+      "evidence_file_digests": {
+        "outcome": "accept",
+        "references": 6
+      },
+      "expected_local_outcomes": {
+        "converter": "accept",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "input_sha256": "54a99bab61de75bb99221a702b4872a96990aedc50487bec74ca12c1343b96ee",
+      "measured_local_outcomes": {
+        "converter": "accept",
+        "gate_loader": "accept",
+        "profile_verifier": "reject"
+      },
+      "validation_details": {
+        "converter": {
+          "outcome": "accept"
+        },
+        "gate_loader": {
+          "outcome": "accept"
+        },
+        "profile_verifier": {
+          "errors": [
+            "protocol:replication_reduction:v3:3"
+          ],
+          "outcome": "reject",
+          "stage": "verifier"
+        }
+      }
+    },
+    {
+      "case": "valid_baseline",
+      "description": "The gated fixture's own log: a revert, a provisional, and the confirmation that resolves it.",
+      "evidence_file_digests": {
+        "outcome": "accept",
+        "references": 6
+      },
+      "expected_local_outcomes": {
+        "converter": "accept",
+        "gate_loader": "accept",
+        "profile_verifier": "accept"
+      },
+      "input_sha256": "84c0af4bc8480f3b403a9f0d6fe0815cb9a89f88f95d634e88ccb4a19c83f54e",
+      "measured_local_outcomes": {
+        "converter": "accept",
+        "gate_loader": "accept",
+        "profile_verifier": "accept"
+      },
+      "validation_details": {
+        "converter": {
+          "outcome": "accept"
+        },
+        "gate_loader": {
+          "outcome": "accept"
+        },
+        "profile_verifier": {
+          "errors": [],
+          "outcome": "accept",
+          "stage": "verifier"
+        }
+      }
+    }
+  ],
+  "git_head": "a1c235441a380c3c0d2a272f44cea38fb3e00571",
+  "limits": [
+    "Known development cases; no held-out detection-rate estimate.",
+    "Converter includes contract checks; it is not schema-only.",
+    "File-digest acceptance is not record acceptance.",
+    "External implementations were not executed.",
+    "Expected validation exceptions carry reasons; unexpected exceptions abort execution."
+  ],
+  "source_sha256": {
+    "fixtures/gated/job/agent/trajectory.json": "d98ee930ec247ae5dcdb994886203ab71b994b8cd951bda8dcc0670c56b83c45",
+    "fixtures/gated/job/artifacts/app/methods/decisions.jsonl": "4c6564e0782ab0c7956eae9f813dc17eee7984c94f313cf6124c9b1ead9640f2",
+    "fixtures/gated/job/artifacts/app/methods/decisions.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fixtures/gated/job/artifacts/app/methods/experiment_log.md": "92de8c6c3b84dbef1d146ca2aa2e02fa9ecf209d21d28d2c848fc6db20e77293",
+    "fixtures/gated/job/artifacts/app/methods/main/policy.py": "e42b2962e78faecf691e8ad7ddbe048c910dc52c077329739f69d70644f0aaac",
+    "fixtures/gated/job/artifacts/app/methods/results/v1/visible_result.json": "a9fbeefee5519f92a3786b1ce1958637a8e9f92e6ac5a62ceae24aafad795afe",
+    "fixtures/gated/job/artifacts/app/methods/results/v2/visible_result.json": "2b989bb0748aa05e8828a3b68f2074968994d70118a09956db5fdfc45fa3da8a",
+    "fixtures/gated/job/artifacts/app/methods/results/v3/replication/candidate_result.json": "4af3ae28024d2389637fa1990d1be85d2d76dd71b70b7e76f560b89d81b1f49d",
+    "fixtures/gated/job/artifacts/app/methods/results/v3/replication/parent_result.json": "8c2735eb5784810082600ef490774fdcfc26f7cd1983394f22ce714eac065a4f",
+    "fixtures/gated/job/artifacts/app/methods/results/v3/visible_result.json": "9cbcf78d6fe4dbcceebdbc9b2ea7c61d8ef749f31d6759301a683ad010fc678e",
+    "fixtures/gated/job/artifacts/app/methods/versions/v1/policy.py": "832607b87e95777537aaaf56b9350e68b71c9da85c51e32587552c57da34cc36",
+    "fixtures/gated/job/artifacts/app/methods/versions/v2/policy.py": "d9137f3c97cd5720a120e4fe0773f5c781f2ba8fecd020b558a6283edbc58600",
+    "fixtures/gated/job/artifacts/app/methods/versions/v3/policy.py": "e42b2962e78faecf691e8ad7ddbe048c910dc52c077329739f69d70644f0aaac",
+    "fixtures/gated/job/capsule.json": "188c394efb75aec8077ecf16a14cfb0806a917a226752d901e5a0e380481f27a",
+    "fixtures/gated/job/verifier/reward.json": "aa31ef772a54a1cca5e9f66544a9eeeca911f52bd820a5b0dbc5f22523b628b1",
+    "fixtures/gated/job/verifier/score_details.json": "32ba65c9aaa03e7f01f63d5deffeff2cfabe13386c75b30dd6a50297432e2108",
+    "fixtures/gated/task/environment/methods/main/policy.py": "a9defcf32373551ad33b28a83b68060f6ad118f5c4c3de1aa4e76160e52effd3",
+    "fixtures/gated/task/task.toml": "3afb4d967419210fa6071126b4616566aae48a0afb8ce5cea833c5662e90d38d",
+    "fixtures/gated/task/tests/grade.py": "a7e1269e0f2dbcd6386c19cb99f06b9daed811dd84c5b712352b11fafbb063eb",
+    "fixtures/gated/task/tests/test.sh": "f02aa243e416fffa8eb9420c37a9ec60c00b07f27bcbb5da6852b0ef1e59ca13",
+    "gate/calibrate.py": "99338b1ed8fcc4a4668e9f7b67c2591cf64e946c726d57bd51a33746792e0a24",
+    "gate/decide.py": "ca5764e0075282e62bc7335504ba16a06fad79283353ccf252391c491b79e892",
+    "gate/evaluate_suite.py": "433344f05cb2628cb50c0468e5473804462b88528070862afabc12f2ca8f5d25",
+    "gate/restore.py": "1bd8f70eb2e775c8744c0183dcde1d3c3b5996d91a107538f6427ae59f9ead02",
+    "gate/sealed_eval.py": "24b21e046fecbf0bbfb69186a4ebacdf5b4d6eeb59c1df0942f4f56c40e2c0e6",
+    "gate/seeds.py": "89c18f28e67c8b3f3b15f201f10fbbc232fdf9b3079268dd2d2f2f56524da571",
+    "gate/shadow_replay.py": "6c5383e354ffc5e59642e317c186bf7daf5ed4f974dd8cdc15e60151e5a405ba",
+    "gate/task_profile.py": "d619cd82db0fcbb92e2a8ab116d7b85551d4c184e709475a96b6cc33d9bb5748",
+    "gate/trace_from_decisions.py": "b4fd1d750259d200cc30b1f3811841695d744f08407fe24dcd47e2cadeacd0ed",
+    "gate/treedigest.py": "d18dfcba30cdc2a2fa61fe2b15b2fb7bc05f0bad02ff5c29868e3610723cfbe5",
+    "profile/build_capsule.py": "527c86e93db84d61b2cc94421c9d8cd8966c78af8dcf5c9c1502b71499a2b6db",
+    "profile/schema.json": "fa7e67723411a04b9f3a7cd82a299999bd87eeaa76723d2b6920de2ab0fb04d1",
+    "profile/verify_capsule.py": "26dd657f60dd49199b08e0dc3343b7e324cdea394d2c111dd64dcb083bbeab98",
+    "studies/decision-audit/PROTOCOL.md": "e9ff2ba6826cb60935dba5bef1de4006e09b1e489095e545b4f38e5d9b546189",
+    "studies/decision-audit/replay_development.py": "dca4ce3c9dba7e648a45a4d601c0ff5789322d5470a1875541fd91793edbb2b9",
+    "tests/test_conformance.py": "2392adef6ca2e5725bc4b2bd00ba960788bf228d4b123dd7d4823b0f7ef9e6e4"
+  },
+  "study": "retrospective-development-replay"
+}

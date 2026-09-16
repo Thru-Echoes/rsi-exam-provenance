@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "design": "Author-designed controlled cases after implementation inspection; not preregistered, held out, or representative of an error population.",
+  "base": "fixtures/gated",
+  "checks": {
+    "structure": "Existing CAPSULE_SPEC structural checker only; internal ablation, not an independent schema implementation.",
+    "bindings": "Structure plus cited source/reward/evidence file hashes and recorded snapshot/submission tree hashes. Shares production digest functions. Does not check cross-field identity, recompute measurements, or enforce coverage or protocol.",
+    "full": "Unmodified verifier with require_complete=True. No producer runs after mutation. Capture all errors and coverage."
+  },
+  "cases": [
+    {"id":"clean","kind":"valid_control","mutation":"none","target":"none","expected_full":"accept"},
+    {"id":"cache_variation","kind":"valid_control","mutation":"Add different excluded bytecode bytes to main and v3; refresh full-tree digests only.","target":"none","expected_full":"accept"},
+    {"id":"reward_rewrite","kind":"boundary_control","mutation":"Change unsigned reward and capsule reward together to 0.5; refresh reward digest. Other files remain unchanged.","target":"Authenticity and grader recomputation are outside the checked claim.","expected_full":"accept"},
+    {"id":"bad_status","kind":"fault","mutation":"Set v2 status to an unrecognized string.","target":"schema:","expected_full":"reject"},
+    {"id":"missing_evidence","kind":"fault","mutation":"Remove the referenced v2 visible result; retain its claimed digest.","target":"decision:evidence_missing","expected_full":"reject"},
+    {"id":"orientation","kind":"fault","mutation":"Change first decision direction to lower in log and capsule; refresh log hash; preserve measurements.","target":"decision:interval_not_reproducible:v2:1","expected_full":"reject"},
+    {"id":"wrong_estimate","kind":"fault","mutation":"Add 1 to first decision estimate in log and capsule; refresh log hash; preserve measurements and interval.","target":"decision:estimate_not_reproducible:v2:1","expected_full":"reject"},
+    {"id":"swapped_measurements","kind":"fault","mutation":"Swap first decision parent/candidate evidence paths and hashes, keeping role labels; refresh evidence_digests and log hash; preserve statistics.","target":"decision:interval_not_reproducible:v2:1","expected_full":"reject"},
+    {"id":"unconfirmed_submission","kind":"fault","mutation":"Remove v3 confirmation in log and capsule and refresh log hash; retain existing submitted snapshot and its submitted status.","target":"protocol:unresolved_provisional_submitted:v3","expected_full":"reject"},
+    {"id":"submission_mismatch","kind":"fault","mutation":"Replace main policy bytes with v2; refresh only final submission digests; retain declared submitted version v3.","target":"semantic:final:method_tree_mismatch","expected_full":"reject"},
+    {"id":"missing_snapshot","kind":"fault","mutation":"Remove v2 snapshot directory, retaining its capsule entry and decision evidence.","target":"file:version:v2","expected_full":"reject"},
+    {"id":"unrecorded_snapshot","kind":"fault","mutation":"Add v4 snapshot with distinct Python bytes, without a capsule entry or a log declaration.","target":"coverage:partial","expected_full":"reject"}
+  ],
+  "reporting": "Report each case and exact reason. Broad expected prefixes identify a family only; retain mismatched targets as failed expectations. Do not count crashes as rejections. Publish both accepted boundary controls and rejected faults. Do not silently revise this manifest after observing outcomes."
+}
