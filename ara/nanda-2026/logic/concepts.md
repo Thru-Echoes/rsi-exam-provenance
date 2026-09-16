@@ -46,4 +46,4 @@ The paper-facing research artifact containing the manuscript scaffold, structure
 
 **Definition:**
 
-When summaries conflict, the order is: raw job outputs and verifier receipts; generated per-trial tables; preregistered manifest and committed endpoint tables; narrative handoffs; working notes. A lower-precedence source cannot silently override a higher-precedence one.
+When summaries conflict, the order is: raw job outputs and verifier receipts; generated per-trial tables; preregistered manifest and committed endpoint tables; committed pre-probe summaries; narrative handoffs; working notes. A lower-precedence source cannot silently override a higher-precedence one. If a bounded value is recovered from a weaker source, its evidence class and precision travel with the value.

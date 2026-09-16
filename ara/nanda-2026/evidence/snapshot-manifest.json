@@ -37,7 +37,12 @@
     {
       "path": "docs/shadow-audit/instrument-ab/opus/records.md",
       "sha256": "1f31bfc016328e4ab457d65ef30f119d78c8e90aa611d1bfd99a04dcae7d2e28",
-      "role": "Opus record outcomes; endpoint table missing"
+      "role": "Opus record outcomes"
+    },
+    {
+      "path": "docs/shadow-audit/pilots/pilot-8-preregistration.md",
+      "sha256": "3495feb23610714d040a8dd816b200d8425ec69e0eacf1b65718281be92e0186",
+      "role": "committed pre-probe Opus primary-reward summary; rounded inputs"
     },
     {
       "path": "docs/overview.md",
@@ -48,12 +53,56 @@
       "path": "README.md",
       "sha256": "61011aa3047d59bfa93a6f81cddf49d93461e87d60cb5960cf34ada6bced5cb9",
       "role": "implementation overview and derivation pins"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/results/paper-results.json",
+      "sha256": "c10767cd5b5253e836dcd9ef80dc6133da428e7b5b1f115fbf512d58a648d329",
+      "role": "generated all-stage primary result and record yield"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/results/paper-results.md",
+      "sha256": "9c121e04993c047e68dbd23f18aa029bf6a26897aa12ab11f903e3c593904a3b",
+      "role": "human-readable rendering of generated result"
+    },
+    {
+      "path": "ara/nanda-2026/src/execution/build_paper_results.py",
+      "sha256": "7c9d6e20881e4831d540bbab764fbdac1620c5688dc23b2b16b3f3eee79b323b",
+      "role": "paper-result generator"
+    },
+    {
+      "path": "tests/test_paper_results.py",
+      "sha256": "4060655da871e9c2c90cecc1f43ffd641f5d24af06b2636f575dd32138fae73b",
+      "role": "paper-result regression tests"
+    },
+    {
+      "path": "tests/test_nanda_ara.py",
+      "sha256": "2fa2c701e745575b3ae68622de19e696ff5577b20a1ca233c1ad8b2b496fe985",
+      "role": "ARA structural and cross-layer checks"
+    },
+    {
+      "path": "ara/nanda-2026/src/execution/build_submission_pdf.py",
+      "sha256": "e6cc3a4cdf6bc2f2201cfb90e3119dd2603a8467927220ab0ff2e89700c0c0e9",
+      "role": "working two-column PDF builder"
+    },
+    {
+      "path": "ara/nanda-2026/level2_report.json",
+      "sha256": "eea4a7e4afaa4f40d853a381525d60e8c3a204448336f050f7f85b3a0f9441a8",
+      "role": "local ARA-compatible semantic review"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/results/test-receipt.md",
+      "sha256": "10e3565a930093c18306ead9238e44ac64ec39fca52358b435c614c53bbb0335",
+      "role": "working-branch verification receipt"
+    },
+    {
+      "path": "output/pdf/nanda-2026-track3-working-paper.pdf",
+      "sha256": "5b11e29ec538daa04d63c426ee499555a1dbfd09f0a759e29c30f21c50328f37",
+      "role": "anonymous two-column layout proof"
     }
   ],
   "missing_required_sources": [
-    "docs/shadow-audit/instrument-ab/opus/endpoints.md",
+    "raw Opus primary reward receipts and generated endpoint table",
     "docs/shadow-audit/instrument-ab/opus/spend.md",
-    "complete Opus secondary-result tables",
-    "canonical generated all-stage paper results"
+    "complete Opus secondary-result tables"
   ]
 }

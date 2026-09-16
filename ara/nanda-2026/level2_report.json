@@ -1,0 +1,112 @@
+{
+  "artifact": "nanda-2026-decision-provenance",
+  "artifact_dir": "ara/nanda-2026",
+  "review_version": "3.1.0-compatible-local-review",
+  "prerequisite": "Local structural and cross-layer tests passed; official ara CLI not installed",
+  "overall": {
+    "tier": "Sound",
+    "mean_score": 4.0,
+    "one_line_summary": "The artifact is unusually candid about a negative result and source strength, while raw Opus receipts and broader external validity remain the main methodological limitations.",
+    "strengths_summary": [
+      "Supported, refuted, and hypothesis claims are kept distinct.",
+      "The generated result preserves per-row evidence class and refuses stronger Opus claims than the source supports.",
+      "The problem, record contract, verifier boundary, and Track 3 interpretation form a coherent argument."
+    ],
+    "weaknesses_summary": [
+      "The study covers one task, reduced windows, and ten blocks and is not sized for an efficacy estimate.",
+      "Opus primary values are rounded summaries without raw receipt binding; Opus secondary tables are absent.",
+      "C02 compares observational cohorts with different conditions and supports description rather than a causal capture-effect estimate."
+    ]
+  },
+  "dimensions": {
+    "D1_evidence_relevance": {
+      "score": 4,
+      "strengths": ["Each claim is paired with a substantively relevant experiment or analysis."],
+      "weaknesses": ["C02 draws on observational cohorts rather than a controlled capture-method comparison."],
+      "suggestions": ["Keep C02 descriptive and add a frozen same-cohort reprocessing analysis if stronger comparison language is desired."]
+    },
+    "D2_falsifiability": {
+      "score": 4,
+      "strengths": ["Every claim has a concrete failure condition tied to files, reruns, or an intervention."],
+      "weaknesses": ["C04's prospective intervention still needs numeric decision and downstream-search metrics."],
+      "suggestions": ["Preregister the cap levels, compute control, and minimum material change for E04."]
+    },
+    "D3_scope_calibration": {
+      "score": 5,
+      "strengths": ["The manuscript repeatedly distinguishes auditability from truth, efficacy, authentication, and governance."],
+      "weaknesses": [],
+      "suggestions": ["Preserve the same cannot-claims in the final IEEE cut."]
+    },
+    "D4_argument_coherence": {
+      "score": 4,
+      "strengths": ["Observations lead to three explicit gaps, a decision-level insight, a record/verifier design, and bounded claims."],
+      "weaknesses": ["The related-work map is still compact and TRACE lacks a stable bibliographic entry in the draft."],
+      "suggestions": ["Freeze versioned TRACE and RSI-Exam citations before submission."]
+    },
+    "D5_exploration_integrity": {
+      "score": 4,
+      "strengths": ["The tree preserves the failed positive-efficacy thesis and the pivot to an auditability contribution."],
+      "weaknesses": ["The tree summarizes rather than exhaustively reconstructs the full campaign trajectory."],
+      "suggestions": ["Add source-bound nodes for raw Opus receipt recovery and the final release decision if they occur."]
+    },
+    "D6_methodological_rigor": {
+      "score": 3,
+      "strengths": ["The blocked comparator, preregistered endpoint, source-pinned generator, and explicit refusal outcomes are appropriate for a bounded systems report."],
+      "weaknesses": ["Ten blocks on one task do not support a population efficacy estimate, and the final-stage raw/secondary evidence is incomplete."],
+      "suggestions": ["Treat 3/7 as a direction count only; recover raw Opus receipts, then expand to more tasks and a prospectively sized study for any efficacy claim."]
+    }
+  },
+  "findings": [
+    {
+      "finding_id": "F01",
+      "dimension": "D6_methodological_rigor",
+      "severity": "major",
+      "target_file": "logic/experiments.md",
+      "target_entity": "E03",
+      "observation": "Opus primary direction is available only through a rounded committed summary, and its raw receipts and secondary tables are absent.",
+      "reasoning": "The source supports block direction but not a final exact-value freeze or secondary analysis.",
+      "suggestion": "Bind the raw reward receipts and regenerate the Opus endpoint table before final release; otherwise keep the evidence-class qualifier in every result surface."
+    },
+    {
+      "finding_id": "F02",
+      "dimension": "D1_evidence_relevance",
+      "severity": "minor",
+      "target_file": "logic/claims.md",
+      "target_entity": "C02",
+      "evidence_span": "Limited to the committed cohorts on `game2048_policy_search`",
+      "observation": "C02 is supported by heterogeneous observational cohorts rather than a same-condition capture-method intervention.",
+      "reasoning": "The evidence supports incompleteness in these cohorts but not a causal estimate of instrumentation's effect.",
+      "suggestion": "Retain the current observed-cohort wording and avoid causal verbs."
+    },
+    {
+      "finding_id": "F03",
+      "dimension": "D4_argument_coherence",
+      "severity": "minor",
+      "target_file": "logic/related_work.md",
+      "observation": "The working draft has primary sources for RSI-Exam, NANDA, PROV-O, and ARA but not a stable TRACE bibliographic entry.",
+      "reasoning": "TRACE is a named architectural layer, so a versioned reference is needed for reviewer verification.",
+      "suggestion": "Add the exact TRACE release tag, commit, schema digest, and DOI or archival URL at freeze."
+    }
+  ],
+  "questions_for_authors": [
+    "Can the original Opus job directories be recovered before the numerical freeze?",
+    "Will the submission be anonymous, and may author-controlled repository links appear in the review copy?",
+    "Is the contribution order and CRediT statement jointly approved?"
+  ],
+  "read_order": [
+    "PAPER.md",
+    "logic/claims.md",
+    "logic/experiments.md",
+    "logic/problem.md",
+    "logic/concepts.md",
+    "logic/solution/architecture.md",
+    "logic/solution/decision-record-contract.md",
+    "logic/solution/constraints.md",
+    "logic/related_work.md",
+    "trace/exploration_tree.yaml",
+    "evidence/README.md",
+    "evidence/results/paper-results.json",
+    "evidence/results/paper-results.md",
+    "evidence/results/reconciliation-status.md"
+  ]
+}

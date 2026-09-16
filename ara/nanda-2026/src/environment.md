@@ -19,3 +19,16 @@
 The public repository contains code, manifests, generated summaries, audit inputs, and selected reports. Raw job directories may live outside the repository. A reproduction claim must state whether it is based on committed fixtures, committed generated tables, or access to the original job directories.
 
 No secret, gateway token, raw private trace, or absolute operator path belongs in this artifact.
+
+## Paper-result reproduction
+
+From the repository root:
+
+```bash
+python3 ara/nanda-2026/src/execution/build_paper_results.py \
+  --source-revision 727b9b821d7814d7467a29c1e740ce92eea7e219 \
+  --check
+python3 -m unittest tests.test_paper_results -v
+```
+
+Without `--check`, the first command regenerates `evidence/results/paper-results.json` and `.md`. It first compares every input byte with the pinned Git revision. It intentionally refuses to infer the missing Opus secondary results.

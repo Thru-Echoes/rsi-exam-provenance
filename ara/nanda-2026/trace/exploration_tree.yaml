@@ -44,8 +44,10 @@ tree:
             source_refs:
               - "docs/shadow-audit/instrument-ab/haiku/endpoints.md:21"
               - "docs/shadow-audit/instrument-ab/sonnet/endpoints.md:18"
+              - "docs/shadow-audit/pilots/pilot-8-preregistration.md:5-6"
+              - "ara/nanda-2026/evidence/results/paper-results.json"
             title: Run the blocked comparison stages
-            result: The seven blocks with committed endpoint tables do not support the improvement claim; the final stage endpoint source is missing from the branch.
+            result: The generated ten-block direction count is 3 instrument-favoring and 7 helper-favoring; Opus direction is recoverable from a rounded committed pre-probe summary, while raw receipts and secondary tables remain missing.
             evidence: [C03]
             children:
               - id: N07
@@ -64,9 +66,9 @@ tree:
                     support_level: inferred
                     source_refs: ["ara/nanda-2026/evidence/results/reconciliation-status.md"]
                     title: Make reconciliation a release gate
-                    choice: Keep unresolved aggregates out of the frozen paper until their source tables are committed and hashed.
+                    choice: Preserve evidence class per row, use the rounded Opus summary only for direction, and block exact-value or secondary claims until raw receipts and tables are committed and hashed.
                     alternatives:
-                      - Adopt the narrative handoff aggregate
+                      - Treat every narrative aggregate as equivalent to a generated table
                       - Omit the incomplete stage without disclosure
                     evidence: [C03]
               - id: N09

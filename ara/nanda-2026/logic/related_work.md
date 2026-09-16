@@ -1,6 +1,6 @@
 # Related work map
 
-This is a routing map, not a finished literature review. Every external statement requires a checked primary citation before submission.
+This is a routing map for the short paper. External claims should resolve to a versioned primary source at freeze.
 
 ## RW01 — Self-improving-agent evaluation
 
@@ -32,10 +32,17 @@ This is a routing map, not a finished literature review. Every external statemen
 
 **Delta:** ProofPress appears only as a downstream import and human-review boundary. It does not replace source verification or turn imported evidence into an approved claim.
 
+## Primary sources checked for the working draft
+
+- RSI-Exam repository: <https://github.com/aiming-lab/RSI-Exam>.
+- NANDA enterprise-agent paper: arXiv:2508.03101.
+- W3C PROV-O Recommendation: <https://www.w3.org/TR/prov-o/>.
+- ARA paper: arXiv:2604.24658; implementation repository: <https://github.com/ARA-Labs/Agent-Native-Research-Artifact>.
+
 ## Citation TODO
 
 - [ ] Cite the current RSI-Exam paper and repository at the frozen submission revision.
 - [ ] Cite TRACE's versioned schema/release.
 - [ ] Cite ARA's versioned release or commit used for compilation.
-- [ ] Add primary sources for provenance, lineage, reproducibility, and agent evaluation.
+- [ ] Add a versioned TRACE schema/release citation and a stable source for the exact RSI-Exam benchmark version.
 - [ ] Check the workshop's anonymity and artifact-citation rules before naming author-controlled systems in the manuscript.

@@ -59,15 +59,16 @@
 - [input] `docs/campaign/2026-09-instrument-ab/manifest.md:89-89` — «Primary, per trial: the sealed reward of the submission».
 - [result] `docs/shadow-audit/instrument-ab/haiku/endpoints.md:21-21` — «favouring the instrument: 2; favouring the helper: 2» and «mean difference -0.0186».
 - [result] `docs/shadow-audit/instrument-ab/sonnet/endpoints.md:18-18` — «favouring the instrument: 1; favouring the helper: 2» and «mean difference -0.0171».
-- [result] `docs/shadow-audit/instrument-ab/opus/records.md:7-12` — six rows each contain «integrity=pass coverage=complete»; the corresponding endpoint table is pending.
+- [result] `docs/shadow-audit/pilots/pilot-8-preregistration.md:5-6` — «instrument 0.551, 0.346, 0.414 against 0.608, 0.602, 0.533» and «every block favoured the helper».
+- [result] `ara/nanda-2026/evidence/results/paper-results.md:26-28` — «Observed blocks: 10», «Favor instrument: 3», and «Favor helper: 7».
 
 **Status:** refuted
 
 **Falsification criteria:** The frozen, fully reconciled endpoint table shows a positive instrument effect under the preregistered estimand with uncertainty adequate for the claim, and the result survives the prespecified sensitivity checks.
 
-**Proof:** [E03]. The seven blocks represented by committed endpoint tables favor the instrument in 3 and the helper in 4, with negative mean differences in both completed stage tables. This is evidence against the improvement claim under tested conditions. The absent Opus endpoint table is a release blocker, not a license to substitute a favorable narrative.
+**Proof:** [E03]. The generated primary summary covers all ten planned blocks: 3 favor the instrument and 7 favor the helper. Haiku and Sonnet are parsed from machine-generated endpoint tables; Opus direction is parsed from a committed pre-probe summary whose values are rounded to three decimals. This is evidence against the improvement claim under tested conditions. Missing raw Opus receipts and secondary tables remain release blockers and preclude stronger numerical or inferential claims.
 
-**Evidence basis:** preregistered blocked comparison; incomplete final-stage source reconciliation.
+**Evidence basis:** preregistered blocked comparison; complete primary direction count; partial final-stage receipt and secondary-source reconciliation.
 
 **Dependencies:** C01, C02
 
