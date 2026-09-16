@@ -1,0 +1,80 @@
+tree:
+  - id: N01
+    type: question
+    support_level: explicit
+    source_refs: ["README.md:5-23"]
+    title: Audit the decisions that create later lineage
+    description: How can keep-or-revert decisions in a self-improving-agent rollout be checked offline against exact artifacts and evidence?
+    children:
+      - id: N02
+        type: experiment
+        support_level: explicit
+        source_refs: ["tests/test_rsi_exam_provenance.py", "docs/overview.md:157-173"]
+        title: Bind and fault-test a portable decision record
+        result: The producer, verifier, fixtures, and fault-injection tests expose separate integrity, protocol, and coverage outcomes.
+        evidence: [C01]
+        children:
+          - id: N03
+            type: decision
+            support_level: explicit
+            source_refs: ["README.md:44-49", "docs/overview.md:329-338"]
+            title: Exclude private reasoning and bind only audit inputs
+            choice: Record numbers, identifiers, dispositions, evidence locations, and digests; do not capture prompts, transcripts, or reasoning.
+            alternatives:
+              - Capture a full interaction trace
+              - Preserve only the final method and reward
+            evidence: [C01]
+          - id: N04
+            type: experiment
+            support_level: explicit
+            source_refs: ["docs/PREFLIGHT.md:237-278", "docs/PREFLIGHT.md:356-360"]
+            title: Apply the producer and verifier to observed cohorts
+            result: Native logs include missing and structurally unstable cases; instrumented paths yield verified records or explicit refusals.
+            evidence: [C02]
+      - id: N05
+        type: question
+        support_level: explicit
+        source_refs: ["docs/campaign/2026-09-instrument-ab/manifest.md:78-113"]
+        title: Test whether the decision instrument improves the endpoint
+        description: Does the instrument improve final sealed reward relative to a helper that records provenance without the gate policy?
+        children:
+          - id: N06
+            type: experiment
+            support_level: explicit
+            source_refs:
+              - "docs/shadow-audit/instrument-ab/haiku/endpoints.md:21"
+              - "docs/shadow-audit/instrument-ab/sonnet/endpoints.md:18"
+            title: Run the blocked comparison stages
+            result: The seven blocks with committed endpoint tables do not support the improvement claim; the final stage endpoint source is missing from the branch.
+            evidence: [C03]
+            children:
+              - id: N07
+                type: pivot
+                support_level: inferred
+                source_refs:
+                  - "docs/overview.md:329-338"
+                  - "ara/nanda-2026/evidence/results/reconciliation-status.md"
+                title: Center the paper on auditability rather than a positive reward result
+                from: A paper whose headline success depends on gate efficacy
+                to: A paper about offline-verifiable decision provenance that reports a negative efficacy result
+                trigger: The reconciled endpoint tables do not support improvement, while the provenance mechanism remains testable.
+                children:
+                  - id: N08
+                    type: decision
+                    support_level: inferred
+                    source_refs: ["ara/nanda-2026/evidence/results/reconciliation-status.md"]
+                    title: Make reconciliation a release gate
+                    choice: Keep unresolved aggregates out of the frozen paper until their source tables are committed and hashed.
+                    alternatives:
+                      - Adopt the narrative handoff aggregate
+                      - Omit the incomplete stage without disclosure
+                    evidence: [C03]
+              - id: N09
+                type: question
+                support_level: explicit
+                source_refs:
+                  - "docs/campaign/2026-09-instrument-ab/manifest.md:133-137"
+                  - "docs/PREFLIGHT.md:581-600"
+                title: Is the confirmation limit a mechanism for later suppression?
+                description: Would varying the confirmation cap while holding candidate evidence and compute fixed change later selection behavior?
+                children: []

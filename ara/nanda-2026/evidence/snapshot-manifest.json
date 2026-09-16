@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-09-16T02:30:00Z",
+  "repository_commit": "727b9b821d7814d7467a29c1e740ce92eea7e219",
+  "status": "draft-source-snapshot",
+  "files": [
+    {
+      "path": "docs/campaign/2026-09-instrument-ab/manifest.md",
+      "sha256": "247b7b1aebc8e04be3a160863000ce1f8705cbb1c847d0923444346ce6454b0d",
+      "role": "preregistered comparison design"
+    },
+    {
+      "path": "docs/campaign/2026-09-instrument-ab/stages.json",
+      "sha256": "78411a4af18578042efc90b93025568dca4769c2c9cc28e7a27dd5d4e1d33edb",
+      "role": "stage configuration and run order"
+    },
+    {
+      "path": "docs/shadow-audit/instrument-ab/haiku/endpoints.md",
+      "sha256": "8c94e7e012fd722b07242e434b90403316539f2b72b3b822718ff47f99915c1b",
+      "role": "Haiku primary and secondary endpoints"
+    },
+    {
+      "path": "docs/shadow-audit/instrument-ab/haiku/records.md",
+      "sha256": "b5de6bfb766877cbcbafce09d1d06dc4d94ef7fcdb1cc15ce5b44530f439e05b",
+      "role": "Haiku record outcomes"
+    },
+    {
+      "path": "docs/shadow-audit/instrument-ab/sonnet/endpoints.md",
+      "sha256": "20043598969d82022eeecaf7335bd097ac67feafaed1e4ca1ec474d6ed748b6a",
+      "role": "Sonnet primary and secondary endpoints"
+    },
+    {
+      "path": "docs/shadow-audit/instrument-ab/sonnet/records.md",
+      "sha256": "95315a4d11b22dc8a8dcd6db5d3f779b341e08bb05e5aec116da4c31b80bb23e",
+      "role": "Sonnet record outcomes"
+    },
+    {
+      "path": "docs/shadow-audit/instrument-ab/opus/records.md",
+      "sha256": "1f31bfc016328e4ab457d65ef30f119d78c8e90aa611d1bfd99a04dcae7d2e28",
+      "role": "Opus record outcomes; endpoint table missing"
+    },
+    {
+      "path": "docs/overview.md",
+      "sha256": "0b22d65241c2024cbd371f09a09f5acd18b1724447eefa2b3e14ebc1545e3a99",
+      "role": "system and trust-boundary description"
+    },
+    {
+      "path": "README.md",
+      "sha256": "61011aa3047d59bfa93a6f81cddf49d93461e87d60cb5960cf34ada6bced5cb9",
+      "role": "implementation overview and derivation pins"
+    }
+  ],
+  "missing_required_sources": [
+    "docs/shadow-audit/instrument-ab/opus/endpoints.md",
+    "docs/shadow-audit/instrument-ab/opus/spend.md",
+    "complete Opus secondary-result tables",
+    "canonical generated all-stage paper results"
+  ]
+}

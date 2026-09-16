@@ -1,0 +1,57 @@
+# Experiments and analyses
+
+## E01 — Verifier fault injection
+
+**Verifies:** C01
+
+**Run:** `src/artifacts.md` entries “Provenance producer,” “Offline verifier,” and “Fault-injection tests.”
+
+**Setup:** Use the pinned repository commit, the valid fixture, Python's standard-library test runner, and copied fixture directories for mutation.
+
+**Procedure:** Modify schema fields, lineage links, artifact bytes, reward bindings, decision evidence, intervals, and protocol state one fault at a time. Confirm that each mutation produces the documented refusal or downgrade and that the unchanged valid fixture verifies.
+
+**Expected outcome:** Valid inputs verify; each load-bearing mutation is detected in the appropriate integrity, protocol, or coverage channel.
+
+**Evidence:** pending fresh frozen-commit receipt in `evidence/results/`; implementation coverage is linked from `src/artifacts.md`.
+
+## E02 — Observed provenance completeness
+
+**Verifies:** C02
+
+**Run:** `src/artifacts.md` entries for `docs/PREFLIGHT.md` and the per-stage record tables.
+
+**Setup:** Use every retained job directory in the declared native, helper-backed, and instrumented cohorts with the pinned producer and verifier. Preserve every started trial.
+
+**Procedure:** Build and verify one record per trial. Report verified, downgraded, and refused outcomes with explicit reason codes. Reconcile the denominator to a named cohort before aggregating.
+
+**Expected outcome:** Instrumented cohorts produce more structured outcomes—verified records or explicit refusals—than unaided narrative logs, without implying a population rate.
+
+**Evidence:** `docs/PREFLIGHT.md`; `docs/shadow-audit/instrument-ab/haiku/records.md`; `docs/shadow-audit/instrument-ab/sonnet/records.md`; `docs/shadow-audit/instrument-ab/opus/records.md`; denominator reconciliation pending in `evidence/results/`.
+
+## E03 — Blocked A/B comparison
+
+**Verifies:** C03
+
+**Run:** `src/artifacts.md` entries for the A/B manifest, stage configuration, stage endpoint tables, record tables, and per-trial reports.
+
+**Setup:** Within each model stage, use the committed randomized order and pair one instrument trial with one helper trial per block under the same stage configuration. Keep every started trial.
+
+**Procedure:** Compute instrument minus helper final sealed reward per complete block. Apply the manifest's missing-reward rules. Report stage summaries and descriptive secondary endpoints only after every stage source is frozen.
+
+**Expected outcome:** The improvement claim is supported only if the frozen comparison shows a positive, adequately supported effect under the preregistered estimand. Otherwise it is refuted or unresolved.
+
+**Evidence:** `docs/shadow-audit/instrument-ab/haiku/endpoints.md`; `docs/shadow-audit/instrument-ab/sonnet/endpoints.md`; Opus endpoint evidence pending; see `evidence/results/reconciliation-status.md`.
+
+## E04 — Confirmation-limit mechanism test
+
+**Verifies:** C04
+
+**Run:** proposed follow-up; configuration and replay components are indexed in `src/artifacts.md`.
+
+**Setup:** Freeze a candidate-parent evidence set, a small preregistered set of confirmation caps and remaining-window policies, and a prospective design that controls candidate sequence and total compute.
+
+**Procedure:** Replay identical evidence under each rule configuration, then intervene prospectively while holding the declared controls fixed. Measure decisions prevented by the rule and changes in later candidate production or selection.
+
+**Expected outcome:** If confirmation limits cause downstream suppression, varying them while holding evidence and compute fixed changes the affected decisions and later search path in the predicted direction.
+
+**Evidence:** pending; no causal evidence is claimed in the current paper scaffold.
