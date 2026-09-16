@@ -24,7 +24,7 @@ The branch contains a shadow-replay `report.json` for all six Opus A/B rollouts:
 | 3 | helper | `docs/shadow-audit/instrument-ab/opus/ab-opus-3-H-rwXkAdi/report.json` |
 | 3 | instrument | `docs/shadow-audit/instrument-ab/opus/ab-opus-3-I-Dek7ANT/report.json` |
 
-Each is a replay/audit report with coverage, pair, disposition, and resource-summary fields. None exposes the paper's primary hidden-evaluation reward field.
+Each is a replay/audit report with coverage, pair, disposition, and resource-summary fields. None exposes the paper's primary hidden-evaluation receipt.
 
 Only three sealed-retrospective reports are present:
 
@@ -33,6 +33,8 @@ Only three sealed-retrospective reports are present:
 - `docs/shadow-audit/instrument-ab/opus/sealed/ab-opus-2-H-4xm8dnr/report.json`
 
 No sealed report is present there for block 2 instrument or either block 3 arm. No Opus spend table or complete primary-endpoint table is present.
+
+The three available retrospective reports do carry source-precision rewards for a snapshot named `submission`: block 1 helper `0.60840837`, block 1 instrument `0.5510569`, and block 2 helper `0.60200514`. The first two agree with the capsule-bound primary rewards already admitted on this branch. The block 2 helper value agrees, after rounding, with the committed pre-probe summary. This is useful corroboration, but it is not a replacement for `verifier/reward.json`: the report itself states that it used the environment's same-process evaluator under a pooled CPU budget rather than the grader's sandboxed process and per-move limit. It also comes from an unmerged branch state. The block 2 helper report therefore remains a recovery candidate until source review and admission, not a primary endpoint receipt.
 
 ## Admission rule
 
