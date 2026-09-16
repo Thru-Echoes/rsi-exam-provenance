@@ -5,6 +5,11 @@
   "status": "draft-source-snapshot",
   "files": [
     {
+      "path": "ara/nanda-2026/PAPER.md",
+      "sha256": "8b9a7c80ccd8c6e499118376b91d6aebf73a6cf31265733e851e2fdd7080ebda",
+      "role": "working paper manuscript"
+    },
+    {
       "path": "docs/campaign/2026-09-instrument-ab/manifest.md",
       "sha256": "247b7b1aebc8e04be3a160863000ce1f8705cbb1c847d0923444346ce6454b0d",
       "role": "preregistered comparison design"
@@ -81,8 +86,13 @@
     },
     {
       "path": "ara/nanda-2026/src/execution/build_submission_pdf.py",
-      "sha256": "e6cc3a4cdf6bc2f2201cfb90e3119dd2603a8467927220ab0ff2e89700c0c0e9",
+      "sha256": "8c1f25ce49315ee37cd9d92b90a1b307bd6f45f62e88afc090b40cc1e34bd45f",
       "role": "working two-column PDF builder"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/venue-rules.md",
+      "sha256": "27faa6c9c54f7eadfb13abb07869fd4792e9aac15e69e3c8acc8c8f388e93a96",
+      "role": "checked public venue requirements and unresolved review-policy items"
     },
     {
       "path": "ara/nanda-2026/level2_report.json",
@@ -96,7 +106,7 @@
     },
     {
       "path": "output/pdf/nanda-2026-track3-working-paper.pdf",
-      "sha256": "5b11e29ec538daa04d63c426ee499555a1dbfd09f0a759e29c30f21c50328f37",
+      "sha256": "d9b8c7d6726fd28874cb6b156ae0ecd164567ee3ad4944bfb76a249f28892ace",
       "role": "anonymous two-column layout proof"
     }
   ],

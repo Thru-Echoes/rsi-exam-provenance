@@ -108,7 +108,7 @@ The companion artifact pins the source revision and hashes each paper-critical i
 
 ## 10. Open decisions
 
-The following remain pending: title, final Track 3 framing, authorship order and contributions, anonymity mode, artifact license, public-release timing, and whether the raw Opus receipts can be recovered before the freeze. The primary A/B denominator (10 blocks), direction count (3/7), and record-yield denominator (18/20, split 9/10 per arm) are now mechanically reconciled from pinned committed sources.
+The following remain pending: title, final Track 3 framing, authorship order and contributions, anonymity mode, artifact license, public-release timing, and whether the raw Opus receipts can be recovered before the freeze. The public CFP does not state an anonymity or artifact-link policy, so the working PDF remains anonymous and the ARA remains unpublished pending organizer or authenticated-submission guidance. The primary A/B denominator (10 blocks), direction count (3/7), and record-yield denominator (18/20, split 9/10 per arm) are now mechanically reconciled from pinned committed sources.
 
 ## References
 

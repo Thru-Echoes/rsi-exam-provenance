@@ -9,6 +9,7 @@ This directory records what the paper may cite and what remains unresolved.
 | `results/test-receipt.md` | Scaffold-branch unit-test and static-analysis receipt | present; refresh at freeze |
 | `results/paper-results.json` | Canonical machine-readable all-stage primary result and record yield | present; Opus raw-receipt binding pending |
 | `results/paper-results.md` | Human-readable rendering of the generated result | present; generated, do not hand-edit |
+| `venue-rules.md` | Checked public CFP requirements and unresolved anonymity/artifact-link question | present; re-check before submission |
 | `../../../output/pdf/nanda-2026-track3-working-paper.pdf` | Anonymous two-column manuscript layout proof | present; not official IEEEtran and not approved for submission |
 | `../level2_report.json` | Local ARA-compatible semantic review | present; not an official ARA Seal |
 | `tables/` | Filed paper tables with source metadata and screenshots | pending manuscript numbering |

@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 import re
 
+from reportlab import rl_config
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
 from reportlab.lib.pagesizes import letter
@@ -36,6 +37,9 @@ ARA = REPO / "ara" / "nanda-2026"
 OUTPUT = REPO / "output" / "pdf" / "nanda-2026-track3-working-paper.pdf"
 PAPER = ARA / "PAPER.md"
 RESULTS = ARA / "evidence" / "results" / "paper-results.json"
+
+# Stable PDF IDs and timestamps make identical source produce identical bytes.
+rl_config.invariant = 1
 
 
 def _font(name: str, candidates: list[str]) -> str:
