@@ -23,7 +23,7 @@ The complete per-trial record tables contain 20 started trials and 18 verified r
 
 ## Freeze procedure
 
-1. Recover or regenerate the block 2--3 raw Opus reward receipts and secondary tables from the original job directories using the committed scripts and manifest; separately review the later unmerged branch before admitting any of its reports.
+1. Recover or regenerate the block 2--3 raw Opus reward receipts and secondary tables from the original job directories using the committed scripts and manifest; separately review the later unmerged branch inventoried in `../unmerged-opus-recovery-audit.md` before admitting any of its reports.
 2. Re-run `src/execution/build_paper_results.py`; replace summary-backed Opus rows only when stronger sources are available.
 3. Verify trial identities, block assignment, missing-reward handling, record outcomes, and every aggregate against the preregistration.
 4. Hash every paper-critical input and output and update `evidence/snapshot-manifest.json` at the frozen commit.

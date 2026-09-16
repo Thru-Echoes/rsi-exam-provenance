@@ -11,6 +11,7 @@ This directory records what the paper may cite and what remains unresolved.
 | `results/paper-results.md` | Human-readable rendering of the generated result | present; generated, do not hand-edit |
 | `venue-rules.md` | Checked public CFP requirements and unresolved anonymity/artifact-link question | present; re-check before submission |
 | `citation-audit.md` | Primary-page verification for paper references and venue facts | present; re-check at freeze |
+| `unmerged-opus-recovery-audit.md` | Inventory of later remote-branch Opus reports | recovery aid only; not admitted paper evidence |
 | `../../../output/pdf/nanda-2026-track3-working-paper.pdf` | Anonymous two-column manuscript layout proof | present; not official IEEEtran and not approved for submission |
 | `../submission/main.tex` | Anonymous IEEEtran review source | present; author metadata and release approval pending |
 | `../../../output/pdf/nanda-2026-track3-ieee-review.pdf` | Three-page IEEEtran review PDF | present; visually and mechanically checked, not approved for submission |

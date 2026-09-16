@@ -11,7 +11,7 @@
     },
     {
       "path": "ara/nanda-2026/evidence/README.md",
-      "sha256": "878042a7b77534c1a32a7ad954c218f4053d7765b1daafb91c675326c0c5379a",
+      "sha256": "e2afb8a24fa08e72f3968d8b2f4faddbe4b8f5c97a57bde43bd63c0ef441b41b",
       "role": "evidence package index"
     },
     {
@@ -106,7 +106,7 @@
     },
     {
       "path": "ara/nanda-2026/evidence/venue-rules.md",
-      "sha256": "27faa6c9c54f7eadfb13abb07869fd4792e9aac15e69e3c8acc8c8f388e93a96",
+      "sha256": "b071c248e13b165954323c34bbcce2c06229e47e2fae4a659cceb0443e88420a",
       "role": "checked public venue requirements and unresolved review-policy items"
     },
     {
@@ -166,13 +166,18 @@
     },
     {
       "path": "ara/nanda-2026/evidence/results/reconciliation-status.md",
-      "sha256": "1c06df1f643e3e8363c4372dd1eea26f2eeaab9ff5d63ff29849ef2fafdd5891",
+      "sha256": "70c241d49c7dbbc617f4186a66cf8b866e3013cf5f6f1b58e3a4adb6623c4dc8",
       "role": "result conflicts and release gates"
     },
     {
       "path": "ara/nanda-2026/evidence/citation-audit.md",
-      "sha256": "7a2493b837cd6879c5851469939d383c204d078095158429b4f99a6d42c60280",
+      "sha256": "78aae91e7f2fe7f96456bb62a22a1e02f940669028ad4d041a53d3d956f76ef5",
       "role": "primary-page citation and venue verification"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/unmerged-opus-recovery-audit.md",
+      "sha256": "f6e2eedcd92b1368d7fd26f7f9320866bd656ab5a76e8a8d23d0192d54e1976f",
+      "role": "unmerged remote-branch recovery inventory; not admitted experimental evidence"
     }
   ],
   "missing_required_sources": [

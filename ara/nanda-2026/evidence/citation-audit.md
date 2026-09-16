@@ -15,12 +15,15 @@ This audit records the primary public pages used to verify the four references i
 
 Primary page: <https://projectnanda.org/workshops/ieeetps26/>
 
+Parent-conference cross-check: <https://tps.ieee-cs.org/2026/>
+
 - Track 3 explicitly names manipulation-resistant reputation, provenance and audit trails, verifiable agent metadata, and governance for decentralized networks.
 - Short papers may use up to four pages in standard IEEE two-column conference format, including references.
 - The listed submission deadline is 2026-09-17 at 23:59 AoE; notification is 2026-09-26 and camera-ready is 2026-09-30.
 - The public page says to select the IEEE NANDA track in EasyChair.
 - The public page does not state whether review is anonymous or whether an author-controlled artifact link may appear in the review manuscript. This is an absence check, not evidence that either practice is allowed; the working review source therefore remains anonymous and omits the repository link.
+- The IEEE TPS 2026 parent homepage lists NANDA as a co-located workshop but provides no additional workshop-specific review policy. The 2025 parent conference's main research track required anonymous submissions, but a prior-year main-track rule cannot be imported as the 2026 workshop rule.
 
 ## Freeze rule
 
-Re-check all five pages at the final freeze. If any title, version, submission date, format rule, anonymity rule, or artifact-link rule changes, update the manuscript, `venue-rules.md`, and this audit together before rebuilding the PDF.
+Re-check the five reference/venue pages and the 2026 parent-conference page at the final freeze. If any title, version, submission date, format rule, anonymity rule, or artifact-link rule changes, update the manuscript, `venue-rules.md`, and this audit together before rebuilding the PDF.
