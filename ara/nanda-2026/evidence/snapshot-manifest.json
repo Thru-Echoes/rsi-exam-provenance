@@ -6,8 +6,13 @@
   "files": [
     {
       "path": "ara/nanda-2026/PAPER.md",
-      "sha256": "8b9a7c80ccd8c6e499118376b91d6aebf73a6cf31265733e851e2fdd7080ebda",
+      "sha256": "d07c6810e911f9312392115acb461b8e0b148222520d98951780e7327f0cfadf",
       "role": "working paper manuscript"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/README.md",
+      "sha256": "d683dfc5a533d91c5a12579dfe6fe2b7e500e63f2a68183c35319f967d2ff6d3",
+      "role": "evidence package index"
     },
     {
       "path": "docs/campaign/2026-09-instrument-ab/manifest.md",
@@ -81,7 +86,7 @@
     },
     {
       "path": "tests/test_nanda_ara.py",
-      "sha256": "2fa2c701e745575b3ae68622de19e696ff5577b20a1ca233c1ad8b2b496fe985",
+      "sha256": "4bb1f1bcceb84b5ab4a223debdeca99a89ff7c87543a2ca05fa07080c4c2dab1",
       "role": "ARA structural and cross-layer checks"
     },
     {
@@ -101,13 +106,38 @@
     },
     {
       "path": "ara/nanda-2026/evidence/results/test-receipt.md",
-      "sha256": "10e3565a930093c18306ead9238e44ac64ec39fca52358b435c614c53bbb0335",
+      "sha256": "68f6f93e813bfa792dfd6fcc81bc47471784f7f3e4a08e3b6445bd47f1aa476f",
       "role": "working-branch verification receipt"
     },
     {
       "path": "output/pdf/nanda-2026-track3-working-paper.pdf",
       "sha256": "d9b8c7d6726fd28874cb6b156ae0ecd164567ee3ad4944bfb76a249f28892ace",
       "role": "anonymous two-column layout proof"
+    },
+    {
+      "path": "ara/nanda-2026/src/artifacts.md",
+      "sha256": "2188d831805fd4bfecb730d6dcda8563a294f0bbbb7f0eb2736f24d4ad92f443",
+      "role": "code, data, and paper artifact index"
+    },
+    {
+      "path": "ara/nanda-2026/src/environment.md",
+      "sha256": "68c86256ee049f69ac9c0663a69bf25160bc6ab2cb196590f62db22a9e4f9a56",
+      "role": "reproduction environment and build commands"
+    },
+    {
+      "path": "ara/nanda-2026/submission/main.tex",
+      "sha256": "dcd5e5a914005d8b359af061b5d0189d1d9f65d754a99e3ff315296efe174540",
+      "role": "anonymous IEEEtran review source"
+    },
+    {
+      "path": "ara/nanda-2026/submission/README.md",
+      "sha256": "9447d7287d825a2a9d47e2561475d8f51513d856622da9be4eb020459572cd08",
+      "role": "IEEE review build and release boundary"
+    },
+    {
+      "path": "output/pdf/nanda-2026-track3-ieee-review.pdf",
+      "sha256": "eafc09e3e50dd7cc7343118fa773aa929826cc033f10c1fad274543528fd9c63",
+      "role": "anonymous three-page IEEEtran review PDF"
     }
   ],
   "missing_required_sources": [

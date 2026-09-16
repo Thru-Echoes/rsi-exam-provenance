@@ -37,6 +37,8 @@ class NandaAraStructureTests(unittest.TestCase):
             "trace/exploration_tree.yaml",
             "evidence/README.md",
             "evidence/results/paper-results.json",
+            "submission/main.tex",
+            "submission/README.md",
         ]
         self.assertEqual([], [path for path in required if not (ARA / path).is_file()])
 
@@ -90,6 +92,17 @@ class NandaAraStructureTests(unittest.TestCase):
         self.assertIn("18 verified records from 20 started trials", paper)
         self.assertIn("not a causal result", paper)
         self.assertIn("not itself a decentralized or multi-agent network experiment", paper)
+
+    def test_ieee_review_source_is_anonymous_and_result_aligned(self):
+        source = (ARA / "submission" / "main.tex").read_text(encoding="utf-8")
+        self.assertIn(r"\documentclass[conference]{IEEEtran}", source)
+        self.assertIn("Anonymous Authors", source)
+        self.assertIn("Total & 10 & 3 & 7", source)
+        self.assertIn("18 verified records", source)
+        self.assertIn("9 of 10 in the instrument arm", source)
+        self.assertIn("9 of 10 in the helper arm", source)
+        self.assertNotRegex(source, r"Thru-Echoes|chenmingtang|Richard|Oliver")
+        self.assertNotRegex(source, r"github\.com/(?!aiming-lab/RSI-Exam)")
 
 
 if __name__ == "__main__":

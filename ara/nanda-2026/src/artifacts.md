@@ -20,5 +20,7 @@ The implementation remains in the parent repository. This index avoids copying c
 | Canonical paper result | `ara/nanda-2026/evidence/results/paper-results.json` | Machine-readable primary result, evidence class per row, source hashes, and release blockers. |
 | Layout-proof builder | `ara/nanda-2026/src/execution/build_submission_pdf.py` | Renders the working manuscript and generated result table as an anonymous two-column PDF. |
 | Working PDF | `output/pdf/nanda-2026-track3-working-paper.pdf` | Visual submission proof; not an official IEEEtran build or approved submission. |
+| IEEE review source | `ara/nanda-2026/submission/main.tex` | Anonymous IEEEtran source with bounded claims and no author-controlled artifact link. |
+| IEEE review PDF | `output/pdf/nanda-2026-track3-ieee-review.pdf` | Three-page review build; not approved or submitted. |
 
-The submission artifact should cite a versioned tag and commit. The generated result already records a digest and evidence class for each input; the final freeze must additionally bind the raw Opus reward receipts if they are recovered. The PDF must be rebuilt in the official IEEE template after anonymity and author metadata are settled.
+The submission artifact should cite a versioned tag and commit. The generated result already records a digest and evidence class for each input; the final freeze must additionally bind the raw Opus reward receipts if they are recovered. The anonymous review PDF now uses IEEEtran. Rebuild it after author metadata, anonymity mode, and artifact-link policy are settled.

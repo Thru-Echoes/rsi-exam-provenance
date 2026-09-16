@@ -32,3 +32,18 @@ python3 -m unittest tests.test_paper_results -v
 ```
 
 Without `--check`, the first command regenerates `evidence/results/paper-results.json` and `.md`. It first compares every input byte with the pinned Git revision. It intentionally refuses to infer the missing Opus secondary results.
+
+## IEEE review build
+
+The anonymous review source uses the standard `IEEEtran` conference class. From the repository root:
+
+```bash
+mkdir -p output/pdf
+SOURCE_DATE_EPOCH=1789526400 tectonic \
+  --outdir output/pdf \
+  --keep-logs \
+  ara/nanda-2026/submission/main.tex
+mv output/pdf/main.pdf output/pdf/nanda-2026-track3-ieee-review.pdf
+```
+
+The current review build is three US-letter pages with embedded, subset fonts. It is not approved or submitted. Re-check the venue's anonymity and artifact-link policy before adding author metadata or a public artifact URL.
