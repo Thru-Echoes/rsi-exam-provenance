@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "base_git_commit": "c1bcd7d06e1e6ed6ff1a0a7040ad4e3b19e6bd4c",
+  "base_git_commit": "b7d388533ae98123e2758c90a90b54829b60f66a",
   "status": "local-review-snapshot",
   "identity": "Exact file hashes include working-tree changes; base commit is not a clean-tree claim.",
   "exclusions": [
@@ -79,7 +79,7 @@
     },
     {
       "path": "ara/nanda-2026/logic/experiments.md",
-      "sha256": "f34fc420ab02ebf2d2d656b92b3c4d9f4ce58e5e1403723876d4266b97a427b3"
+      "sha256": "1039422390a7b39e2239283a52256de3af1d722104bd3398b1d85e59f0964a3e"
     },
     {
       "path": "ara/nanda-2026/logic/problem.md",

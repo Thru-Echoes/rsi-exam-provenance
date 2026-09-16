@@ -12,7 +12,7 @@ All repository-relative paths below resolve from the root checkout.
 
 ## E02 — Historical source reconciliation
 **Verifies:** C02
-**Run:** python3 ara/nanda-2026/src/execution/build_paper_results.py --check
+**Run:** python3 ara/nanda-2026/src/execution/build_paper_results.py --source-revision 727b9b821d7814d7467a29c1e740ce92eea7e219 --check
 **Setup:** Committed tables and reports at the result generator's fixed source revision.
 **Procedure:** Reconcile all twenty A/B trials and retain source class; separately read dated preflight observations.
 **Expected outcome:** 18 verified records, 9 per arm, and two explicit submitted_not_snapshotted outcomes.
