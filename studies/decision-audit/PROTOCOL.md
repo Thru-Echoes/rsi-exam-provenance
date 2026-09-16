@@ -1,9 +1,9 @@
 # Decision audit study: protocol draft
 
-Status: research redesign in progress, 2026-09-16. This protocol is written after
+Status: controlled study executed, 2026-09-16. This protocol is written after
 inspection of the existing implementation and development vectors. It is not a
-preregistration or an independent evaluation. The existing paper/PDF is the prior
-review draft and has not yet been replaced by results from this study.
+preregistration or an independent evaluation. The revised manuscript uses this
+study. The frozen manifest remains unchanged, including one diagnostic mismatch.
 
 ## Research question
 
@@ -48,7 +48,7 @@ External TRACE and ProofPress expected outcomes are not measured here. Historica
 fixture handoff in `docs/RUN_REPORT.md` is a separate interoperability case, not
 evidence that all external implementations were rerun on this matrix.
 
-### F: controlled fault injection (not yet executed)
+### F: controlled fault injection (executed; see fault-results.json)
 
 Freeze a case manifest before inspecting new outputs. Define fault families from
 the audit questions: submitted-version mismatch, missing evidence, mismatched

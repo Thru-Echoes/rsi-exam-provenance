@@ -2,7 +2,7 @@
 
 This is the research redesign following review of the initial NANDA draft. Read
 `PROTOCOL.md` for the research question, planned controlled evaluation, and limits.
-The earlier ARA manuscript and PDF remain prior review artifacts until rewritten.
+The ARA manuscript has been rewritten around the controlled audit question.
 
 ## Completed: retrospective development replay
 
@@ -46,12 +46,22 @@ produces `holdout:interval_evidence_incomplete` in the verifier. These results
 motivate the controlled study's requirement that each injected fault have all
 other prerequisites satisfied and that the reported reason match the audit claim.
 
-## Still required
+## Completed: controlled package study
 
-- Freeze and execute the controlled case manifest in protocol track F, including
-  benign changes and coherent-rewrite controls.
-- Check original-file availability for retained real-run cases (track R).
-- Verify related-work comparisons and rewrite the paper around supported audit
-  guarantees. Describe the reward experiment as a secondary observation.
+Run `python3 studies/decision-audit/run_faults.py`. The manifest was committed at
+`c1bcd7d` before first execution, after inspecting implementation and tests.
+The report `fault-results.json` binds the exact runner and fixture bytes.
+Nine authored faults are rejected by full verification, versus one by structure
+and three by structure plus bindings. Both valid controls pass; a consistently
+rewritten unsigned reward also passes. These are twelve synthetic packages from
+one base fixture, not a real-world detection-rate estimate.
+
+The missing-snapshot case is refused with `file:artifact:v2:missing_file`, not
+the expected `file:version:v2`. Thus nine refusal outcomes match but only eight
+diagnostic targets match. `all_expectations_met: false` is intentionally retained.
+Unexpected exceptions abort instead of being counted as detections.
+
+Historical real-run reports remain weaker contextual evidence: original job
+directories are not all included and are not newly reproduced end to end.
 
 No new agent rollouts or external services are needed for the completed replay.

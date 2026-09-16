@@ -58,7 +58,7 @@ tree:
                   - "ara/nanda-2026/evidence/results/reconciliation-status.md"
                 title: Center the paper on auditability rather than a positive reward result
                 from: A paper whose headline success depends on gate efficacy
-                to: A paper about offline-verifiable decision provenance that reports a negative efficacy result
+                to: A paper about offline-verifiable decision provenance with an unsupported efficacy claim
                 trigger: The reconciled endpoint tables do not support improvement, while the provenance mechanism remains testable.
                 children:
                   - id: N08
@@ -80,3 +80,27 @@ tree:
                 title: Is the confirmation limit a mechanism for later suppression?
                 description: Would varying the confirmation cap while holding candidate evidence and compute fixed change later selection behavior?
                 children: []
+  - id: N10
+    type: pivot
+    support_level: explicit
+    attribution: user-revised
+    source_refs: ["ara/nanda-2026/REVIEW.md"]
+    title: Replace reward-centered evaluation with a direct audit question
+    description: Human critique identified that artifact formatting and reward outcomes did not establish a coherent auditability contribution.
+    children:
+      - id: N11
+        type: experiment
+        support_level: explicit
+        attribution: ai-executed
+        source_refs: ["studies/decision-audit/development-results.json"]
+        title: Separate refusal from the intended diagnostic
+        result: One development case is stopped by a missing version before the intended ancestry verifier check.
+        evidence: [C01]
+      - id: N12
+        type: experiment
+        support_level: explicit
+        attribution: ai-executed
+        source_refs: ["studies/decision-audit/fault-results.json"]
+        title: Characterize incremental checks and accepted rewrites
+        result: Six authored faults survive bindings but fail full checks; a consistent unsigned reward rewrite passes. One of nine diagnostic expectations mismatches.
+        evidence: [C05, C06]

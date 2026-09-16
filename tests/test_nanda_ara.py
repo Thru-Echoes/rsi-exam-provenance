@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 import re
 import unittest
 
@@ -44,7 +45,7 @@ class NandaAraStructureTests(unittest.TestCase):
 
     def test_claim_cards_have_required_fields(self):
         claims = sections(ARA / "logic" / "claims.md", "C")
-        self.assertEqual({"C01", "C02", "C03", "C04"}, set(claims))
+        self.assertEqual({f"C{i:02}" for i in range(1, 7)}, set(claims))
         fields = (
             "Statement", "Conditions", "Sources", "Status", "Falsification criteria",
             "Proof", "Evidence basis", "Dependencies", "Tags",
@@ -57,7 +58,7 @@ class NandaAraStructureTests(unittest.TestCase):
     def test_claim_experiment_links_are_bidirectional(self):
         claims = sections(ARA / "logic" / "claims.md", "C")
         experiments = sections(ARA / "logic" / "experiments.md", "E")
-        self.assertEqual({"E01", "E02", "E03", "E04"}, set(experiments))
+        self.assertEqual({f"E{i:02}" for i in range(1, 6)}, set(experiments))
         for claim_id, claim in claims.items():
             proof = set(re.findall(r"\[(E\d+)\]", claim))
             self.assertTrue(proof, claim_id)
@@ -78,32 +79,47 @@ class NandaAraStructureTests(unittest.TestCase):
         ids = re.findall(r"^\s+- id: (N\d+)$", text, flags=re.M)
         types = re.findall(r"^\s+type: (\w+)$", text, flags=re.M)
         support = re.findall(r"^\s+support_level: (\w+)$", text, flags=re.M)
-        self.assertEqual(9, len(ids))
+        self.assertGreaterEqual(len(ids), 12)
         self.assertEqual(len(ids), len(set(ids)))
         self.assertEqual(len(ids), len(types))
         self.assertEqual(len(ids), len(support))
         self.assertTrue(set(support) <= {"explicit", "inferred"})
-        self.assertIn("negative efficacy result", text)
+        self.assertIn("unsupported efficacy claim", text)
         self.assertIn("bound by committed capsule reward digests", text)
         self.assertIn("rounded committed pre-probe summary", text)
 
     def test_manuscript_uses_generated_claim_boundary(self):
-        paper = (ARA / "PAPER.md").read_text(encoding="utf-8")
-        self.assertIn("three favor the instrument and seven favor the helper", paper)
-        self.assertIn("18 verified records from 20 started trials", paper)
-        self.assertIn("not a causal result", paper)
-        self.assertIn("not itself a decentralized or multi-agent network experiment", paper)
+        paper = (ARA / "submission/main.tex").read_text(encoding="utf-8")
+        self.assertIn("author-designed characterization", paper)
+        self.assertIn("do not estimate detection rates", paper)
+        self.assertIn("only eight match", paper)
+        self.assertIn("neither authenticates the grader", paper)
 
     def test_ieee_review_source_is_anonymous_and_result_aligned(self):
         source = (ARA / "submission" / "main.tex").read_text(encoding="utf-8")
         self.assertIn(r"\documentclass[conference]{IEEEtran}", source)
         self.assertIn("Anonymous Authors", source)
-        self.assertIn("Total & 10 & 3 & 7", source)
         self.assertIn("18 verified records", source)
-        self.assertIn("9 of 10 in the instrument arm", source)
-        self.assertIn("9 of 10 in the helper arm", source)
+        self.assertIn("nine per arm", source)
         self.assertNotRegex(source, r"Thru-Echoes|chenmingtang|Richard|Oliver")
-        self.assertNotRegex(source, r"github\.com/(?!aiming-lab/RSI-Exam)")
+        self.assertNotRegex(source, r"github\.com/(?!aiming-lab/RSI-Exam|ARA-Labs/Agent-Native-Research-Artifact)")
+
+    def test_every_table_outcome_matches_execution(self):
+        source = (ARA / "submission/main.tex").read_text()
+        report = json.loads((REPO / "studies/decision-audit/fault-results.json").read_text())
+        rows = re.findall(r"^(.+?) & ([AR])\s*&\s*([AR])\s*&\s*([AR])", source, re.M)
+        self.assertEqual(len(report["cases"]), len(rows))
+        labels = ["None (valid control)", "Excluded caches differ; full hashes refreshed",
+                  "Reward and declaration rewritten together", "Unrecognized version status",
+                  "Referenced measurement file removed", "Recorded orientation reversed",
+                  "Recorded estimate increased by one", "Parent/candidate measurements exchanged",
+                  "Submitted provisional left unconfirmed", "Submission changed; version claim retained",
+                  "Recorded snapshot removed", "Unrecorded snapshot added"]
+        for case, row, label in zip(report["cases"], rows, labels):
+            self.assertEqual(label, row[0])
+            expected = tuple("A" if case["outcomes"][key] == "accept" else "R"
+                             for key in ("structure", "bindings", "full"))
+            self.assertEqual(expected, row[1:], case["id"])
 
 
 if __name__ == "__main__":

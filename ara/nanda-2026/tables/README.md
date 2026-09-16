@@ -1,3 +1,6 @@
 # Tables
 
-Final paper tables are intentionally absent until the Opus sources and denominators are reconciled. Generate tables from the frozen machine-readable paper result; do not transcribe aggregate values by hand.
+The main manuscript table lists all twelve authored audit cases from
+`studies/decision-audit/fault-results.json`. The row order, labels, and three
+checking outcomes are verified by `tests.test_nanda_ara`. Historical reward
+tables remain secondary context, not the primary evaluation.

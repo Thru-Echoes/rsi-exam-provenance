@@ -1,24 +1,22 @@
-# Evidence package
+# Evidence index
 
-This directory records what the paper may cite and what remains unresolved.
+## Primary current study
+- Repository path studies/decision-audit/fault-manifest.json: twelve authored cases.
+- studies/decision-audit/run_faults.py: mutations and checking configurations.
+- studies/decision-audit/fault-results.json: exact first-run output, changed-file
+  hashes, all reasons, and retained diagnostic mismatch.
+- studies/decision-audit/development-results.json: separate known-case replay.
+- [Current review](../REVIEW.md): strengths, limitations, and author questions.
 
-| File | Role | Status |
-| --- | --- | --- |
-| `snapshot-manifest.json` | Pins paper-critical source and generated files | active; refresh at final freeze |
-| `results/reconciliation-status.md` | Lists contradictions and release blockers | active |
-| `results/test-receipt.md` | Scaffold-branch unit-test and static-analysis receipt | present; refresh at freeze |
-| `results/paper-results.json` | Canonical machine-readable all-stage primary result and record yield | present; Opus block 1 bound, block 2--3 receipts pending |
-| `results/paper-results.md` | Human-readable rendering of the generated result | present; generated, do not hand-edit |
-| `venue-rules.md` | Checked public CFP requirements and unresolved anonymity/artifact-link question | present; re-check before submission |
-| `citation-audit.md` | Primary-page verification for paper references and venue facts | present; re-check at freeze |
-| `unmerged-opus-recovery-audit.md` | Inventory of later remote-branch Opus reports | recovery aid only; not admitted paper evidence |
-| `../../../output/pdf/nanda-2026-track3-working-paper.pdf` | Anonymous two-column manuscript layout proof | present; not official IEEEtran and not approved for submission |
-| `../submission/main.tex` | Anonymous IEEEtran review source | present; author metadata and release approval pending |
-| `../../../output/pdf/nanda-2026-track3-ieee-review.pdf` | Three-page IEEEtran review PDF | present; visually and mechanically checked, not approved for submission |
-| `../level2_report.json` | Local ARA-compatible semantic review | present; not an official ARA Seal |
-| `tables/` | Filed paper tables with source metadata and screenshots | pending manuscript numbering |
-| `figures/` | Filed paper figures with source metadata and screenshots | pending manuscript numbering |
+## Historical context
+- results/paper-results.json and paper-results.md reconcile the historical A/B tables.
+- results/reconciliation-status.md and unmerged-opus-recovery-audit.md preserve
+  unresolved raw reward and secondary-analysis issues.
+- results/test-receipt.md describes earlier tests, not validation of the new study.
+- citation-audit.md records the earlier manuscript's citations; current additions
+  and their scope are in ../logic/related_work.md.
+- venue-rules.md records checked submission rules and unresolved review policy.
 
-Evidence precedence is: raw job outputs and verifier receipts; generated per-trial tables; preregistered manifest and committed endpoint tables; committed pre-probe summaries; narrative handoffs; working notes. The generated result preserves the evidence class of every primary row rather than flattening these sources into equal-strength observations.
-
-Do not copy secrets, private traces, operator home paths, or unpublished raw data into this directory. A committed summary may recover a bounded direction count when a table is missing, but it must remain labelled and cannot support precision or secondary analyses that it does not contain.
+The primary fault characterization has complete committed synthetic inputs.
+Historical job summaries do not imply the original job directories are available.
+Neither evidence import nor ARA packaging constitutes approval.

@@ -1,188 +1,525 @@
 {
-  "schema_version": 1,
-  "created_utc": "2026-09-16T02:30:00Z",
-  "repository_commit": "727b9b821d7814d7467a29c1e740ce92eea7e219",
-  "status": "draft-source-snapshot",
+  "schema_version": 2,
+  "base_git_commit": "c1bcd7d06e1e6ed6ff1a0a7040ad4e3b19e6bd4c",
+  "status": "local-review-snapshot",
+  "identity": "Exact file hashes include working-tree changes; base commit is not a clean-tree claim.",
+  "exclusions": [
+    "snapshot-manifest.json (self)",
+    "private external job directories",
+    "Python caches"
+  ],
   "files": [
     {
+      "path": "README.md",
+      "sha256": "61011aa3047d59bfa93a6f81cddf49d93461e87d60cb5960cf34ada6bced5cb9"
+    },
+    {
       "path": "ara/nanda-2026/PAPER.md",
-      "sha256": "c223da72faab3509fed135ea0a672493ccb37f5eb3322e8e0c1db75b245f1412",
-      "role": "working paper manuscript"
+      "sha256": "04ebf8fab8e36884efca29ed8d7c7b47cd041098881f0b1d4a64d3a34a49c1f6"
+    },
+    {
+      "path": "ara/nanda-2026/REVIEW.md",
+      "sha256": "7e78bdfd90f59467c16244f3729109c4ec3dd744c383164674687eead1db0b60"
     },
     {
       "path": "ara/nanda-2026/evidence/README.md",
-      "sha256": "e2afb8a24fa08e72f3968d8b2f4faddbe4b8f5c97a57bde43bd63c0ef441b41b",
-      "role": "evidence package index"
-    },
-    {
-      "path": "docs/campaign/2026-09-instrument-ab/manifest.md",
-      "sha256": "247b7b1aebc8e04be3a160863000ce1f8705cbb1c847d0923444346ce6454b0d",
-      "role": "preregistered comparison design"
-    },
-    {
-      "path": "docs/campaign/2026-09-instrument-ab/stages.json",
-      "sha256": "78411a4af18578042efc90b93025568dca4769c2c9cc28e7a27dd5d4e1d33edb",
-      "role": "stage configuration and run order"
-    },
-    {
-      "path": "docs/shadow-audit/instrument-ab/haiku/endpoints.md",
-      "sha256": "8c94e7e012fd722b07242e434b90403316539f2b72b3b822718ff47f99915c1b",
-      "role": "Haiku primary and secondary endpoints"
-    },
-    {
-      "path": "docs/shadow-audit/instrument-ab/haiku/records.md",
-      "sha256": "b5de6bfb766877cbcbafce09d1d06dc4d94ef7fcdb1cc15ce5b44530f439e05b",
-      "role": "Haiku record outcomes"
-    },
-    {
-      "path": "docs/shadow-audit/instrument-ab/sonnet/endpoints.md",
-      "sha256": "20043598969d82022eeecaf7335bd097ac67feafaed1e4ca1ec474d6ed748b6a",
-      "role": "Sonnet primary and secondary endpoints"
-    },
-    {
-      "path": "docs/shadow-audit/instrument-ab/sonnet/records.md",
-      "sha256": "95315a4d11b22dc8a8dcd6db5d3f779b341e08bb05e5aec116da4c31b80bb23e",
-      "role": "Sonnet record outcomes"
-    },
-    {
-      "path": "docs/shadow-audit/instrument-ab/opus/records.md",
-      "sha256": "1f31bfc016328e4ab457d65ef30f119d78c8e90aa611d1bfd99a04dcae7d2e28",
-      "role": "Opus record outcomes"
-    },
-    {
-      "path": "docs/shadow-audit/pilots/pilot-8-preregistration.md",
-      "sha256": "3495feb23610714d040a8dd816b200d8425ec69e0eacf1b65718281be92e0186",
-      "role": "committed pre-probe Opus primary-reward summary; rounded inputs"
-    },
-    {
-      "path": "docs/figures/sources/ab-opus-1-I/capsule.json",
-      "sha256": "a7ebf26c1aceefe052a237a82ff9c4574a1cffbc22aa098b8a9a4f5cbc49baab",
-      "role": "Opus block 1 instrument capsule with bound hidden reward"
-    },
-    {
-      "path": "docs/figures/sources/ab-opus-1-H/capsule.json",
-      "sha256": "ab8cb43b419d3bde60861e1ed01913f396035b16619d39e96505dfdf1546295c",
-      "role": "Opus block 1 helper capsule with bound hidden reward"
-    },
-    {
-      "path": "docs/overview.md",
-      "sha256": "0b22d65241c2024cbd371f09a09f5acd18b1724447eefa2b3e14ebc1545e3a99",
-      "role": "system and trust-boundary description"
-    },
-    {
-      "path": "README.md",
-      "sha256": "61011aa3047d59bfa93a6f81cddf49d93461e87d60cb5960cf34ada6bced5cb9",
-      "role": "implementation overview and derivation pins"
-    },
-    {
-      "path": "ara/nanda-2026/evidence/results/paper-results.json",
-      "sha256": "bfc1d281c73eeeeb2babdeb6a12672308b1e405221684dc516991320fd3daa8b",
-      "role": "generated all-stage primary result and record yield"
-    },
-    {
-      "path": "ara/nanda-2026/evidence/results/paper-results.md",
-      "sha256": "5092d62ff91a0c525d1be62acac2db40f85859fc185f13b03ee9cfd5556d534c",
-      "role": "human-readable rendering of generated result"
-    },
-    {
-      "path": "ara/nanda-2026/src/execution/build_paper_results.py",
-      "sha256": "ca6f56665d7c71bd8117270e486fb6965a567559fce149259df4290a4d1b0737",
-      "role": "paper-result generator"
-    },
-    {
-      "path": "tests/test_paper_results.py",
-      "sha256": "98ea2babd006868a93f0ef4e8fea30a4db3073926519446e19f0fe741828475d",
-      "role": "paper-result regression tests"
-    },
-    {
-      "path": "tests/test_nanda_ara.py",
-      "sha256": "3d43ff439d11e82f8fe167dbc930940ef7776bad799cc0e4a8a246895fba371c",
-      "role": "ARA structural and cross-layer checks"
-    },
-    {
-      "path": "ara/nanda-2026/src/execution/build_submission_pdf.py",
-      "sha256": "8c1f25ce49315ee37cd9d92b90a1b307bd6f45f62e88afc090b40cc1e34bd45f",
-      "role": "working two-column PDF builder"
-    },
-    {
-      "path": "ara/nanda-2026/evidence/venue-rules.md",
-      "sha256": "b071c248e13b165954323c34bbcce2c06229e47e2fae4a659cceb0443e88420a",
-      "role": "checked public venue requirements and unresolved review-policy items"
-    },
-    {
-      "path": "ara/nanda-2026/level2_report.json",
-      "sha256": "ab0eb62de7044ca061ab9d4562bf3a2a79b1e0cbf648b3b9c0785803446c9c71",
-      "role": "local ARA-compatible semantic review"
-    },
-    {
-      "path": "ara/nanda-2026/evidence/results/test-receipt.md",
-      "sha256": "b4d98f3c6fe63a8705e7c39ca9784c981ba397137f91db5837e19e0acadb8ccf",
-      "role": "working-branch verification receipt"
-    },
-    {
-      "path": "output/pdf/nanda-2026-track3-working-paper.pdf",
-      "sha256": "d9b8c7d6726fd28874cb6b156ae0ecd164567ee3ad4944bfb76a249f28892ace",
-      "role": "anonymous two-column layout proof"
-    },
-    {
-      "path": "ara/nanda-2026/src/artifacts.md",
-      "sha256": "6d00b670fa7c3f35bf47e1e053e8a3eece3f7504468da899d8e5f5c751561226",
-      "role": "code, data, and paper artifact index"
-    },
-    {
-      "path": "ara/nanda-2026/src/environment.md",
-      "sha256": "68c86256ee049f69ac9c0663a69bf25160bc6ab2cb196590f62db22a9e4f9a56",
-      "role": "reproduction environment and build commands"
-    },
-    {
-      "path": "ara/nanda-2026/submission/main.tex",
-      "sha256": "7da0ac948dedc8c8ee9ff97d494d2ae680003ebdc92a001a577a4c37278ed904",
-      "role": "anonymous IEEEtran review source"
-    },
-    {
-      "path": "ara/nanda-2026/submission/README.md",
-      "sha256": "9447d7287d825a2a9d47e2561475d8f51513d856622da9be4eb020459572cd08",
-      "role": "IEEE review build and release boundary"
-    },
-    {
-      "path": "output/pdf/nanda-2026-track3-ieee-review.pdf",
-      "sha256": "10c9a2131666c92d5de02a90e56558a057a29f519797db19c5faa82816fbc6e1",
-      "role": "anonymous three-page IEEEtran review PDF"
-    },
-    {
-      "path": "ara/nanda-2026/logic/claims.md",
-      "sha256": "79f055065edab86f01c868cff649ea10616c99c10ad8fa6e6b0f82dc7f8abc68",
-      "role": "bounded claim cards"
-    },
-    {
-      "path": "ara/nanda-2026/logic/experiments.md",
-      "sha256": "b4427eca87f8b2d3639b372fb0246ce8dda8b59003b4321ce6b4611b8a414353",
-      "role": "experiment cards and evidence mappings"
-    },
-    {
-      "path": "ara/nanda-2026/trace/exploration_tree.yaml",
-      "sha256": "539c01b8a80140ef01d378d4baea4ae7a1ea496d1688b7db3273c54c2879676a",
-      "role": "source-bounded exploration and pivot trace"
-    },
-    {
-      "path": "ara/nanda-2026/evidence/results/reconciliation-status.md",
-      "sha256": "70c241d49c7dbbc617f4186a66cf8b866e3013cf5f6f1b58e3a4adb6623c4dc8",
-      "role": "result conflicts and release gates"
+      "sha256": "95dc318cd6a459e5fb82477d88204e5ac7db0181a1e89e578a6a5beb8744d905"
     },
     {
       "path": "ara/nanda-2026/evidence/citation-audit.md",
-      "sha256": "78aae91e7f2fe7f96456bb62a22a1e02f940669028ad4d041a53d3d956f76ef5",
-      "role": "primary-page citation and venue verification"
+      "sha256": "21b038c7d9b9ef46a1644718935ecd3e712fb1a6c348924eee14dfaaa00220a9"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/completion-audit.md",
+      "sha256": "c9405b0d8eaf3a6fd60f0efb7aeff734954e89461cf380a69b74355d785634f0"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/results/paper-results.json",
+      "sha256": "bfc1d281c73eeeeb2babdeb6a12672308b1e405221684dc516991320fd3daa8b"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/results/paper-results.md",
+      "sha256": "5092d62ff91a0c525d1be62acac2db40f85859fc185f13b03ee9cfd5556d534c"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/results/reconciliation-status.md",
+      "sha256": "70c241d49c7dbbc617f4186a66cf8b866e3013cf5f6f1b58e3a4adb6623c4dc8"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/results/test-receipt.md",
+      "sha256": "b4d98f3c6fe63a8705e7c39ca9784c981ba397137f91db5837e19e0acadb8ccf"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/review-verification.md",
+      "sha256": "07161cec1e07ab0c47c4832743d81ce7fa0bec20fef7a7c0b2a524bc95348af9"
     },
     {
       "path": "ara/nanda-2026/evidence/unmerged-opus-recovery-audit.md",
-      "sha256": "bab2754b329b57f05223f55494c815ec0af1c59b58d77c2fb59f2c23d05e25d0",
-      "role": "unmerged remote-branch recovery inventory; not admitted experimental evidence"
+      "sha256": "bab2754b329b57f05223f55494c815ec0af1c59b58d77c2fb59f2c23d05e25d0"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/venue-rules.md",
+      "sha256": "b071c248e13b165954323c34bbcce2c06229e47e2fae4a659cceb0443e88420a"
+    },
+    {
+      "path": "ara/nanda-2026/figures/README.md",
+      "sha256": "fc3b148b73389712771afbb3caf547c57eeb5f2b8e64ee7a990e22c780a016e7"
+    },
+    {
+      "path": "ara/nanda-2026/level2_report.json",
+      "sha256": "27df3c21fe942a996eb520b7d388ad86a9eed317ad664c63cb7014380355a656"
+    },
+    {
+      "path": "ara/nanda-2026/logic/claims.md",
+      "sha256": "c5933d39858884ebef2dbb2a6780609b6e0e3b8b36f6cc9c0aebadadef5db0b1"
+    },
+    {
+      "path": "ara/nanda-2026/logic/concepts.md",
+      "sha256": "1cd476db279f1e52e8c94cab08f2792a3e11f000defebc46b14e95ab1e3b657e"
+    },
+    {
+      "path": "ara/nanda-2026/logic/experiments.md",
+      "sha256": "f34fc420ab02ebf2d2d656b92b3c4d9f4ce58e5e1403723876d4266b97a427b3"
+    },
+    {
+      "path": "ara/nanda-2026/logic/problem.md",
+      "sha256": "f9c9c11069855d2bc6ca01b01ee8ecaae36fe421717496bb8f8e29eaf54ecc3e"
+    },
+    {
+      "path": "ara/nanda-2026/logic/related_work.md",
+      "sha256": "a1402ecf1f2bd0c21232d3148c2764528676921b03515223d649ef614cc4d3a6"
+    },
+    {
+      "path": "ara/nanda-2026/logic/solution/architecture.md",
+      "sha256": "bb3f612a52e9dd6c78d24b9df93672095cc75e032224b9ef52cd6da3e67cc40b"
+    },
+    {
+      "path": "ara/nanda-2026/logic/solution/constraints.md",
+      "sha256": "2fe6fe53429d59cbb4216dd85c53eb6ae3192757c57637340d5d56a5957f7391"
+    },
+    {
+      "path": "ara/nanda-2026/logic/solution/decision-record-contract.md",
+      "sha256": "5cdc35ff46703a0ee1ced52edb807a021d07754caa21e7ae32e7f1629f1ffbe5"
+    },
+    {
+      "path": "ara/nanda-2026/src/artifacts.md",
+      "sha256": "0669e0e795115b17b1abbdf6c8dc1142c7e44fc5f9f96822e7a7e1f4d152fde0"
+    },
+    {
+      "path": "ara/nanda-2026/src/environment.md",
+      "sha256": "6755d583b0240ec224de13f2c46f264ceb4af1e0b9e79005e73aa7c201ff9b7f"
+    },
+    {
+      "path": "ara/nanda-2026/src/execution/build_paper_results.py",
+      "sha256": "ca6f56665d7c71bd8117270e486fb6965a567559fce149259df4290a4d1b0737"
+    },
+    {
+      "path": "ara/nanda-2026/src/execution/build_submission_pdf.py",
+      "sha256": "8c1f25ce49315ee37cd9d92b90a1b307bd6f45f62e88afc090b40cc1e34bd45f"
+    },
+    {
+      "path": "ara/nanda-2026/src/execution/check_review_snapshot.py",
+      "sha256": "3632a8009afecbac0a449fa41bda927fed7fccc60abf9f36fdcbecbedc509829"
+    },
+    {
+      "path": "ara/nanda-2026/submission/README.md",
+      "sha256": "8753bdb01d8fa9e085fc3be2a2f28166a3524b381ddc44ecd0e11df048db554a"
+    },
+    {
+      "path": "ara/nanda-2026/submission/main.tex",
+      "sha256": "5d21067a5fb3c5c15377a1d3b70ad3b3ceb30440089111f3323d6936c9e881ee"
+    },
+    {
+      "path": "ara/nanda-2026/submission/manuscript.md",
+      "sha256": "6896521ad5d26f3b322be81173165fcb57a57c44622dd0909a5d6440d4c5428c"
+    },
+    {
+      "path": "ara/nanda-2026/tables/README.md",
+      "sha256": "d018b7ce39cd7d338f7ba9ca288a5f58f9989df2a0a90177840bf452a1c2c603"
+    },
+    {
+      "path": "ara/nanda-2026/trace/exploration_tree.yaml",
+      "sha256": "ac8d16189654e9d8b7e670de3a25d0f962270546da78c36829f57a8b98f01b76"
+    },
+    {
+      "path": "docs/campaign/2026-09-instrument-ab/manifest.md",
+      "sha256": "247b7b1aebc8e04be3a160863000ce1f8705cbb1c847d0923444346ce6454b0d"
+    },
+    {
+      "path": "docs/campaign/2026-09-instrument-ab/stages.json",
+      "sha256": "78411a4af18578042efc90b93025568dca4769c2c9cc28e7a27dd5d4e1d33edb"
+    },
+    {
+      "path": "docs/figures/sources/ab-opus-1-H/capsule.json",
+      "sha256": "ab8cb43b419d3bde60861e1ed01913f396035b16619d39e96505dfdf1546295c"
+    },
+    {
+      "path": "docs/figures/sources/ab-opus-1-I/capsule.json",
+      "sha256": "a7ebf26c1aceefe052a237a82ff9c4574a1cffbc22aa098b8a9a4f5cbc49baab"
+    },
+    {
+      "path": "docs/overview.md",
+      "sha256": "0b22d65241c2024cbd371f09a09f5acd18b1724447eefa2b3e14ebc1545e3a99"
+    },
+    {
+      "path": "docs/shadow-audit/instrument-ab/haiku/endpoints.md",
+      "sha256": "8c94e7e012fd722b07242e434b90403316539f2b72b3b822718ff47f99915c1b"
+    },
+    {
+      "path": "docs/shadow-audit/instrument-ab/haiku/records.md",
+      "sha256": "b5de6bfb766877cbcbafce09d1d06dc4d94ef7fcdb1cc15ce5b44530f439e05b"
+    },
+    {
+      "path": "docs/shadow-audit/instrument-ab/opus/records.md",
+      "sha256": "1f31bfc016328e4ab457d65ef30f119d78c8e90aa611d1bfd99a04dcae7d2e28"
+    },
+    {
+      "path": "docs/shadow-audit/instrument-ab/sonnet/endpoints.md",
+      "sha256": "20043598969d82022eeecaf7335bd097ac67feafaed1e4ca1ec474d6ed748b6a"
+    },
+    {
+      "path": "docs/shadow-audit/instrument-ab/sonnet/records.md",
+      "sha256": "95315a4d11b22dc8a8dcd6db5d3f779b341e08bb05e5aec116da4c31b80bb23e"
+    },
+    {
+      "path": "docs/shadow-audit/pilots/pilot-8-preregistration.md",
+      "sha256": "3495feb23610714d040a8dd816b200d8425ec69e0eacf1b65718281be92e0186"
+    },
+    {
+      "path": "fixtures/gated/job/agent/trajectory.json",
+      "sha256": "d98ee930ec247ae5dcdb994886203ab71b994b8cd951bda8dcc0670c56b83c45"
+    },
+    {
+      "path": "fixtures/gated/job/artifacts/app/methods/decisions.jsonl",
+      "sha256": "4c6564e0782ab0c7956eae9f813dc17eee7984c94f313cf6124c9b1ead9640f2"
+    },
+    {
+      "path": "fixtures/gated/job/artifacts/app/methods/decisions.lock",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "fixtures/gated/job/artifacts/app/methods/experiment_log.md",
+      "sha256": "92de8c6c3b84dbef1d146ca2aa2e02fa9ecf209d21d28d2c848fc6db20e77293"
+    },
+    {
+      "path": "fixtures/gated/job/artifacts/app/methods/main/policy.py",
+      "sha256": "e42b2962e78faecf691e8ad7ddbe048c910dc52c077329739f69d70644f0aaac"
+    },
+    {
+      "path": "fixtures/gated/job/artifacts/app/methods/results/v1/visible_result.json",
+      "sha256": "a9fbeefee5519f92a3786b1ce1958637a8e9f92e6ac5a62ceae24aafad795afe"
+    },
+    {
+      "path": "fixtures/gated/job/artifacts/app/methods/results/v2/visible_result.json",
+      "sha256": "2b989bb0748aa05e8828a3b68f2074968994d70118a09956db5fdfc45fa3da8a"
+    },
+    {
+      "path": "fixtures/gated/job/artifacts/app/methods/results/v3/replication/candidate_result.json",
+      "sha256": "4af3ae28024d2389637fa1990d1be85d2d76dd71b70b7e76f560b89d81b1f49d"
+    },
+    {
+      "path": "fixtures/gated/job/artifacts/app/methods/results/v3/replication/parent_result.json",
+      "sha256": "8c2735eb5784810082600ef490774fdcfc26f7cd1983394f22ce714eac065a4f"
+    },
+    {
+      "path": "fixtures/gated/job/artifacts/app/methods/results/v3/visible_result.json",
+      "sha256": "9cbcf78d6fe4dbcceebdbc9b2ea7c61d8ef749f31d6759301a683ad010fc678e"
+    },
+    {
+      "path": "fixtures/gated/job/artifacts/app/methods/versions/v1/policy.py",
+      "sha256": "832607b87e95777537aaaf56b9350e68b71c9da85c51e32587552c57da34cc36"
+    },
+    {
+      "path": "fixtures/gated/job/artifacts/app/methods/versions/v2/policy.py",
+      "sha256": "d9137f3c97cd5720a120e4fe0773f5c781f2ba8fecd020b558a6283edbc58600"
+    },
+    {
+      "path": "fixtures/gated/job/artifacts/app/methods/versions/v3/policy.py",
+      "sha256": "e42b2962e78faecf691e8ad7ddbe048c910dc52c077329739f69d70644f0aaac"
+    },
+    {
+      "path": "fixtures/gated/job/capsule.json",
+      "sha256": "188c394efb75aec8077ecf16a14cfb0806a917a226752d901e5a0e380481f27a"
+    },
+    {
+      "path": "fixtures/gated/job/verifier/reward.json",
+      "sha256": "aa31ef772a54a1cca5e9f66544a9eeeca911f52bd820a5b0dbc5f22523b628b1"
+    },
+    {
+      "path": "fixtures/gated/job/verifier/score_details.json",
+      "sha256": "32ba65c9aaa03e7f01f63d5deffeff2cfabe13386c75b30dd6a50297432e2108"
+    },
+    {
+      "path": "fixtures/gated/task/environment/methods/main/policy.py",
+      "sha256": "a9defcf32373551ad33b28a83b68060f6ad118f5c4c3de1aa4e76160e52effd3"
+    },
+    {
+      "path": "fixtures/gated/task/task.toml",
+      "sha256": "3afb4d967419210fa6071126b4616566aae48a0afb8ce5cea833c5662e90d38d"
+    },
+    {
+      "path": "fixtures/gated/task/tests/grade.py",
+      "sha256": "a7e1269e0f2dbcd6386c19cb99f06b9daed811dd84c5b712352b11fafbb063eb"
+    },
+    {
+      "path": "fixtures/gated/task/tests/test.sh",
+      "sha256": "f02aa243e416fffa8eb9420c37a9ec60c00b07f27bcbb5da6852b0ef1e59ca13"
+    },
+    {
+      "path": "gate/calibrate.py",
+      "sha256": "99338b1ed8fcc4a4668e9f7b67c2591cf64e946c726d57bd51a33746792e0a24"
+    },
+    {
+      "path": "gate/decide.py",
+      "sha256": "ca5764e0075282e62bc7335504ba16a06fad79283353ccf252391c491b79e892"
+    },
+    {
+      "path": "gate/evaluate_suite.py",
+      "sha256": "433344f05cb2628cb50c0468e5473804462b88528070862afabc12f2ca8f5d25"
+    },
+    {
+      "path": "gate/restore.py",
+      "sha256": "1bd8f70eb2e775c8744c0183dcde1d3c3b5996d91a107538f6427ae59f9ead02"
+    },
+    {
+      "path": "gate/sealed_eval.py",
+      "sha256": "24b21e046fecbf0bbfb69186a4ebacdf5b4d6eeb59c1df0942f4f56c40e2c0e6"
+    },
+    {
+      "path": "gate/seeds.py",
+      "sha256": "89c18f28e67c8b3f3b15f201f10fbbc232fdf9b3079268dd2d2f2f56524da571"
+    },
+    {
+      "path": "gate/shadow_replay.py",
+      "sha256": "6c5383e354ffc5e59642e317c186bf7daf5ed4f974dd8cdc15e60151e5a405ba"
+    },
+    {
+      "path": "gate/task_profile.py",
+      "sha256": "d619cd82db0fcbb92e2a8ab116d7b85551d4c184e709475a96b6cc33d9bb5748"
+    },
+    {
+      "path": "gate/trace_from_decisions.py",
+      "sha256": "b4fd1d750259d200cc30b1f3811841695d744f08407fe24dcd47e2cadeacd0ed"
+    },
+    {
+      "path": "gate/treedigest.py",
+      "sha256": "d18dfcba30cdc2a2fa61fe2b15b2fb7bc05f0bad02ff5c29868e3610723cfbe5"
+    },
+    {
+      "path": "output/pdf/nanda-2026-track3-ieee-review.pdf",
+      "sha256": "453e7d9e5641432442216373b9ddbaae6c55aee3606c5a67ac9a35bd0acee69c"
+    },
+    {
+      "path": "output/pdf/nanda-2026-track3-working-paper.pdf",
+      "sha256": "d9b8c7d6726fd28874cb6b156ae0ecd164567ee3ad4944bfb76a249f28892ace"
+    },
+    {
+      "path": "profile/build_capsule.py",
+      "sha256": "527c86e93db84d61b2cc94421c9d8cd8966c78af8dcf5c9c1502b71499a2b6db"
+    },
+    {
+      "path": "profile/schema.json",
+      "sha256": "fa7e67723411a04b9f3a7cd82a299999bd87eeaa76723d2b6920de2ab0fb04d1"
+    },
+    {
+      "path": "profile/verify_capsule.py",
+      "sha256": "26dd657f60dd49199b08e0dc3343b7e324cdea394d2c111dd64dcb083bbeab98"
+    },
+    {
+      "path": "studies/decision-audit/PROTOCOL.md",
+      "sha256": "d825992f97b4d878c09389cb1d88c782763601e2654b0080e35b873902b3aebd"
+    },
+    {
+      "path": "studies/decision-audit/README.md",
+      "sha256": "9d1e478da435d1324c0c46e2664743981e421046a0ef3513598abedbbc4f2cba"
+    },
+    {
+      "path": "studies/decision-audit/development-results.json",
+      "sha256": "3a31b7639afc4f1e9be9747d0b78b827612502f005682e46c572320e3aa4ba42"
+    },
+    {
+      "path": "studies/decision-audit/fault-manifest.json",
+      "sha256": "7c86f5fabec42610cfc6438a7b9280269d07aa17e37b89f427ecee651e81e57f"
+    },
+    {
+      "path": "studies/decision-audit/fault-results.json",
+      "sha256": "ab110c43cc5f96ea78ccc36a1960569256b23eb5677670d00c6e943bee768b52"
+    },
+    {
+      "path": "studies/decision-audit/replay_development.py",
+      "sha256": "dca4ce3c9dba7e648a45a4d601c0ff5789322d5470a1875541fd91793edbb2b9"
+    },
+    {
+      "path": "studies/decision-audit/run_faults.py",
+      "sha256": "3a0cf3e4e057ef71edd3e6d8a1f95a4f41a651b9f31350d6c38841eefe1d9ec4"
+    },
+    {
+      "path": "tests/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tests/conformance/README.md",
+      "sha256": "3b3727314bd8c5b10e474fe36fab8365aeea67337c4852043be03ce0106743a7"
+    },
+    {
+      "path": "tests/conformance/vectors/aliased_holdout.json",
+      "sha256": "6004587716ac2c59d5d8c9857721c07fd8ba313951fc5fef071d103c757a1028"
+    },
+    {
+      "path": "tests/conformance/vectors/confirmation_without_provisional.json",
+      "sha256": "012ad4097c6dbe0679fbf47b76120f17b5a21148e65da582759d0b2d2fe3bb27"
+    },
+    {
+      "path": "tests/conformance/vectors/descendant_of_open_provisional.json",
+      "sha256": "e4c92c12038605a3ae67b28784a18468a0a6df7ea8bd03cd758fb336bf8800ea"
+    },
+    {
+      "path": "tests/conformance/vectors/digest_list_disagreement.json",
+      "sha256": "d9bc1fa756a7107ed05604da4986f98d837370b2329400725241ca5dffbed495"
+    },
+    {
+      "path": "tests/conformance/vectors/duplicate_evidence_role.json",
+      "sha256": "6977fc6c81e33f1d447f2eb717028874b126fdd305839b6b7f6b8f88d41c8c59"
+    },
+    {
+      "path": "tests/conformance/vectors/lower_is_better_orientation.json",
+      "sha256": "6763dd25b09eb2094308d2081c5378bec7e706316ae59d2f7962b0ad0c16496e"
+    },
+    {
+      "path": "tests/conformance/vectors/mixed_contracts.json",
+      "sha256": "0bd76fc05c65d33ee561ef87d35130e16f13b85bd630b9dd5b79f3efa8cee7c1"
+    },
+    {
+      "path": "tests/conformance/vectors/non_canonical_locator.json",
+      "sha256": "f23e4056db0bfd1fd19395aa19df6406d2da4139cb0c564f401b715cae847da9"
+    },
+    {
+      "path": "tests/conformance/vectors/replication_reduction.json",
+      "sha256": "54a99bab61de75bb99221a702b4872a96990aedc50487bec74ca12c1343b96ee"
+    },
+    {
+      "path": "tests/conformance/vectors/valid_baseline.json",
+      "sha256": "84c0af4bc8480f3b403a9f0d6fe0815cb9a89f88f95d634e88ccb4a19c83f54e"
+    },
+    {
+      "path": "tests/gate_fixtures.py",
+      "sha256": "4742d8c0737bd02a4e6f9c0d04e4cc044a09875fca4437ce4c5f8abed71795bf"
+    },
+    {
+      "path": "tests/real_logs/prose_inline_disposition.md",
+      "sha256": "f9d959cc86d44e05578a66f632ec1e673f092514ddf79580657027400625113f"
+    },
+    {
+      "path": "tests/real_logs/sectioned_status_line.md",
+      "sha256": "8e695af56aba3113265ed6fdc3402e5352c9851fd829dbeb23f6a2adbc821256"
+    },
+    {
+      "path": "tests/real_logs/table_baseline_parent.md",
+      "sha256": "0a6c7cd085eb4af2b8739c52b3d3c46d90501fb9258c2aac8bada2c6cdfaf428"
+    },
+    {
+      "path": "tests/real_logs/table_kept_column.md",
+      "sha256": "bad5db2a6c6cc81990e60fa538cb4e3b3b493df89f9c021916290a7c31447bf5"
+    },
+    {
+      "path": "tests/real_logs/table_suffixed_ids.md",
+      "sha256": "0760708331a4ed997dff82c270fa3efc3a072c5d76b7315a06d492b0fc6a8342"
+    },
+    {
+      "path": "tests/test_calibrate.py",
+      "sha256": "044e13c5cc8b4fe7d64992da567cc72cc540bc1da9921759d7eb0d58727698a0"
+    },
+    {
+      "path": "tests/test_conformance.py",
+      "sha256": "2392adef6ca2e5725bc4b2bd00ba960788bf228d4b123dd7d4823b0f7ef9e6e4"
+    },
+    {
+      "path": "tests/test_cost.py",
+      "sha256": "e241092301f4c84a0cd89c4af422ec9513c3ca25415431f82500c72a4986ddb5"
+    },
+    {
+      "path": "tests/test_decide.py",
+      "sha256": "139168a18ac37e57a2ec0c51b0e74d73b6570b1679f63fea8ac02c03c1561825"
+    },
+    {
+      "path": "tests/test_decision_audit.py",
+      "sha256": "2c4fb0a42a873ddbcd5458126262119e0ce4e7b2dfe81e7ea2301e562d6b5cdb"
+    },
+    {
+      "path": "tests/test_decision_report.py",
+      "sha256": "c3d31cc5c6bb4a0b289f7edc5e40a05607ca9376b979897bfddf3b96802b893c"
+    },
+    {
+      "path": "tests/test_evaluate_suite.py",
+      "sha256": "f5c5f8b7906996d823d0c88f309f3e93665efe1ca7cc5066e26e2c2d303e6921"
+    },
+    {
+      "path": "tests/test_gated_rollout.py",
+      "sha256": "1f05fbbd6ebe1d2ccdbfa603d8e693cebaf22c07434011a94031061d5085522e"
+    },
+    {
+      "path": "tests/test_instrument.py",
+      "sha256": "9e6f2dee7b509fcf70946d5503453c603bc4864c660baa5bf5afc112277ca716"
+    },
+    {
+      "path": "tests/test_log_reader.py",
+      "sha256": "629719c47457448f8267e8926d33c1be2ef9caed862dbf3a7444bc208c88c4dd"
+    },
+    {
+      "path": "tests/test_make_profile.py",
+      "sha256": "e53618bd40f438c0942da7e939573297d20059c6030cfea61ff8593b7f278a65"
+    },
+    {
+      "path": "tests/test_nanda_ara.py",
+      "sha256": "8aab42be023f60a1a167505d4f32472c9cad86ca4275056cd1241e867f75c769"
+    },
+    {
+      "path": "tests/test_paper_results.py",
+      "sha256": "98ea2babd006868a93f0ef4e8fea30a4db3073926519446e19f0fe741828475d"
+    },
+    {
+      "path": "tests/test_provenance_helper.py",
+      "sha256": "8964b056b38d5f6791612038d80173f64fe8e17e688c03702353f88daf43f2c8"
+    },
+    {
+      "path": "tests/test_restore.py",
+      "sha256": "c04e3f8aa3c5760fa2602e12c428822f1e9a323c0715a2d68d54696099aba18c"
+    },
+    {
+      "path": "tests/test_rsi_exam_provenance.py",
+      "sha256": "664539316e1759e1e194945dfc6a18f2312ebc6136a22b71e7f7efda4f498d1a"
+    },
+    {
+      "path": "tests/test_runbook_overlay.py",
+      "sha256": "9cbe8e38a5f500cbaf6e30a16de393c48c27f869dd5e4b9b23f2a35011b241bf"
+    },
+    {
+      "path": "tests/test_sealed_eval.py",
+      "sha256": "b61391157649e1373f9fa074167daf95c98dfaaa220018c4b7d47368f9a7f5ec"
+    },
+    {
+      "path": "tests/test_seeds.py",
+      "sha256": "95035baaa48100ce03d1ee269267f5a303dcc42498e1d7ca5a45937c1e4d27a3"
+    },
+    {
+      "path": "tests/test_shadow_replay.py",
+      "sha256": "adcc41a962689d365fa1089f36775c60fb378b057f2f8517f8c15ffed6788f35"
+    },
+    {
+      "path": "tests/test_task_profile.py",
+      "sha256": "3598a04a83dd2f99ba42f8618c93f5e1d35f191e4c31ca13338477fabd8416a9"
+    },
+    {
+      "path": "tests/test_trace_from_decisions.py",
+      "sha256": "22e6ee7bc5f151092fb9832a2baeab492e4d01cf80aeee59ec99ae32ae931402"
+    },
+    {
+      "path": "tests/test_treedigest.py",
+      "sha256": "b8ab3f3cd5fdadcc4ec5c40246114ede49345ae5b6634479056c7dcec1e37341"
+    },
+    {
+      "path": "tests/test_verifier_sizing.py",
+      "sha256": "89caf4c52263e910ff4a849b01100bf191a64c5ed3b7a8be4eb4373f641da7c8"
     }
-  ],
-  "missing_required_sources": [
-    "raw Opus block 2-3 primary reward receipts and generated endpoint table",
-    "docs/shadow-audit/instrument-ab/opus/spend.md",
-    "complete Opus secondary-result tables"
   ]
 }

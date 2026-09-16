@@ -1,26 +1,25 @@
-# Code and data artifact index
+# Executable artifact index
 
-The implementation remains in the parent repository. This index avoids copying code into the ARA package.
+Repository-backed ARA: paths here resolve from the root checkout. No paid rollout
+or hosted service is needed for the primary controlled experiment.
 
-| Role | Repository path | Paper use |
-| --- | --- | --- |
-| Decision gate | `gate/decide.py` | Applies the keep/revert/confirm-first rule and writes decision lines. |
-| Provenance producer | `profile/build_capsule.py` | Builds the portable record from a job directory. |
-| Offline verifier | `profile/verify_capsule.py` | Checks schema, digests, lineage, coverage, measurements, and protocol. |
-| TRACE converter | `gate/trace_from_decisions.py` | Converts typed decisions to TRACE 0.5.1. |
-| Shadow replay | `gate/shadow_replay.py` | Applies the policy post hoc to recovered candidate-parent pairs. |
-| Campaign manifest | `docs/campaign/2026-09-instrument-ab/manifest.md` | Preregistered comparison design and endpoint rules. |
-| Stage configuration | `docs/campaign/2026-09-instrument-ab/stages.json` | Models, windows, blocks, randomized order, and limits. |
-| Fault-injection tests | `tests/test_rsi_exam_provenance.py` | Evidence for C01. |
-| Conformance tests | `tests/test_conformance.py` and `tests/conformance/` | Cross-component contract checks. |
-| Study narrative | `docs/PREFLIGHT.md` | Cohort observations and study limitations. |
-| A/B generated evidence | `docs/shadow-audit/instrument-ab/` | Per-stage records, endpoints, audits, and source reports. |
-| Paper result builder | `ara/nanda-2026/src/execution/build_paper_results.py` | Pins source bytes, parses all ten primary blocks and all 20 record outcomes, and writes the canonical paper result. |
-| Paper result tests | `tests/test_paper_results.py` | Guards the 3/7 direction count, 18/20 record yield, source-revision refusal, and generated-file drift. |
-| Canonical paper result | `ara/nanda-2026/evidence/results/paper-results.json` | Machine-readable primary result, evidence class per row, source hashes, and release blockers. |
-| Layout-proof builder | `ara/nanda-2026/src/execution/build_submission_pdf.py` | Renders the working manuscript and generated result table as an anonymous two-column PDF. |
-| Working PDF | `output/pdf/nanda-2026-track3-working-paper.pdf` | Visual submission proof; not an official IEEEtran build or approved submission. |
-| IEEE review source | `ara/nanda-2026/submission/main.tex` | Anonymous IEEEtran source with bounded claims and no author-controlled artifact link. |
-| IEEE review PDF | `output/pdf/nanda-2026-track3-ieee-review.pdf` | Three-page review build; not approved or submitted. |
+| Role | Path |
+| --- | --- |
+| Frozen case definitions | studies/decision-audit/fault-manifest.json |
+| Research protocol | studies/decision-audit/PROTOCOL.md |
+| Controlled runner | studies/decision-audit/run_faults.py |
+| Exact controlled outputs | studies/decision-audit/fault-results.json |
+| Development replay and outputs | studies/decision-audit/replay_development.py and development-results.json |
+| Producer and verifier | profile/build_capsule.py and profile/verify_capsule.py |
+| Synthetic source package | fixtures/gated/ |
+| Decision contract | docs/decision-log-contract.md |
+| Historical integration receipt | docs/RUN_REPORT.md |
+| Historical cohort source | docs/PREFLIGHT.md and docs/shadow-audit/instrument-ab/ |
+| Historical result generator | ara/nanda-2026/src/execution/build_paper_results.py |
+| Current IEEE manuscript | ara/nanda-2026/submission/main.tex |
+| Readable manuscript | ara/nanda-2026/submission/manuscript.md |
+| Current PDF | output/pdf/nanda-2026-track3-ieee-review.pdf |
 
-The submission artifact should cite a versioned tag and commit. The generated result records a digest and evidence class for each input and now consumes the digest-bound Opus block 1 capsule rewards. The final freeze must additionally bind the block 2--3 reward receipts if they are recovered. The anonymous review PDF now uses IEEEtran. Rebuild it after author metadata, anonymity mode, and artifact-link policy are settled.
+The earlier build_submission_pdf.py and nanda-2026-track3-working-paper.pdf are
+historical layout proofs. They do not generate the current research manuscript.
+Use submission/README.md for the current build.

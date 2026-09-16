@@ -23,7 +23,12 @@ provenance producer ----------> portable record
                     |
                     v
               ProofPress import
-       downstream human-governance candidate
+       selected confidence-field evidence
 ```
 
-The arrows denote data flow, not trust inheritance. TRACE does not replace the verifier. ProofPress import does not approve the evidence. ARA packages the research argument but does not authenticate the source files.
+The arrows describe intended composition, not an automatically enforced execution
+sequence or trust inheritance. The historical fixture integration imported selected
+confidence fields; it did not run complete verification or create an approved claim.
+TRACE does not replace the verifier. Claim proposal and authorized human approval
+are separate steps. ARA packages the research argument but does not authenticate
+the source files.

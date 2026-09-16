@@ -1,98 +1,71 @@
 # Claims
 
-## C01 — Offline-verifiable decision provenance
+Epistemic attribution: paper framing and these revised claim cards are ai-suggested;
+executions E01 and E05 are ai-executed. Historical sources remain attributed to
+their repository authors. These labels do not represent human approval.
 
-**Statement:** Binding exact artifacts, evidence, lineage, and decision resolutions by digest enables offline checks of internal consistency and protocol conformance.
+## C01 — Executable decision consistency
+**Statement:** The profile implements offline checks for declared artifact identity, paired-measurement reproduction, protocol state, and supplied-directory coverage.
+**Conditions:** Intended verifier and complete required files; internal consistency only, with no runtime witnessing.
+**Sources:** [input] profile/verify_capsule.py; docs/decision-log-contract.md; docs/profile-v3.md.
+**Status:** supported within implemented and exercised checks.
+**Falsification criteria:** A claimed check is absent, or a case satisfying its prerequisites violates it without the stated failure. This does not require rejecting a fully consistent rewrite.
+**Proof:** [E01], [E05].
+**Evidence basis:** implementation inspection, development replay, and controlled fixtures; no formal soundness proof.
+**Dependencies:** none.
+**Tags:** consistency, executable-profile.
 
-**Conditions:** The verifier receives the produced record and the corresponding exported job directory; exclusions and schema version match the profile; no claim of external authentication is implied.
+## C02 — Historical capture feasibility and missing evidence
+**Statement:** Committed real-run reports document missing visible measurements, version-identification pitfalls, and 18 verified records from 20 started A/B trials.
+**Conditions:** Historical versions and cohorts only; raw job directories are not all available in this artifact.
+**Sources:** [result] docs/PREFLIGHT.md; docs/shadow-audit/instrument-ab/{haiku,sonnet,opus}/records.md; evidence/results/paper-results.json.
+**Status:** supported as a report of committed observations.
+**Falsification criteria:** A retained observation contradicts its cited source or the all-started-trial denominator does not reconcile.
+**Proof:** [E02].
+**Evidence basis:** historical reports and generated table reconciliation, not fresh end-to-end reproduction or a causal capture-effect estimate.
+**Dependencies:** none.
+**Tags:** historical, feasibility.
 
-**Sources:**
+## C03 — Gate efficacy
+**Statement:** The tested statistical instrument improves sealed reward over the helper.
+**Conditions:** Original blocked comparison, small stages, one task, and mixed source precision.
+**Sources:** [result] evidence/results/paper-results.json; docs/campaign/2026-09-instrument-ab/manifest.md.
+**Status:** unsupported; prior 'refuted' label withdrawn as too strong.
+**Falsification criteria:** A prospectively adequate comparison could support or reject a specified effect. The current 3 instrument-favoring and 7 helper-favoring blocks do not establish a general effect.
+**Proof:** [E03].
+**Evidence basis:** descriptive secondary context only. Later Opus raw receipts remain incomplete.
+**Dependencies:** none.
+**Tags:** historical, unsupported-efficacy.
 
-- [input] `README.md:16-20` — «The producer binds every snapshot, the experiment log, the submitted version, the reward file, and each version's decisions by digest; the verifier checks the record offline».
-- [input] `docs/overview.md:168-170` — «It does not say the contents are good; that is a separate judgement.»
-- [input] `tests/test_rsi_exam_provenance.py:1-1` — «Fault-injection tests for the RSI-Exam rollout provenance verifier and producer.»
+## C04 — Confirmation limits influence search
+**Statement:** Confirmation limits may alter downstream candidate selection under a finite compute budget.
+**Conditions:** Requires separating rule effects from model behavior, policy cost, and remaining time.
+**Sources:** [input] docs/campaign/2026-09-instrument-ab/manifest.md; docs/shadow-audit/pilots/pilot-8-preregistration.md.
+**Status:** hypothesis, not a finding of the new audit study.
+**Falsification criteria:** A controlled cap intervention with fixed evidence and compute could contradict the proposed effect on selection.
+**Proof:** [E04] is unexecuted.
+**Evidence basis:** historical mechanism observations only.
+**Dependencies:** none.
+**Tags:** hypothesis, future-work.
 
-**Status:** supported
+## C05 — Additional checks beyond file bindings
+**Statement:** On the twelve frozen authored packages, full verification rejects nine faults; six pass both structural and file-binding checks. Two valid controls pass.
+**Conditions:** Synthetic gated fixture; shared checking components; cases designed after source inspection. All nine outcome expectations match, but only eight diagnostic targets match.
+**Sources:** [result] studies/decision-audit/fault-results.json; [input] studies/decision-audit/fault-manifest.json.
+**Status:** supported on the enumerated cases.
+**Falsification criteria:** Reproduction with matching source hashes changes an outcome, or an attributed failure comes from a different prerequisite or operational crash.
+**Proof:** [E05].
+**Evidence basis:** direct controlled execution and per-case diagnostic records. No population detection rate.
+**Dependencies:** C01.
+**Tags:** controlled-characterization, primary-result.
 
-**Falsification criteria:** A valid-looking record can be accepted after a bound artifact, evidence file, lineage link, submitted-version identity, interval, or required decision rule is changed without the corresponding verifier failure; or the documented fixture workflow does not reproduce an accepted record.
-
-**Proof:** [E01]. The repository contains the producer, a standard-library offline verifier, a valid fixture, and fault-injection tests that mutate the claimed bindings and assert refusal codes. The claim is about internal verification relative to supplied files, not truth of the underlying measurements.
-
-**Evidence basis:** source inspection; executable tests; valid fixture verification.
-
-**Dependencies:** none
-
-**Tags:** provenance, verification, lineage, integrity
-
-## C02 — Native provenance is incomplete in observed cohorts
-
-**Statement:** Unaided agent-authored logs can omit or destabilize the structure needed for a complete machine-checkable decision history, while explicit instrumentation can turn missing structure into a verified record or a visible refusal.
-
-**Conditions:** Limited to the committed cohorts on `game2048_policy_search`; “incomplete” means the producer or verifier cannot construct a complete record from the exported material under the declared profile.
-
-**Sources:**
-
-- [result] `docs/PREFLIGHT.md:254-254` — «Five build and verify. The five refusals are the log's own doing.»
-- [result] `docs/PREFLIGHT.md:357-357` — «Records built and verified in 5 of 5».
-- [result] `docs/shadow-audit/instrument-ab/haiku/records.md:3-3` — «One row per trial started.»
-
-**Status:** supported
-
-**Falsification criteria:** Reprocessing the same frozen job directories with the pinned producer shows the native cohorts are complete at the same rate and with the same failure visibility as the instrumented path, or the reported refusals cannot be reproduced.
-
-**Proof:** [E02]. The committed cohort notes enumerate missing logs, unclassifiable lines, unsnapshotted submissions, and verified records. The producer fails closed on these cases rather than silently treating the record as complete.
-
-**Evidence basis:** observational cohort summaries; producer/verifier outputs; no population-rate inference.
-
-**Dependencies:** C01
-
-**Tags:** completeness, refusal, observational-study
-
-## C03 — The tested instrument improves sealed reward
-
-**Statement:** Requiring statistically gated confirmation before a keep improves final sealed reward relative to recording provenance without the gate.
-
-**Conditions:** Same task and stage configuration within each block; all started trials retained; primary endpoint interpreted exactly as defined in the campaign manifest.
-
-**Sources:**
-
-- [input] `docs/campaign/2026-09-instrument-ab/manifest.md:89-89` — «Primary, per trial: the sealed reward of the submission».
-- [result] `docs/shadow-audit/instrument-ab/haiku/endpoints.md:21-21` — «favouring the instrument: 2; favouring the helper: 2» and «mean difference -0.0186».
-- [result] `docs/shadow-audit/instrument-ab/sonnet/endpoints.md:18-18` — «favouring the instrument: 1; favouring the helper: 2» and «mean difference -0.0171».
-- [result] `docs/shadow-audit/pilots/pilot-8-preregistration.md:5-6` — «instrument 0.551, 0.346, 0.414 against 0.608, 0.602, 0.533» and «every block favoured the helper».
-- [result] `ara/nanda-2026/evidence/results/paper-results.md:26-28` — «Observed blocks: 10», «Favor instrument: 3», and «Favor helper: 7».
-
-**Status:** refuted
-
-**Falsification criteria:** The frozen, fully reconciled endpoint table shows a positive instrument effect under the preregistered estimand with uncertainty adequate for the claim, and the result survives the prespecified sensitivity checks.
-
-**Proof:** [E03]. The generated primary summary covers all ten planned blocks: 3 favor the instrument and 7 favor the helper. Haiku and Sonnet are parsed from machine-generated endpoint tables; Opus block 1 is parsed from digest-bound capsule hidden-evaluation fields; Opus blocks 2 and 3 come from a committed pre-probe summary rounded to three decimals. This is evidence against the improvement claim under tested conditions. Missing block 2--3 receipts and secondary tables remain release blockers and preclude stronger numerical or inferential claims.
-
-**Evidence basis:** preregistered blocked comparison; complete primary direction count; partial final-stage receipt and secondary-source reconciliation.
-
-**Dependencies:** C01, C02
-
-**Tags:** efficacy, negative-result, sealed-reward
-
-## C04 — Confirmation limits suppress later candidates
-
-**Statement:** The confirmation floor/cap and remaining-window rule may prevent some candidates from being kept or evaluated later, changing the downstream search path.
-
-**Conditions:** Applies only to the tested gate configuration and requires separating rule-triggered refusal from agent behavior, task difficulty, model choice, and time-budget effects.
-
-**Sources:**
-
-- [input] `docs/campaign/2026-09-instrument-ab/manifest.md:133-136` — «plan more confirmation seeds than the cap and are reverted as exploratory».
-- [result] `docs/PREFLIGHT.md:598-600` — «16 confirmed» under the diagnostic planning rule and «Both Opus pairs and both Sonnet pairs the replay could evaluate confirmed at the floor».
-
-**Status:** hypothesis
-
-**Falsification criteria:** A direct intervention holding candidate sequence and remaining compute fixed shows no material change in later candidate production or selection when confirmation limits are varied; or logged refusals do not occur for the proposed mechanism.
-
-**Proof:** [E04]. Existing summaries show rule states compatible with the mechanism, but the comparison does not isolate it causally. The paper must describe this as a candidate explanation and proposed follow-up experiment.
-
-**Evidence basis:** mechanism-consistent observations; no causal identification.
-
-**Dependencies:** C03
-
-**Tags:** mechanism, confirmation, hypothesis
+## C06 — Unsigned reward rewrite remains accepted
+**Statement:** Rewriting the unsigned reward file and matching capsule reward to 0.5, then refreshing the reward digest, passes complete verification.
+**Conditions:** Exact boundary_control case; remaining files unchanged. The verifier does not recompute the hidden reward from score_details.
+**Sources:** [result] studies/decision-audit/fault-results.json case reward_rewrite; [input] profile/verify_capsule.py _check_reward.
+**Status:** supported on the tested rewrite.
+**Falsification criteria:** The unchanged verifier rejects this package, or the report does not contain the declared changed-file bindings.
+**Proof:** [E05].
+**Evidence basis:** accepted adversarial boundary control, not proof that all consistent rewrites pass.
+**Dependencies:** C01.
+**Tags:** authenticity-boundary, negative-control.

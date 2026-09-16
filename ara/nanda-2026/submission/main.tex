@@ -1,149 +1,130 @@
 \documentclass[conference]{IEEEtran}
-
 \usepackage{newtxtext,newtxmath}
-\usepackage{balance}
 \usepackage{booktabs}
 \usepackage{url}
-\usepackage{xcolor}
-
-\title{Auditable Keeps: Offline-Verifiable Decision Provenance\\
-for Self-Improving Agents}
-
-\author{\IEEEauthorblockN{Anonymous Authors}
-\IEEEauthorblockA{Working review copy; authorship and anonymity mode pending}}
-
+\title{Auditable Keeps: Semantic Verification of\\Self-Improving Agent Decisions}
+\author{\IEEEauthorblockN{Anonymous Authors}}
 \begin{document}
 \maketitle
-
 \begin{abstract}
-Self-improving agents repeatedly decide whether an observed change should become the parent of later work. A conventional rollout may preserve neither the evidence used for that decision nor a machine-checkable link from the evidence to the submitted artifact. We present a decision-provenance layer that records candidate--parent comparisons, binds artifacts and measurements by digest, and verifies lineage, coverage, recomputed statistics, and protocol conformance offline. We study it in reduced-window, modified-program RSI-Exam rollouts. The evidence supports the integrity and auditability contribution and exposes incomplete native provenance in the observed cohorts. It does not support a claim that the tested gate improves sealed reward: across ten blocked comparisons, three favor the instrument and seven favor the helper. Seven results come from machine-generated endpoint tables, the first Opus block comes from digest-bound capsule reward fields, and the remaining two Opus blocks come from a committed pre-probe summary rounded to three decimals. We therefore treat efficacy as refuted under the tested conditions and a proposed confirmation-limit mechanism as a hypothesis, not a causal result.
+A self-improving agent hands off decisions about which versions become the basis of later work. Matching file digests does not establish that recorded measurements justify those decisions. We present an executable decision-provenance profile linking candidate and parent versions, paired measurements, provisional resolutions, and final submission identity. Its offline verifier checks measurement reproducibility and declared decision rules, with coverage assessed separately from integrity. We evaluate its incremental checks using twelve author-designed packages derived from an executable fixture: nine faults, two valid controls, and one unsigned-reward rewrite control. Structural checking rejects one fault, structure plus file bindings rejects three, and complete verification rejects all nine; six faults therefore survive file-binding checks. Valid controls pass, as does the consistently rewritten reward, demonstrating the boundary between internal consistency and authenticity. Historical RSI-Exam rollout reports motivate the design but are not a controlled evaluation of auditing benefits. The result is a bounded, reproducible characterization of an artifact-level accountability mechanism for agent handoffs.
 \end{abstract}
-
 \begin{IEEEkeywords}
-agent provenance, audit trails, self-improving agents, offline verification, research artifacts
+decision provenance, agent accountability, offline verification, research artifacts
 \end{IEEEkeywords}
-
 \section{Introduction}
+An agent improving a program repeatedly proposes candidates, evaluates them, and decides what to retain. In RSI-Exam, an agent modifies an executable method and submits a final program for evaluation on unseen data~\cite{rsiexam}. A retained version becomes a parent of subsequent work. When another agent or organization receives the artifact, the final score alone cannot identify which measurements supported each decision or whether those measurements belong to the submitted version.
 
-Long-horizon self-improvement benchmarks ask an agent to modify a working method, evaluate candidates on visible data, and eventually submit one artifact for sealed evaluation. RSI-Exam is one such benchmark: a task supplies a weak method, the agent iterates for up to twelve hours, and a fresh container scores the final submission on a split the agent did not observe~\cite{rsiexam}. A keep is not merely a local note. It changes the ancestry of later work: the kept candidate becomes a parent, while a rejected candidate is excluded from the branch.
+This is a concrete evidence problem. Our project's historical preflight report records a task configuration in which visible evaluation results were written outside the exported methods directory and overwritten by later evaluations. The exported job preserved final hidden scores but not those intermediate measurements. The report also describes identical submitted Python sources whose bytecode caches differed from their snapshot caches. A naive whole-directory hash would identify them as different methods. These observations motivate explicit capture and identity rules; they are case reports, not estimates of prevalence.
 
-This becomes an accountability problem when artifacts move between agents or organizations. A downstream consumer may receive a final method and an informal experiment log but still be unable to answer three basic questions: what exact candidate was proposed, what evidence resolved the decision, and which exact bytes later work inherited. General provenance standards can represent entities, activities, agents, and derivation~\cite{prov}; networked-agent architectures add discovery, authentication, and capability metadata~\cite{nanda}. Neither by itself defines the task-specific checks needed to re-evaluate a keep decision from exported files.
+We ask: \emph{given an exported package, which decision inconsistencies can a recipient detect beyond checking structure and file bindings?} The answer requires relating bytes to a decision: a candidate and parent, oriented paired measurements, a reproducible statistic, and a resolution under a declared protocol. We contribute an executable profile for these relationships, an offline verification procedure with explicit coverage and trust limits, and a controlled characterization of its additional checks.
 
-We present a portable record and offline verifier for that decision boundary. The contribution is deliberately narrower than manipulation-resistant reputation or malicious-agent containment. The evaluation is single-agent; it is not itself a decentralized or multi-agent network experiment. Its Track 3 relevance is that a downstream party can require a locally verifiable event before admitting a claimed improvement into its own lineage or reputation policy.
+The setting is relevant to decentralized agent accountability because a recipient can check a supplied package without querying the producing runtime. The experiments are local and single-agent; they do not evaluate network-scale governance, reputation robustness, or human audit speed.
 
-The paper makes three contributions:
-\begin{itemize}
-    \item a decision-record contract that binds candidate and parent artifacts, evidence roles, measurements, resolution, and submitted lineage;
-    \item an offline verifier that reports integrity, coverage, and protocol outcomes separately rather than collapsing missing evidence into success; and
-    \item a source-pinned evaluation that reports a negative gate result and preserves the evidence class and precision of every primary row.
-\end{itemize}
+\section{Decision Model and Verification}
+\subsection{Package and trust assumptions}
+A package contains a versioned record, snapshots, the submitted method, experiment and decision logs, and referenced results. Trajectory files may be bound by digest without embedding their contents. A producer constructs the record after a rollout; a recipient verifies it against the supplied directory.
 
-\section{Decision-Provenance Design}
+We assume the recipient has the intended profile and verifier. The package producer and unsigned evaluation files are not authenticated by this mechanism. An adversary may change records, files, or both. Checks expose inconsistency relative to the received package, but cannot reconstruct a removed experiment when all its traces have been removed. They cannot establish that code was executed as claimed. A result binding associates a declaration with bytes; it is not a trusted execution receipt.
 
-\subsection{Auditable unit and trust boundary}
+\subsection{The decision as an auditable unit}
+Represent a decision as
+\[
+d=(p,c,E,\theta,v,a,r),
+\]
+where $p,c$ identify parent and candidate occurrences; $E$ gives role-labeled result references and digests; $\theta$ identifies the statistic, orientation, algorithm, seed, sample size, interval, and threshold; $v$ is a statistical verdict; $a$ is the disposition; and $r$ identifies a resolved provisional decision when applicable.
 
-The auditable unit is one keep, revert, provisional, or confirmation event over an exact candidate--parent pair. Each resolved decision records the statistic, direction, estimate, interval and coverage, deterministic method identifier, sample size, minimum effect, evidence paths and digests, and the rule state needed to reproduce the disposition. Statistical verdict and operational disposition remain separate: an inconclusive measurement may lead to a provisional state rather than silently becoming a keep.
+Occurrences and contents have distinct identities: reverting may repeat earlier bytes. A method digest excludes bytecode caches according to the task's staging convention, while a separate full-tree digest checks supplied directory bytes. Submitted identity is determined by the method-digest equivalence class and its canonical recorded representative.
 
-The record is tamper-evident relative to supplied files. A digest identifies bytes; it does not establish truth, quality, authorship, independent witnessing, or that an event happened inside an untrusted container. The verifier therefore claims internal consistency and declared-protocol conformance, not runtime attestation.
+For paired seed scores, oriented deltas are
+\[
+\Delta_i=s_c(i)-s_p(i)
+\]
+for a higher-is-better metric, with the sign reversed otherwise. The verifier recomputes the estimate and percentile-bootstrap interval using the declared algorithm and random seed. Reproducibility does not establish nominal confidence coverage under adaptive reuse of visible seeds.
 
-\begin{figure}[t]
-\centering
-\fbox{\begin{minipage}{0.94\columnwidth}
-\centering\small
-Agent rollout: candidate, parent, measurements\\[2pt]
-$\downarrow$\\[-2pt]
-Gate or helper $\rightarrow$ append-only decision log\\[2pt]
-$\downarrow$\\[-2pt]
-Snapshots + reward $\rightarrow$ portable provenance record\\[2pt]
-$\downarrow$\\[-2pt]
-Offline verifier: integrity $\mid$ coverage $\mid$ protocol\\[2pt]
-$\swarrow$\hspace{28mm}$\searrow$\\[-2pt]
-TRACE runtime view\hspace{8mm}ARA paper evidence\\[-1pt]
-$\downarrow$\\[-2pt]
-ProofPress import candidate for later human governance
-\end{minipage}}
-\caption{Layers exchange data but do not inherit trust. TRACE expresses runtime decisions; the verifier checks bound files; ProofPress import is not approval; ARA packages the research argument.}
-\label{fig:layers}
-\end{figure}
+A verdict compares an interval to a threshold. A disposition applies the chosen protocol: a candidate can remain provisional pending confirmation. The record identifies which later event resolves that state. Protocol checks include unresolved provisional submission, contradictory dispositions, and insufficient confirmation sample counts.
 
-\subsection{Producer and verifier}
+\subsection{Recipient checks}
+For record $R$ and supplied files $F$, acceptance with required complete coverage is
+\[
+S(R)\land B(R,F)\land M(R,F)\land P(R)\land C(R,F).
+\]
+$S$ checks structure, $B$ checks file bindings, $M$ checks cross-field identity and recomputed measurements, $P$ checks decision rules, and $C$ checks snapshot coverage. This describes the acceptance predicate; it is not a formal soundness proof.
 
-The producer maps an exported job directory into a versioned record. It binds every cache-free method tree, parent link, kept or reverted state, submitted version, reward artifact, and decision evidence. The verifier recomputes file digests, lineage, submitted-version identity, intervals, and rule conformance without a hosted service. It fails closed on a changed artifact, a missing snapshot, an ambiguous submission, or an interval that cannot be recomputed from the bound results.
+Coverage is relative to the supplied snapshot directory. An extra unrecorded snapshot can leave integrity passing while coverage becomes partial; requiring complete coverage then rejects the package. A complete inventory can also coexist with an inconsistent statistic. Our evaluation preserves these different outcomes.
 
-Three outcome channels prevent a valid hash from being mistaken for a complete experiment. \emph{Integrity} asks whether the supplied bytes match the record. \emph{Coverage} asks whether required versions and decisions are present. \emph{Protocol} asks whether the declared decision rules were followed. A record may pass one channel and fail another.
-
-\subsection{Interchange and governance layers}
-
-The decision log can be projected into a TRACE 0.5.1 session: the agent is the proposer, the gate is the resolver, and a confirmation event revises a provisional event. TRACE types the generic measurement while preserving profile-specific rule state as an identified extension. A downstream ProofPress adapter can import selected TRACE fields as external evidence, but import creates neither a claim nor an approval. These boundaries matter because provenance capture, source verification, decision representation, and authorization for later reuse are different operations.
-
-The companion Agent-Native Research Artifact (ARA) stores the manuscript, falsifiable claims, experiment definitions, evidence pointers, and negative-result pivot as linked layers~\cite{ara}. It is a paper-facing research package, not the runtime log or governance authority.
+\subsection{Worked handoff}
+The fixture contains a parent with visible mean 4120 and a candidate with mean 3801.25. It records paired mean delta $-318.75$ and interval $[-382.5,-258.75]$, supporting a revert for a higher-is-better score. Changing the estimate to $-317.75$ in both the log and record projection, and updating the log hash, preserves structure and file bindings. The recipient nevertheless detects that the estimate cannot be recomputed, without a fresh policy execution.
 
 \section{Evaluation}
+\subsection{Design and reproducibility}
+We first replay ten existing development vectors, including one valid baseline, to inspect component boundaries. These were used to develop the implementation and provide no held-out performance estimate. Separately, we run twelve controlled packages derived from the committed gated fixture: nine faults, two valid controls, and one authenticity-boundary control.
 
-\subsection{Study design}
+The controlled manifest was committed before first execution, after inspection of the implementation and tests. This is an author-designed characterization, not a preregistered independent study. The verifier remains unchanged. Before each mutation, a clean copy must pass complete verification. Mutations operate on disposable copies; the report records changed-file hashes, source hashes, returned errors, and coverage.
 
-We evaluate the system on \texttt{game2048\_policy\_search} using reduced windows and modified program overlays. These are not official RSI-Exam results. Within each block, one instrument-arm rollout and one helper-arm rollout use the same model-stage configuration. The instrument arm routes keep proposals through the statistical gate; the helper arm supplies provenance bookkeeping without that policy. The campaign manifest fixes stage configuration, randomized run order, primary endpoint, and missing-reward rules before the stages run.
+We compare internal configurations on the same packages: \textbf{S}, the existing structural checker; \textbf{B}, structure plus referenced file and tree bindings; and \textbf{V}, full verification requiring complete coverage. B uses production digest functions but omits cross-field identity, measurement recomputation, protocol, and coverage checks. These are internal ablations, not third-party product comparisons. B checks source logs, reward files, decision evidence, recorded snapshots, and the final tree. Limited-check acceptance means only those checks passed.
 
-The primary endpoint is instrument minus helper final sealed reward within a block. Secondary endpoints include record outcomes, recovered candidate--parent pairs, dispositions, and stop conditions. The ten blocks span four Haiku, three Sonnet, and three Opus pairs. The study was not sized to estimate a population effect, so we report block directions and descriptive means, not an efficacy rate or significance test.
-
-\subsection{Source-bound reconciliation}
-
-A generator pins every paper input to repository revision \texttt{727b9b821d78} and refuses a working-tree source whose bytes differ. Haiku and Sonnet rows are parsed from machine-generated endpoint tables. For Opus block 1, each committed capsule records the source-precision hidden reward plus the SHA-256 of its \texttt{verifier/reward.json}. The repository lacks the generated Opus endpoint table and block 2--3 capsules; those four rewards are parsed from a committed pre-probe summary written before the subsequent probe and rounded to three decimals. The generated output preserves evidence class per row and refuses to reconstruct absent secondary results.
-
-Evidence precedence is explicit: raw outputs and verifier receipts; generated per-trial tables; preregistered manifests and endpoint tables; committed pre-probe summaries; narrative handoffs; working notes. Lower-precedence prose cannot silently override a source table.
-
-\subsection{Results}
-
-Table~\ref{tab:primary} reports all ten primary blocks by stage. Three favor the instrument and seven favor the helper. Mean differences are negative in every stage; the Opus mean is approximate because two blocks use rounded inputs. This refutes the tested improvement claim under these conditions. It does not establish a general negative effect.
+\subsection{Controlled outcomes}
+Table~\ref{tab:faults} reports every case. Decision changes are mirrored in the log and capsule, and the log hash is refreshed. For swapped measurements, role labels remain while referenced files and digests exchange places. For a changed submission, its hashes are refreshed while its claimed version remains unchanged. These semantic cases do not rely on stale hashes.
 
 \begin{table}[t]
-\caption{Primary sealed-reward direction by model stage}
-\label{tab:primary}
-\centering
-\begin{tabular}{lrrrr}
+\caption{Authored packages. A: accepts its check scope; R: rejects.}
+\label{tab:faults}
+\centering\small
+\begin{tabular}{p{0.65\columnwidth}ccc}
 \toprule
-Stage & Blocks & Fav. I & Fav. H & Mean I$-$H \\
+Package change & S & B & V\\
 \midrule
-Haiku  & 4 & 2 & 2 & $-0.0186$ \\
-Sonnet & 3 & 1 & 2 & $-0.0171$ \\
-Opus$^{*}$ & 3 & 0 & 3 & $-0.1441$ \\
+None (valid control) & A&A&A\\
+Excluded caches differ; full hashes refreshed & A&A&A\\
+Reward and declaration rewritten together & A&A&A\\
 \midrule
-Total & 10 & 3 & 7 & -- \\
+Unrecognized version status & R&R&R\\
+Referenced measurement file removed & A&R&R\\
+Recorded orientation reversed & A&A&R\\
+Recorded estimate increased by one & A&A&R\\
+Parent/candidate measurements exchanged & A&A&R\\
+Submitted provisional left unconfirmed & A&A&R\\
+Submission changed; version claim retained & A&A&R\\
+Recorded snapshot removed & A&R&R\\
+Unrecorded snapshot added & A&A&R\\
 \bottomrule
-\multicolumn{5}{l}{\footnotesize $^{*}$Block 1 bound; blocks 2--3 rounded summaries.}
 \end{tabular}
 \end{table}
 
-The three per-stage record tables enumerate 20 started trials and 18 verified records: 9 of 10 in the instrument arm and 9 of 10 in the helper arm. The two failures are visible \texttt{submitted\_not\_snapshotted} outcomes, one per arm. This matters independently of reward: the system did not silently reinterpret incomplete lineage as a valid record.
+S rejects one of nine faults, B rejects three, and V rejects nine. Six faults pass B but fail V. Both valid controls pass all configurations. These counts characterize authored cases; they do not estimate detection rates on naturally occurring errors.
 
-The provenance workflow also exposed an analysis-level failure. A ten-block narrative total existed before a canonical all-stage result file, while the Opus endpoint table and block 2--3 receipts were absent from the repository. The paper generator therefore carries per-row evidence class and a release-blocker list. Auditability here includes the ability to say which result is usable only for direction and which claim must remain unresolved.
+Reason-level results qualify this conclusion. Orientation and swapped measurements fail statistic reproduction; the changed estimate fails estimate reproduction; provisional submission triggers its protocol error; changed submission identity triggers a cross-field mismatch. The extra snapshot produces partial coverage with no integrity error. A missing snapshot is rejected, but the manifest predicted the wrong diagnostic prefix: \texttt{file:version:v2}, versus the actual \texttt{file:artifact:v2:missing\_file}. All nine faults are refused, but only eight match their prespecified diagnostic target. Unexpected runtime exceptions abort execution rather than count as detections.
 
-\balance
-\section{Discussion}
+\subsection{Boundary and development findings}
+The unsigned reward control changes both the reward file and capsule reward to 0.5 and updates the digest. V accepts it. The verifier checks agreement with the supplied reward file; it neither authenticates the grader nor recomputes the reward from score details. This acceptance limits downstream trust claims.
 
-\subsection{Negative efficacy, positive auditability}
+Development replay shows why refusal alone is insufficient. The existing descendant-of-open-provisional vector is rejected by the full construction path because its referenced version is absent, before the intended ancestry check is reached. The converter reports the intended provisional-ancestry violation. We do not count the end-to-end refusal as proof of the named verifier capability. The controlled study instead tests an existing submitted provisional version with confirmation removed, reaching its explicit protocol check.
 
-The gate is an evaluated policy, not the paper's success criterion. Its loss is useful evidence for the provenance design: the same machinery that could have supported a favorable result instead preserves an unfavorable one, exposes incomplete records, and prevents a handoff summary from outranking its sources. The strongest claim is therefore about the record/verifier contract and evidence-precedence workflow.
+\subsection{Historical deployment context}
+Committed cohort tables report 18 verified records among 20 started instrument/helper trials, nine per arm. The two refusals concern submissions without corresponding snapshots. This supports historical feasibility of capture and explicit refusal, not a controlled improvement in auditability. Original job directories are not all packaged here, so the tables are not newly reproduced end to end.
 
-Existing observations are compatible with a mechanism in which confirmation planning limits alter later search, but the comparison does not isolate that mechanism. We retain it as a hypothesis. A causal test would hold candidate evidence and compute fixed while varying the cap and remaining-window policy prospectively.
+The reward comparison has three instrument-favoring and seven helper-favoring blocks. Small sample size and incomplete source precision in later Opus blocks do not support a general efficacy conclusion. We retain this as deployment context: enforcing a decision rule has different consequences from recording and checking one.
 
-\subsection{Implication for decentralized agent systems}
+\section{Related Work and Implications}
+PROV provides entity, activity, and derivation semantics; PROV-CONSTRAINTS already defines consistency conditions over provenance histories~\cite{prov}. Our task-specific profile adds measurement recomputation, candidate/parent roles, submission identity, and keep/confirmation rules. We do not claim to invent provenance validation.
 
-NANDA architectures emphasize discovery, authentication, capability attestation, and interoperable agent ecosystems~\cite{nanda}. Our result supplies a narrower artifact-level primitive: before accepting an improvement, a consumer can require a record whose claimed lineage, evidence, and resolution are locally checkable. A network may then attach policy or reputation to explicit verifier outcomes rather than prose assertions. The record does not make reputation manipulation-resistant by itself, authenticate a producer, or prevent collusion and Sybil behavior.
+in-toto provides cryptographic verification of software supply chains~\cite{intoto}. Our unsigned packages have a weaker authenticity boundary. A possible composition would attest a package while separately checking its decision semantics; we have not implemented or evaluated this. MLflow tracks experiment parameters, metrics, and artifacts~\cite{mlflow}. Such storage can retain our inputs; the experiment concerns additional recipient checks, not measured superiority over tracking systems.
 
-\subsection{Limitations}
+TRACE represents decisions and typed confidence information. A historical fixture run validates its conversion and import into ProofPress, which projects selected confidence fields as evidence. Import performs neither complete verification nor human approval. A deployment must explicitly arrange verification and authorization; schema compatibility alone does not establish governed reuse.
 
-The study uses one task, small stages, modified programs, and reduced windows. Author-run evidence is not independent evidence. Digests detect changes relative to supplied files but do not prove correctness or runtime occurrence. Opus block 1 is reward-receipt-bound, but blocks 2 and 3 remain rounded summaries; Opus spend and complete secondary analyses are absent from the merged tree. ProofPress compatibility demonstrates a schema handoff, not adoption, approval, or governed reuse. Finally, the public workshop page does not state whether review is anonymous or whether author-controlled artifact links are allowed, so this review source remains anonymous and contains no public artifact link.
+A networked consumer could condition acceptance on verification outcomes before adding an artifact to its lineage. Authentication, authorization, independent witnessing, and resistance to collusion remain separate requirements. The Agent-Native Research Artifact companion~\cite{ara} links claims to manifests, code, results, and the abandoned reward-centered framing, supporting inspection of the research argument.
 
-\section{Conclusion}
+\section{Limitations and Conclusion}
+This is an internal characterization on a synthetic fixture, with author-selected faults and shared checking components. It does not demonstrate generalization to unseen tasks, lower audit effort, independent implementer agreement, or attack resistance. Historical rollouts supply motivation and feasibility at weaker reproducibility strength. Coverage cannot reveal wholesale removal of an experiment, and internally consistent rewriting can pass. The statistical rule is checked as declared; its scientific adequacy is not certified.
 
-We introduced an offline-verifiable record for the keep-or-revert decisions that create lineage in self-improving-agent rollouts. The system binds artifacts and evidence, separates integrity, coverage, and protocol outcomes, and makes incomplete provenance visible. In ten reduced-window, modified-program comparisons, the tested gate does not improve the primary endpoint: three blocks favor the instrument and seven favor the helper. Reporting that negative result with its source-strength boundary is part of the contribution. For networked agents, the record offers a checkable event on which downstream governance and reputation mechanisms can operate without treating an agent's narrative as proof.
+Six authored faults survive structure and file binding but fail complete verification, while a consistently rewritten unsigned reward passes. These results delimit our profile's contribution: recipients can check specified decision relationships in supplied evidence, while authenticity and experimental truth require additional mechanisms.
 
 \begin{thebibliography}{00}
-\bibitem{rsiexam} Aiming Lab, ``RSI-Exam: Measuring Recursive Self-Improvement on Long-Horizon, Executable Research Tasks,'' 2026. [Online]. Available: \url{https://github.com/aiming-lab/RSI-Exam}
-\bibitem{prov} W3C Provenance Working Group, ``PROV-O: The PROV Ontology,'' W3C Recommendation, Apr. 2013.
-\bibitem{nanda} S. Wang, R. Raskar, M. Lambe, P. Chari, R. Singhal, S. Gupta, R. Ranjan, and K. Huang, ``Using the NANDA Index Architecture in Practice: An Enterprise Perspective,'' \emph{arXiv preprint arXiv:2508.03101}, 2025.
-\bibitem{ara} J. Liu \emph{et al.}, ``The Last Human-Written Paper: Agent-Native Research Artifacts,'' \emph{arXiv preprint arXiv:2604.24658}, 2026.
+\bibitem{rsiexam} Aiming Lab, \emph{RSI-Exam}, 2026. [Online]. Available: \url{https://github.com/aiming-lab/RSI-Exam}
+\bibitem{prov} J. Cheney, P. Missier, and L. Moreau, Eds., \emph{Constraints of the PROV Data Model}, W3C Recommendation, Apr. 2013.
+\bibitem{intoto} S. Torres-Arias, H. Afzali, T. K. Kuppusamy, R. Curtmola, and J. Cappos, \emph{in-toto: Providing farm-to-table guarantees for bits and bytes}, in USENIX Security, 2019, pp. 1393--1410.
+\bibitem{mlflow} MLflow, \emph{ML Experiment Tracking}. [Online]. Available: \url{https://mlflow.org/docs/latest/ml/tracking/}
+\bibitem{ara} ARA Labs, \emph{Agent-Native Research Artifact}. [Online]. Available: \url{https://github.com/ARA-Labs/Agent-Native-Research-Artifact}
 \end{thebibliography}
-
 \end{document}

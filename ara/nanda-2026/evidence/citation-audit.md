@@ -1,5 +1,29 @@
 # Citation and venue audit
 
+## Current manuscript audit - 2026-09-16
+
+The old audit below is retained as historical context, not the current bibliography.
+The revised manuscript has five references: RSI-Exam, PROV-CONSTRAINTS, in-toto,
+MLflow tracking, and the ARA repository. NANDA and the ARA arXiv paper are no longer
+bibliography entries. Rechecked the following primary pages for the revised claims:
+
+- https://www.w3.org/TR/prov-constraints/ - W3C Recommendation, 30 April 2013;
+  editors James Cheney, Paolo Missier, Luc Moreau. Explicit consistency constraints
+  exist already; the manuscript does not claim to invent provenance validation.
+- https://www.usenix.org/conference/usenixsecurity19/presentation/torres-arias -
+  in-toto, USENIX Security 2019, Santiago Torres-Arias and four coauthors. Its
+  cryptographic supply-chain guarantees are distinct from unsigned package checks.
+- https://mlflow.org/docs/latest/ml/tracking/ - tracking of runs, parameters,
+  metrics and artifacts. No experimental product-superiority claim is made.
+- https://github.com/ARA-Labs/Agent-Native-Research-Artifact - four-layer artifact
+  organization. ARA is the companion format, not this paper's research novelty.
+
+The RSI-Exam setting and venue facts were verified in the earlier audit below;
+the workshop page was rechecked on 2026-09-16. Author approval, anonymity, and
+artifact-link decisions remain external-submission checks, not claims of approval.
+
+## Historical audit of the superseded manuscript
+
 **Checked:** 2026-09-15 America/Los_Angeles
 
 This audit records the primary public pages used to verify the four references in the anonymous IEEE review source and the venue facts that affect release. It verifies bibliographic and public-page metadata, not the paper's local experimental claims.
