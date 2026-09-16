@@ -38,4 +38,3 @@ The optional source checkout must contain the recorded source bytes. The portabl
 | Does consistency prove truth? | Accepted coherent reward rewrite | No authenticity claim for any historical record |
 
 These links motivate checks; no synthetic mutation is claimed to reproduce a particular historical failure. Two valid controls show acceptance on those examples, not an estimated false-positive rate.
-

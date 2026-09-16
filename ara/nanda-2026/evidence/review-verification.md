@@ -30,3 +30,4 @@ submission or public publication has been performed.
 - Readable manuscript generation preserves title, abstract and reference labels; render_manuscript.py --check passed.
 - Revised three-page PDF rendered and every page inspected; all fonts embedded/subset. No clipped text or table overlap.
 - RSI repository pyright: zero errors, one pre-existing optional jsonschema source warning. An accidental diagnostic invocation in the separate Proofpress workspace is not this repository's result and no changes were made there.
+- Initial clean-copy delivery check found a bundle missing a default HEAD. Explicit branch checkout reproduced all 19 focused tests, the historical generator, snapshot bindings and readable manuscript. Packaging now includes HEAD and instructions specify the branch. This was a packaging issue, not a study-result change.

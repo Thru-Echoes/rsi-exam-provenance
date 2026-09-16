@@ -14,7 +14,7 @@ This is an author-side, AI-assisted research draft. No official ARA Seal, indepe
 The ZIP contains a browsable source snapshot and repository.bundle with the Git history needed for the pinned historical-table check. From the unpacked ZIP directory:
 
 ```sh
-git clone repository.bundle reproduction
+git clone --branch codex/nanda-2026-ara repository.bundle reproduction
 cd reproduction
 python3 studies/handoff-case-review/review_cases.py --check
 python3 -m unittest tests.test_handoff_cases tests.test_decision_audit tests.test_nanda_ara tests.test_paper_results tests.test_conformance -q

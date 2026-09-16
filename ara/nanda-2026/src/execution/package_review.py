@@ -29,7 +29,7 @@ def main():
         raise SystemExit("Output exists; choose a new name to preserve review snapshots.")
     with tempfile.TemporaryDirectory(prefix="nanda-package-") as temporary:
         bundle = Path(temporary) / "repository.bundle"
-        subprocess.run(["git", "bundle", "create", str(bundle), branch], cwd=ROOT, check=True)
+        subprocess.run(["git", "bundle", "create", str(bundle), branch, "HEAD"], cwd=ROOT, check=True)
         entries = {}
         with zipfile.ZipFile(io.BytesIO(archive)) as source:
             for item in source.infolist():
