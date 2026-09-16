@@ -26,5 +26,10 @@
       "disposition": "Historical tables provide reported context only; primary evaluation is fully fixture-backed."
     }
   ],
+  "historical_case_revision": {
+    "claims": ["C07", "C08"],
+    "inspection": "E06; retained records and exact pinned source projection",
+    "limits": ["No complete original RSI replay", "No fresh Harvey model run", "Retrospective subgroup", "Only treatment has external ledger-state metadata", "Not the same verifier implementation"]
+  },
   "publication_approval": "pending human authors"
 }

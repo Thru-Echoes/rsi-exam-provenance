@@ -41,3 +41,12 @@ All repository-relative paths below resolve from the root checkout.
 **Procedure:** Verify a clean copy first, inject the manifest's change, compare S (structure), B (structure and bindings), and V (full require-complete verification). The producer is not rerun after mutation. Capture changed-file hashes and actual reasons. Unexpected exceptions abort execution.
 **Expected outcome:** Nine faults rejected; clean and cache controls accepted; unsigned reward rewrite accepted. Manifest diagnostic expectations remain unchanged after execution.
 **Evidence:** studies/decision-audit/fault-results.json and fault-manifest.json. One diagnostic-prefix mismatch is retained: missing snapshot expects file:version:v2 but returns file:artifact:v2:missing_file. This is 9/9 expected refusal outcomes and 8/9 diagnostic-target matches, not a perfect test run. Evaluation code and limitations are indexed in src/artifacts.md.
+
+## E06 — Retained-record and historical-source inspection
+**Verifies:** C07, C08.
+**Run:** python3 studies/handoff-case-review/review_cases.py --check
+**Setup:** Retained RSI capsule/log and pinned public Harvey result/protocol projection; stdlib only.
+**Procedure:** Check log binding, extract branch and dispositions, inventory referenced paths, extract selected and full-pilot counts. Optionally verify projection against original pinned source files with --proofpress-root.
+**Expected outcome:** Exact case-results.json, including false original-run-reproduction flags and incomplete RSI evidence.
+**Evidence:** studies/handoff-case-review/case-results.json; README.md and source projection in the same directory.
+No new model run, paid inference, independent test set, or complete current-verifier real-run trial is performed.

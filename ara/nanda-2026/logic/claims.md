@@ -69,3 +69,25 @@ their repository authors. These labels do not represent human approval.
 **Evidence basis:** accepted adversarial boundary control, not proof that all consistent rewrites pass.
 **Dependencies:** C01.
 **Tags:** authenticity-boundary, negative-control.
+
+## C07 — Partial real-run evidence is inspectable, not fully replayable
+**Statement:** The retained Opus block 1 capsule/log reconstruct v1-to-v2 revert and v1-to-v3 submission, with a matching log binding; absent results and snapshots prevent full replay.
+**Conditions:** Only the retained export is inspected; reported means and dispositions are declarations.
+**Sources:** studies/handoff-case-review/case-results.json; docs/figures/sources/ab-opus-1-I/.
+**Status:** supported retained-record inspection, not current verifier success on a real run.
+**Falsification criteria:** Source hashes differ, lineage extraction disagrees, or claimed missing evidence is present in the inspected export.
+**Proof:** [E06].
+**Evidence basis:** Original retained capsule and log plus deterministic inventory.
+**Dependencies:** none.
+**Tags:** historical-case, incomplete-evidence.
+
+## C08 — Reuse eligibility is separate from decision consistency
+**Statement:** A legacy Harvey-derived license stress report records 3/3 unsafe ordinary continuations versus 0/3 gated continuations; this illustrates a separate expiry-based admission boundary.
+**Conditions:** Retrospectively selected subgroup; full pilot 4/9 versus 0/9. Only the gated arm has external ledger state. Older implementation, controlled perturbations, no model rerun here.
+**Sources:** studies/handoff-case-review/harvey-source-projection.json and case-results.json.
+**Status:** historical illustrative observation, not causal attribution or RSI-verifier generalization.
+**Falsification criteria:** Exact pinned result projection does not support counts or treatment asymmetry.
+**Proof:** [E06].
+**Evidence basis:** Public pinned historical result/protocol projection, not original raw runs.
+**Dependencies:** none.
+**Tags:** historical-case, reuse-boundary, information-asymmetry.

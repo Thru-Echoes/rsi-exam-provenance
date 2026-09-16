@@ -104,3 +104,12 @@ tree:
         title: Characterize incremental checks and accepted rewrites
         result: Six authored faults survive bindings but fail full checks; a consistent unsigned reward rewrite passes. One of nine diagnostic expectations mismatches.
         evidence: [C05, C06]
+
+  - id: N13
+    type: experiment
+    support_level: explicit
+    attribution: ai-executed
+    source_refs: ["studies/handoff-case-review/case-results.json"]
+    title: Inspect real retained evidence without inventing missing inputs
+    result: RSI branch and log binding recoverable; raw per-seed and snapshot evidence absent. Harvey historical extraction is information-asymmetric and not a current verifier trial.
+    evidence: [C07, C08]

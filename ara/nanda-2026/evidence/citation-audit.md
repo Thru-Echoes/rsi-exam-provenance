@@ -3,8 +3,8 @@
 ## Current manuscript audit - 2026-09-16
 
 The old audit below is retained as historical context, not the current bibliography.
-The revised manuscript has five references: RSI-Exam, PROV-CONSTRAINTS, in-toto,
-MLflow tracking, and the ARA repository. NANDA and the ARA arXiv paper are no longer
+The revised manuscript has six references: RSI-Exam, PROV-CONSTRAINTS, in-toto,
+MLflow tracking, the ARA repository, and Harvey LAB. NANDA and the ARA arXiv paper are no longer
 bibliography entries. Rechecked the following primary pages for the revised claims:
 
 - https://www.w3.org/TR/prov-constraints/ - W3C Recommendation, 30 April 2013;
@@ -23,6 +23,8 @@ the workshop page was rechecked on 2026-09-16. Author approval, anonymity, and
 artifact-link decisions remain external-submission checks, not claims of approval.
 
 ## Historical audit of the superseded manuscript
+
+Harvey LAB's official repository (https://github.com/harveyai/harvey-labs) was checked on 2026-09-16 for the benchmark name and origin only. It does not support our pilot counts; those are bound to the legacy Proofpress source projection in studies/handoff-case-review/. The official benchmark must not be cited as endorsing or reproducing our derived study.
 
 **Checked:** 2026-09-15 America/Los_Angeles
 

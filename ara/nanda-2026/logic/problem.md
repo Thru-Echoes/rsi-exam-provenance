@@ -20,3 +20,6 @@ substitute for this evidence.
 **Scope:** Given the supplied package and an intended verifier, establish only
 specified internal-consistency and coverage checks. No authenticity, nominal
 statistical validity, global history completeness, or human auditing benefit follows.
+
+## Evidence roles after case review
+H5 motivates submitted-identity capture; retained Opus block 1 illustrates recoverable branch declarations and unavailable measurement support. Neither supplies a new end-to-end verifier trial. Controlled mutations characterize incremental checking; the accepted rewrite bounds authenticity. The legacy Harvey example addresses a different downstream question, current eligibility for reuse, with an explicitly asymmetric treatment.

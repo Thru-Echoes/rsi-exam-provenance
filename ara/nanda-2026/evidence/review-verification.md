@@ -3,10 +3,10 @@
 Checked 2026-09-16. This is author-side verification, not independent review or
 an official ARA certification.
 
-- Full suite: `python3 -m unittest discover -s tests -t . -q` ran 423 tests in
-  58.517 seconds, OK with two skips.
+- Full suite: `python3 -m unittest discover -s tests -t . -q` ran 425 tests in
+  57.812 seconds, OK with two skips, after the historical-case additions.
 - Focused research suite: decision-audit reproduction, ARA consistency, historical
-  result reconciliation, and conformance: 17 tests passed.
+  result reconciliation, conformance and historical cases: 19 tests passed.
 - Primary reproduction compares all twelve case records, actual errors, file
   hashes and source hashes with a fresh run. One failed diagnostic expectation
   remains disclosed. It is not erased by the passing regression.
@@ -23,3 +23,10 @@ PDF and must not be treated as the current manuscript.
 Before external submission: author review and approval, authorship and affiliation,
 workshop anonymity/artifact-link policy, and final source freeze. No external
 submission or public publication has been performed.
+
+## Historical-case revision checks
+- review_cases.py --check --proofpress-root verified the saved extraction and exact imported source selections against the pinned source bytes.
+- The portable version omits --proofpress-root and needs no original external run directories. It checks retained evidence, not absent raw experiments.
+- Readable manuscript generation preserves title, abstract and reference labels; render_manuscript.py --check passed.
+- Revised three-page PDF rendered and every page inspected; all fonts embedded/subset. No clipped text or table overlap.
+- RSI repository pyright: zero errors, one pre-existing optional jsonschema source warning. An accidental diagnostic invocation in the separate Proofpress workspace is not this repository's result and no changes were made there.

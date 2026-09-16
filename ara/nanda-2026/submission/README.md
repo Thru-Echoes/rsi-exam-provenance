@@ -23,8 +23,11 @@ The older `../evidence/results/paper-results.json` supplies historical context o
 Regenerate the readable manuscript after editing TeX:
 
 ```bash
-pandoc -f latex -t gfm ara/nanda-2026/submission/main.tex -o ara/nanda-2026/submission/manuscript.md
+python3 ara/nanda-2026/src/execution/render_manuscript.py
+python3 ara/nanda-2026/src/execution/render_manuscript.py --check
 ```
 
 See `../REVIEW.md` for scientific limitations and author decisions. The internal
 review copy is anonymous; the full ARA repository is not an anonymized artifact.
+
+The renderer prints the replacement Markdown; save its output to manuscript.md when regenerating. Unlike bare Pandoc conversion it preserves the title, abstract and bibliography labels.

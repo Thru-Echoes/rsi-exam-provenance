@@ -16,3 +16,6 @@ Read:
 - [Exploration history](trace/exploration_tree.yaml).
 
 The ARA is repository-backed: paths outside this directory resolve from the repository root. Keep the repository with the artifact when reproducing. The prior reward-centered draft is preserved in Git at a1c2354.
+
+## Historical case supplement
+[C07/C08](logic/claims.md) and [E06](logic/experiments.md) distinguish retained real-run inspection from controlled fixture execution. See repository-root studies/handoff-case-review/README.md. Historical source extraction is portable; original model runs and missing snapshots are not reproduced.

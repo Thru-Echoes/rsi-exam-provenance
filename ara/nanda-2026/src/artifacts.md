@@ -23,3 +23,6 @@ or hosted service is needed for the primary controlled experiment.
 The earlier build_submission_pdf.py and nanda-2026-track3-working-paper.pdf are
 historical layout proofs. They do not generate the current research manuscript.
 Use submission/README.md for the current build.
+
+## Historical inspection
+Run `python3 studies/handoff-case-review/review_cases.py --check` from repository root. This requires no provider keys or network access. The optional --proofpress-root check compares imported historical source selections to original pinned bytes.

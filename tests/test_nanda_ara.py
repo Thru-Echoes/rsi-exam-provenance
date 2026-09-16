@@ -45,7 +45,7 @@ class NandaAraStructureTests(unittest.TestCase):
 
     def test_claim_cards_have_required_fields(self):
         claims = sections(ARA / "logic" / "claims.md", "C")
-        self.assertEqual({f"C{i:02}" for i in range(1, 7)}, set(claims))
+        self.assertEqual({f"C{i:02}" for i in range(1, 9)}, set(claims))
         fields = (
             "Statement", "Conditions", "Sources", "Status", "Falsification criteria",
             "Proof", "Evidence basis", "Dependencies", "Tags",
@@ -58,7 +58,7 @@ class NandaAraStructureTests(unittest.TestCase):
     def test_claim_experiment_links_are_bidirectional(self):
         claims = sections(ARA / "logic" / "claims.md", "C")
         experiments = sections(ARA / "logic" / "experiments.md", "E")
-        self.assertEqual({f"E{i:02}" for i in range(1, 6)}, set(experiments))
+        self.assertEqual({f"E{i:02}" for i in range(1, 7)}, set(experiments))
         for claim_id, claim in claims.items():
             proof = set(re.findall(r"\[(E\d+)\]", claim))
             self.assertTrue(proof, claim_id)
@@ -102,7 +102,7 @@ class NandaAraStructureTests(unittest.TestCase):
         self.assertIn("18 verified records", source)
         self.assertIn("nine per arm", source)
         self.assertNotRegex(source, r"Thru-Echoes|chenmingtang|Richard|Oliver")
-        self.assertNotRegex(source, r"github\.com/(?!aiming-lab/RSI-Exam|ARA-Labs/Agent-Native-Research-Artifact)")
+        self.assertNotRegex(source, r"github\.com/(?!aiming-lab/RSI-Exam|ARA-Labs/Agent-Native-Research-Artifact|harveyai/harvey-labs)")
 
     def test_every_table_outcome_matches_execution(self):
         source = (ARA / "submission/main.tex").read_text()

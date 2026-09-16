@@ -47,3 +47,10 @@ The automated local checks are reproducibility and consistency checks. Any local
 semantic review is self-review, not an official ARA Seal or independent peer review.
 The old level2_report.json was superseded because its positive coherence assessment
 did not identify the mismatch between the previous contribution and evaluation.
+
+## Current revision: real cases with explicit evidence ceilings
+Read studies/handoff-case-review/README.md from repository root after the manuscript.
+C07 and C08 / E06 add retained-source inspection, not two additional verifier trials.
+The real RSI capsule/log reconstruct a branch and expose missing evidence; original result and snapshot bytes are unavailable here. H5 remains report-only.
+The Harvey license subgroup is selected retrospectively and treatment has extra ledger-state information. It illustrates reuse eligibility, not current-system effectiveness.
+The core contribution and primary controlled results remain C05/C06. Two passing controls do not establish a population false-positive rate.

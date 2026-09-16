@@ -20,3 +20,6 @@
 The primary fault characterization has complete committed synthetic inputs.
 Historical job summaries do not imply the original job directories are available.
 Neither evidence import nor ARA packaging constitutes approval.
+
+## Historical handoff dossier
+Repository-root studies/handoff-case-review/ contains the evidence inventory, pinned Harvey source projection, inspection script, and case-results.json. C07/C08 are weaker historical evidence than C05/C06. The source projection was checked against the recorded Proofpress revision; only deterministic extraction, not original model execution, is reproducible from this bundle.
