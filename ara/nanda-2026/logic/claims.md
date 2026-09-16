@@ -66,7 +66,7 @@
 
 **Falsification criteria:** The frozen, fully reconciled endpoint table shows a positive instrument effect under the preregistered estimand with uncertainty adequate for the claim, and the result survives the prespecified sensitivity checks.
 
-**Proof:** [E03]. The generated primary summary covers all ten planned blocks: 3 favor the instrument and 7 favor the helper. Haiku and Sonnet are parsed from machine-generated endpoint tables; Opus direction is parsed from a committed pre-probe summary whose values are rounded to three decimals. This is evidence against the improvement claim under tested conditions. Missing raw Opus receipts and secondary tables remain release blockers and preclude stronger numerical or inferential claims.
+**Proof:** [E03]. The generated primary summary covers all ten planned blocks: 3 favor the instrument and 7 favor the helper. Haiku and Sonnet are parsed from machine-generated endpoint tables; Opus block 1 is parsed from digest-bound capsule hidden-evaluation fields; Opus blocks 2 and 3 come from a committed pre-probe summary rounded to three decimals. This is evidence against the improvement claim under tested conditions. Missing block 2--3 receipts and secondary tables remain release blockers and preclude stronger numerical or inferential claims.
 
 **Evidence basis:** preregistered blocked comparison; complete primary direction count; partial final-stage receipt and secondary-source reconciliation.
 

@@ -29,7 +29,21 @@ class PaperResultsTests(unittest.TestCase):
         self.assertEqual(summary["favors_helper"], 7)
         self.assertEqual(summary["ties"], 0)
         self.assertEqual(summary["by_stage"]["opus"]["mean_precision"],
-                         "approximate_from_rounded_inputs")
+                         "approximate_from_mixed_precision_inputs")
+
+    def test_opus_uses_strongest_available_source_per_block(self):
+        opus = [block for block in self.result["blocks"] if block["stage"] == "opus"]
+        self.assertEqual(opus[0]["instrument_reward"], "0.5510569")
+        self.assertEqual(opus[0]["helper_reward"], "0.60840837")
+        self.assertEqual(opus[0]["evidence_class"],
+                         "digest_bound_capsule_hidden_evaluation")
+        self.assertEqual(opus[0]["precision"], "source_precision")
+        self.assertTrue(opus[0]["instrument_reward_receipt_sha256"].startswith("sha256:"))
+        self.assertTrue(opus[0]["helper_reward_receipt_sha256"].startswith("sha256:"))
+        self.assertEqual(
+            {block["evidence_class"] for block in opus[1:]},
+            {"committed_pre_probe_summary"},
+        )
 
     def test_record_yield_uses_all_started_trials(self):
         record_yield = self.result["record_yield"]
@@ -47,7 +61,8 @@ class PaperResultsTests(unittest.TestCase):
     def test_markdown_carries_the_claim_boundary(self):
         rendered = MODULE.render_markdown(self.result)
         self.assertIn("no rate, efficacy, or significance claim", rendered)
-        self.assertIn("Opus comes from a committed pre-probe summary", rendered)
+        self.assertIn("Opus block 1 comes from digest-bound capsule", rendered)
+        self.assertIn("Opus blocks 2 and 3 come from a committed pre-probe summary", rendered)
         self.assertIn("18 verified records from 20 started trials", rendered)
 
 

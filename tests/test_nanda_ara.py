@@ -84,6 +84,7 @@ class NandaAraStructureTests(unittest.TestCase):
         self.assertEqual(len(ids), len(support))
         self.assertTrue(set(support) <= {"explicit", "inferred"})
         self.assertIn("negative efficacy result", text)
+        self.assertIn("bound by committed capsule reward digests", text)
         self.assertIn("rounded committed pre-probe summary", text)
 
     def test_manuscript_uses_generated_claim_boundary(self):

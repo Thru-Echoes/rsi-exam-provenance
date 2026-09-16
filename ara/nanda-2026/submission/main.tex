@@ -16,7 +16,7 @@ for Self-Improving Agents}
 \maketitle
 
 \begin{abstract}
-Self-improving agents repeatedly decide whether an observed change should become the parent of later work. A conventional rollout may preserve neither the evidence used for that decision nor a machine-checkable link from the evidence to the submitted artifact. We present a decision-provenance layer that records candidate--parent comparisons, binds artifacts and measurements by digest, and verifies lineage, coverage, recomputed statistics, and protocol conformance offline. We study it in reduced-window, modified-program RSI-Exam rollouts. The evidence supports the integrity and auditability contribution and exposes incomplete native provenance in the observed cohorts. It does not support a claim that the tested gate improves sealed reward: across ten blocked comparisons, three favor the instrument and seven favor the helper. The first seven results come from machine-generated endpoint tables; the three Opus results come from a committed pre-probe summary rounded to three decimals, while raw Opus receipts and secondary tables remain a release blocker. We therefore treat efficacy as refuted under the tested conditions and a proposed confirmation-limit mechanism as a hypothesis, not a causal result.
+Self-improving agents repeatedly decide whether an observed change should become the parent of later work. A conventional rollout may preserve neither the evidence used for that decision nor a machine-checkable link from the evidence to the submitted artifact. We present a decision-provenance layer that records candidate--parent comparisons, binds artifacts and measurements by digest, and verifies lineage, coverage, recomputed statistics, and protocol conformance offline. We study it in reduced-window, modified-program RSI-Exam rollouts. The evidence supports the integrity and auditability contribution and exposes incomplete native provenance in the observed cohorts. It does not support a claim that the tested gate improves sealed reward: across ten blocked comparisons, three favor the instrument and seven favor the helper. Seven results come from machine-generated endpoint tables, the first Opus block comes from digest-bound capsule reward fields, and the remaining two Opus blocks come from a committed pre-probe summary rounded to three decimals. We therefore treat efficacy as refuted under the tested conditions and a proposed confirmation-limit mechanism as a hypothesis, not a causal result.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -88,13 +88,13 @@ The primary endpoint is instrument minus helper final sealed reward within a blo
 
 \subsection{Source-bound reconciliation}
 
-A generator pins every paper input to repository revision \texttt{727b9b821d78} and refuses a working-tree source whose bytes differ. Haiku and Sonnet rows are parsed from machine-generated endpoint tables. The repository lacks the generated Opus endpoint and secondary tables; Opus primary rewards are parsed from a committed pre-probe summary written before the subsequent probe. Those values are rounded to three decimals. The generated output preserves this weaker evidence class and refuses to reconstruct absent secondary results.
+A generator pins every paper input to repository revision \texttt{727b9b821d78} and refuses a working-tree source whose bytes differ. Haiku and Sonnet rows are parsed from machine-generated endpoint tables. For Opus block 1, each committed capsule records the source-precision hidden reward plus the SHA-256 of its \texttt{verifier/reward.json}. The repository lacks the generated Opus endpoint table and block 2--3 capsules; those four rewards are parsed from a committed pre-probe summary written before the subsequent probe and rounded to three decimals. The generated output preserves evidence class per row and refuses to reconstruct absent secondary results.
 
 Evidence precedence is explicit: raw outputs and verifier receipts; generated per-trial tables; preregistered manifests and endpoint tables; committed pre-probe summaries; narrative handoffs; working notes. Lower-precedence prose cannot silently override a source table.
 
 \subsection{Results}
 
-Table~\ref{tab:primary} reports all ten primary blocks by stage. Three favor the instrument and seven favor the helper. Mean differences are negative in every stage; the Opus mean is approximate because its inputs are rounded. This refutes the tested improvement claim under these conditions. It does not establish a general negative effect.
+Table~\ref{tab:primary} reports all ten primary blocks by stage. Three favor the instrument and seven favor the helper. Mean differences are negative in every stage; the Opus mean is approximate because two blocks use rounded inputs. This refutes the tested improvement claim under these conditions. It does not establish a general negative effect.
 
 \begin{table}[t]
 \caption{Primary sealed-reward direction by model stage}
@@ -106,17 +106,17 @@ Stage & Blocks & Fav. I & Fav. H & Mean I$-$H \\
 \midrule
 Haiku  & 4 & 2 & 2 & $-0.0186$ \\
 Sonnet & 3 & 1 & 2 & $-0.0171$ \\
-Opus$^{*}$ & 3 & 0 & 3 & $-0.1440$ \\
+Opus$^{*}$ & 3 & 0 & 3 & $-0.1441$ \\
 \midrule
 Total & 10 & 3 & 7 & -- \\
 \bottomrule
-\multicolumn{5}{l}{\footnotesize $^{*}$Rounded, summary-backed inputs.}
+\multicolumn{5}{l}{\footnotesize $^{*}$Block 1 bound; blocks 2--3 rounded summaries.}
 \end{tabular}
 \end{table}
 
 The three per-stage record tables enumerate 20 started trials and 18 verified records: 9 of 10 in the instrument arm and 9 of 10 in the helper arm. The two failures are visible \texttt{submitted\_not\_snapshotted} outcomes, one per arm. This matters independently of reward: the system did not silently reinterpret incomplete lineage as a valid record.
 
-The provenance workflow also exposed an analysis-level failure. A ten-block narrative total existed before a canonical all-stage result file, while the generated Opus tables and raw receipts were absent from the repository. The paper generator therefore carries per-row evidence class and a release-blocker list. Auditability here includes the ability to say which result is usable only for direction and which claim must remain unresolved.
+The provenance workflow also exposed an analysis-level failure. A ten-block narrative total existed before a canonical all-stage result file, while the Opus endpoint table and block 2--3 receipts were absent from the repository. The paper generator therefore carries per-row evidence class and a release-blocker list. Auditability here includes the ability to say which result is usable only for direction and which claim must remain unresolved.
 
 \balance
 \section{Discussion}
@@ -133,7 +133,7 @@ NANDA architectures emphasize discovery, authentication, capability attestation,
 
 \subsection{Limitations}
 
-The study uses one task, small stages, modified programs, and reduced windows. Author-run evidence is not independent evidence. Digests detect changes relative to supplied files but do not prove correctness or runtime occurrence. The Opus primary values remain rounded summaries until raw receipts are recovered and bound; Opus spend and secondary analyses are absent. ProofPress compatibility demonstrates a schema handoff, not adoption, approval, or governed reuse. Finally, the public workshop page does not state whether review is anonymous or whether author-controlled artifact links are allowed, so this review source remains anonymous and contains no public artifact link.
+The study uses one task, small stages, modified programs, and reduced windows. Author-run evidence is not independent evidence. Digests detect changes relative to supplied files but do not prove correctness or runtime occurrence. Opus block 1 is reward-receipt-bound, but blocks 2 and 3 remain rounded summaries; Opus spend and complete secondary analyses are absent from the merged tree. ProofPress compatibility demonstrates a schema handoff, not adoption, approval, or governed reuse. Finally, the public workshop page does not state whether review is anonymous or whether author-controlled artifact links are allowed, so this review source remains anonymous and contains no public artifact link.
 
 \section{Conclusion}
 

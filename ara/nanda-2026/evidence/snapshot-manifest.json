@@ -6,12 +6,12 @@
   "files": [
     {
       "path": "ara/nanda-2026/PAPER.md",
-      "sha256": "d07c6810e911f9312392115acb461b8e0b148222520d98951780e7327f0cfadf",
+      "sha256": "c223da72faab3509fed135ea0a672493ccb37f5eb3322e8e0c1db75b245f1412",
       "role": "working paper manuscript"
     },
     {
       "path": "ara/nanda-2026/evidence/README.md",
-      "sha256": "d683dfc5a533d91c5a12579dfe6fe2b7e500e63f2a68183c35319f967d2ff6d3",
+      "sha256": "878042a7b77534c1a32a7ad954c218f4053d7765b1daafb91c675326c0c5379a",
       "role": "evidence package index"
     },
     {
@@ -55,6 +55,16 @@
       "role": "committed pre-probe Opus primary-reward summary; rounded inputs"
     },
     {
+      "path": "docs/figures/sources/ab-opus-1-I/capsule.json",
+      "sha256": "a7ebf26c1aceefe052a237a82ff9c4574a1cffbc22aa098b8a9a4f5cbc49baab",
+      "role": "Opus block 1 instrument capsule with bound hidden reward"
+    },
+    {
+      "path": "docs/figures/sources/ab-opus-1-H/capsule.json",
+      "sha256": "ab8cb43b419d3bde60861e1ed01913f396035b16619d39e96505dfdf1546295c",
+      "role": "Opus block 1 helper capsule with bound hidden reward"
+    },
+    {
       "path": "docs/overview.md",
       "sha256": "0b22d65241c2024cbd371f09a09f5acd18b1724447eefa2b3e14ebc1545e3a99",
       "role": "system and trust-boundary description"
@@ -66,27 +76,27 @@
     },
     {
       "path": "ara/nanda-2026/evidence/results/paper-results.json",
-      "sha256": "c10767cd5b5253e836dcd9ef80dc6133da428e7b5b1f115fbf512d58a648d329",
+      "sha256": "bfc1d281c73eeeeb2babdeb6a12672308b1e405221684dc516991320fd3daa8b",
       "role": "generated all-stage primary result and record yield"
     },
     {
       "path": "ara/nanda-2026/evidence/results/paper-results.md",
-      "sha256": "9c121e04993c047e68dbd23f18aa029bf6a26897aa12ab11f903e3c593904a3b",
+      "sha256": "5092d62ff91a0c525d1be62acac2db40f85859fc185f13b03ee9cfd5556d534c",
       "role": "human-readable rendering of generated result"
     },
     {
       "path": "ara/nanda-2026/src/execution/build_paper_results.py",
-      "sha256": "7c9d6e20881e4831d540bbab764fbdac1620c5688dc23b2b16b3f3eee79b323b",
+      "sha256": "ca6f56665d7c71bd8117270e486fb6965a567559fce149259df4290a4d1b0737",
       "role": "paper-result generator"
     },
     {
       "path": "tests/test_paper_results.py",
-      "sha256": "4060655da871e9c2c90cecc1f43ffd641f5d24af06b2636f575dd32138fae73b",
+      "sha256": "98ea2babd006868a93f0ef4e8fea30a4db3073926519446e19f0fe741828475d",
       "role": "paper-result regression tests"
     },
     {
       "path": "tests/test_nanda_ara.py",
-      "sha256": "4bb1f1bcceb84b5ab4a223debdeca99a89ff7c87543a2ca05fa07080c4c2dab1",
+      "sha256": "3d43ff439d11e82f8fe167dbc930940ef7776bad799cc0e4a8a246895fba371c",
       "role": "ARA structural and cross-layer checks"
     },
     {
@@ -101,12 +111,12 @@
     },
     {
       "path": "ara/nanda-2026/level2_report.json",
-      "sha256": "eea4a7e4afaa4f40d853a381525d60e8c3a204448336f050f7f85b3a0f9441a8",
+      "sha256": "ab0eb62de7044ca061ab9d4562bf3a2a79b1e0cbf648b3b9c0785803446c9c71",
       "role": "local ARA-compatible semantic review"
     },
     {
       "path": "ara/nanda-2026/evidence/results/test-receipt.md",
-      "sha256": "68f6f93e813bfa792dfd6fcc81bc47471784f7f3e4a08e3b6445bd47f1aa476f",
+      "sha256": "b4d98f3c6fe63a8705e7c39ca9784c981ba397137f91db5837e19e0acadb8ccf",
       "role": "working-branch verification receipt"
     },
     {
@@ -116,7 +126,7 @@
     },
     {
       "path": "ara/nanda-2026/src/artifacts.md",
-      "sha256": "2188d831805fd4bfecb730d6dcda8563a294f0bbbb7f0eb2736f24d4ad92f443",
+      "sha256": "6d00b670fa7c3f35bf47e1e053e8a3eece3f7504468da899d8e5f5c751561226",
       "role": "code, data, and paper artifact index"
     },
     {
@@ -126,7 +136,7 @@
     },
     {
       "path": "ara/nanda-2026/submission/main.tex",
-      "sha256": "dcd5e5a914005d8b359af061b5d0189d1d9f65d754a99e3ff315296efe174540",
+      "sha256": "7da0ac948dedc8c8ee9ff97d494d2ae680003ebdc92a001a577a4c37278ed904",
       "role": "anonymous IEEEtran review source"
     },
     {
@@ -136,12 +146,37 @@
     },
     {
       "path": "output/pdf/nanda-2026-track3-ieee-review.pdf",
-      "sha256": "eafc09e3e50dd7cc7343118fa773aa929826cc033f10c1fad274543528fd9c63",
+      "sha256": "10c9a2131666c92d5de02a90e56558a057a29f519797db19c5faa82816fbc6e1",
       "role": "anonymous three-page IEEEtran review PDF"
+    },
+    {
+      "path": "ara/nanda-2026/logic/claims.md",
+      "sha256": "79f055065edab86f01c868cff649ea10616c99c10ad8fa6e6b0f82dc7f8abc68",
+      "role": "bounded claim cards"
+    },
+    {
+      "path": "ara/nanda-2026/logic/experiments.md",
+      "sha256": "b4427eca87f8b2d3639b372fb0246ce8dda8b59003b4321ce6b4611b8a414353",
+      "role": "experiment cards and evidence mappings"
+    },
+    {
+      "path": "ara/nanda-2026/trace/exploration_tree.yaml",
+      "sha256": "539c01b8a80140ef01d378d4baea4ae7a1ea496d1688b7db3273c54c2879676a",
+      "role": "source-bounded exploration and pivot trace"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/results/reconciliation-status.md",
+      "sha256": "1c06df1f643e3e8363c4372dd1eea26f2eeaab9ff5d63ff29849ef2fafdd5891",
+      "role": "result conflicts and release gates"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/citation-audit.md",
+      "sha256": "7a2493b837cd6879c5851469939d383c204d078095158429b4f99a6d42c60280",
+      "role": "primary-page citation and venue verification"
     }
   ],
   "missing_required_sources": [
-    "raw Opus primary reward receipts and generated endpoint table",
+    "raw Opus block 2-3 primary reward receipts and generated endpoint table",
     "docs/shadow-audit/instrument-ab/opus/spend.md",
     "complete Opus secondary-result tables"
   ]

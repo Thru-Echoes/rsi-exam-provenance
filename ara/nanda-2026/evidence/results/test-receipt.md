@@ -10,7 +10,7 @@
 
 **Command:** `python3 -m unittest discover -s tests -t .`
 
-**Result:** 420 tests ran in 60.038 seconds; 2 skipped; 0 failures; 0 errors.
+**Result:** 421 tests ran in 59.160 seconds; 2 skipped; 0 failures; 0 errors.
 
 ## Static analysis
 
@@ -22,9 +22,9 @@
 
 **Command:** `python3 -m unittest tests.test_nanda_ara tests.test_paper_results -v`
 
-**Result:** Covered by the 420-test full-suite run. Required layers and files are present; claim and experiment cards contain their required fields; claim-to-experiment links are bidirectional; exploration nodes are unique, typed, and source-bounded; the Markdown and IEEEtran manuscripts carry the generated claim boundary; the review source is anonymous and contains no author-controlled artifact link; the result generator reproduces the 3/7 direction count and 18/20 record yield; generated files match.
+**Result:** Covered by the 421-test full-suite run. Required layers and files are present; claim and experiment cards contain their required fields; claim-to-experiment links are bidirectional; exploration nodes are unique, typed, and source-bounded; the Markdown and IEEEtran manuscripts carry the generated claim boundary; the review source is anonymous and contains no author-controlled artifact link; the result generator reproduces the 3/7 direction count and 18/20 record yield; Opus block 1 is read at source precision from digest-bound capsules while blocks 2 and 3 remain summary-backed; generated files match.
 
-The working epistemic review is `level2_report.json`: tier `Sound`, mean 4.0, no critical findings, one major evidence-completeness finding. These are local ARA-compatible checks, not an official ARA Seal result; the official `ara` CLI was not installed or run.
+The working epistemic review is `level2_report.json`: tier `Sound`, mean 4.0, no critical findings, one major evidence-completeness finding for the missing Opus block 2--3 receipts and secondary tables. These are local ARA-compatible checks, not an official ARA Seal result; the official `ara` CLI was not installed or run.
 
 ## Layout proof
 
@@ -36,6 +36,6 @@ The working anonymous PDF was generated with the bundled ReportLab runtime, repo
 
 **Result:** The anonymous IEEEtran review PDF is 3 US-letter pages. All fonts reported by `pdffonts` are embedded and subset. `pdfinfo` reports no encryption, forms, JavaScript, or suspect content. The TeX log contains no overfull boxes, underfull boxes, LaTeX errors, or emergency stops. Poppler text extraction finds the title, anonymous author marker, Sections II--V, References, and the total row `10 / 3 / 7`.
 
-The final PDF was rendered at 150 DPI and visually inspected page by page. No clipping, overlap, illegible table content, orphaned heading, or broken reference flow was observed. Two independent builds with the fixed source epoch and the checked-in output all produced SHA-256 `eafc09e3e50dd7cc7343118fa773aa929826cc033f10c1fad274543528fd9c63`.
+The final PDF was rendered at 150 DPI and visually inspected page by page. No clipping, overlap, illegible table content, orphaned heading, or broken reference flow was observed. Two independent builds with the fixed source epoch and the checked-in output all produced SHA-256 `10c9a2131666c92d5de02a90e56558a057a29f519797db19c5faa82816fbc6e1`.
 
 This is a working-branch receipt, not the submission freeze receipt. Refresh it after Opus source reconciliation and from the final tagged commit.

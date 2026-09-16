@@ -7,9 +7,10 @@ This directory records what the paper may cite and what remains unresolved.
 | `snapshot-manifest.json` | Pins paper-critical source and generated files | active; refresh at final freeze |
 | `results/reconciliation-status.md` | Lists contradictions and release blockers | active |
 | `results/test-receipt.md` | Scaffold-branch unit-test and static-analysis receipt | present; refresh at freeze |
-| `results/paper-results.json` | Canonical machine-readable all-stage primary result and record yield | present; Opus raw-receipt binding pending |
+| `results/paper-results.json` | Canonical machine-readable all-stage primary result and record yield | present; Opus block 1 bound, block 2--3 receipts pending |
 | `results/paper-results.md` | Human-readable rendering of the generated result | present; generated, do not hand-edit |
 | `venue-rules.md` | Checked public CFP requirements and unresolved anonymity/artifact-link question | present; re-check before submission |
+| `citation-audit.md` | Primary-page verification for paper references and venue facts | present; re-check at freeze |
 | `../../../output/pdf/nanda-2026-track3-working-paper.pdf` | Anonymous two-column manuscript layout proof | present; not official IEEEtran and not approved for submission |
 | `../submission/main.tex` | Anonymous IEEEtran review source | present; author metadata and release approval pending |
 | `../../../output/pdf/nanda-2026-track3-ieee-review.pdf` | Three-page IEEEtran review PDF | present; visually and mechanically checked, not approved for submission |

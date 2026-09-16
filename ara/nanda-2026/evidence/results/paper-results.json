@@ -93,15 +93,18 @@
     },
     {
       "block": 1,
-      "evidence_class": "committed_pre_probe_summary",
-      "evidence_path": "docs/shadow-audit/pilots/pilot-8-preregistration.md",
+      "evidence_class": "digest_bound_capsule_hidden_evaluation",
+      "evidence_path": "docs/figures/sources/ab-opus-1-I/capsule.json",
       "favors": "helper",
-      "helper_reward": "0.608",
+      "helper_reward": "0.60840837",
+      "helper_reward_receipt_sha256": "sha256:9b60d37c05d7be456846fb5fc5c000d2b522a771e571e6d49ed54c2efccca2f5",
       "helper_trial": "ab-opus-1-H",
-      "instrument_minus_helper": "-0.057",
-      "instrument_reward": "0.551",
+      "instrument_minus_helper": "-0.05735147",
+      "instrument_reward": "0.5510569",
+      "instrument_reward_receipt_sha256": "sha256:0c521982ccd71e808f09659376b75de0ba9516fc375cce428a8a405b58619984",
       "instrument_trial": "ab-opus-1-I",
-      "precision": "rounded_to_3_decimals_in_source",
+      "paired_evidence_path": "docs/figures/sources/ab-opus-1-H/capsule.json",
+      "precision": "source_precision",
       "stage": "opus"
     },
     {
@@ -133,7 +136,7 @@
   ],
   "generated_by": "ara/nanda-2026/src/execution/build_paper_results.py",
   "primary_summary": {
-    "aggregate_mean_instrument_minus_helper": "-0.05575923",
+    "aggregate_mean_instrument_minus_helper": "-0.055794377",
     "aggregate_mean_precision": "approximate_because_opus_inputs_are_rounded",
     "blocks": 10,
     "by_stage": {
@@ -149,8 +152,8 @@
       "opus": {
         "favors_helper": 3,
         "favors_instrument": 0,
-        "mean_instrument_minus_helper": "-0.144",
-        "mean_precision": "approximate_from_rounded_inputs",
+        "mean_instrument_minus_helper": "-0.1441171566666666666666666667",
+        "mean_precision": "approximate_from_mixed_precision_inputs",
         "observed_blocks": 3,
         "planned_blocks": 3,
         "ties": 0
@@ -202,7 +205,7 @@
     "verified_records": 18
   },
   "release_blockers": [
-    "Opus primary rewards are summary-backed and rounded; bind raw reward receipts before the final freeze.",
+    "Opus blocks 2 and 3 remain summary-backed and rounded; bind their raw reward receipts before the final freeze.",
     "Opus secondary endpoint, spend, and complete sealed-retrospective tables are not committed.",
     "Do not convert the ten observed blocks into an efficacy, significance, or population-rate claim."
   ],
@@ -218,6 +221,16 @@
       "evidence_class": "machine_generated_endpoint_table",
       "path": "docs/shadow-audit/instrument-ab/sonnet/endpoints.md",
       "sha256": "sha256:20043598969d82022eeecaf7335bd097ac67feafaed1e4ca1ec474d6ed748b6a"
+    },
+    {
+      "evidence_class": "digest_bound_capsule_hidden_evaluation",
+      "path": "docs/figures/sources/ab-opus-1-I/capsule.json",
+      "sha256": "sha256:a7ebf26c1aceefe052a237a82ff9c4574a1cffbc22aa098b8a9a4f5cbc49baab"
+    },
+    {
+      "evidence_class": "digest_bound_capsule_hidden_evaluation",
+      "path": "docs/figures/sources/ab-opus-1-H/capsule.json",
+      "sha256": "sha256:ab8cb43b419d3bde60861e1ed01913f396035b16619d39e96505dfdf1546295c"
     },
     {
       "evidence_class": "committed_pre_probe_summary",

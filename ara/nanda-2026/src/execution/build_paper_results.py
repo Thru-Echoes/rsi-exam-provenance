@@ -6,10 +6,11 @@
 The parser is grounded in the committed A/B sources named by
 ``docs/campaign/2026-09-instrument-ab/manifest.md``. Haiku and Sonnet use the
 machine-generated block tables in ``docs/shadow-audit/instrument-ab``. The
-Opus primary rewards use the pre-probe committed summary at
-``docs/shadow-audit/pilots/pilot-8-preregistration.md:5-6`` because the Opus
-endpoint table was never committed. Record yield is recomputed from the three
-stage ``records.md`` tables.
+Opus block 1 uses the digest-bound hidden-evaluation rewards in its two
+committed capsules. Opus blocks 2 and 3 use the pre-probe committed summary at
+``docs/shadow-audit/pilots/pilot-8-preregistration.md:5-6`` because their
+capsules and the Opus endpoint table were never committed. Record yield is
+recomputed from the three stage ``records.md`` tables.
 
 The script deliberately does not reconstruct missing Opus secondary results.
 """
@@ -35,6 +36,10 @@ ENDPOINT_SOURCES = {
     "sonnet": "docs/shadow-audit/instrument-ab/sonnet/endpoints.md",
 }
 OPUS_SOURCE = "docs/shadow-audit/pilots/pilot-8-preregistration.md"
+OPUS_BLOCK_1_CAPSULES = {
+    "instrument": "docs/figures/sources/ab-opus-1-I/capsule.json",
+    "helper": "docs/figures/sources/ab-opus-1-H/capsule.json",
+}
 RECORD_SOURCES = {
     stage: f"docs/shadow-audit/instrument-ab/{stage}/records.md"
     for stage in ("haiku", "sonnet", "opus")
@@ -127,6 +132,34 @@ def _opus_blocks() -> list[dict[str, Any]]:
     helper = [Decimal(value) for value in match.groups()[3:]]
     blocks: list[dict[str, Any]] = []
     for index, (reward_i, reward_h) in enumerate(zip(instrument, helper, strict=True), 1):
+        evidence_path = OPUS_SOURCE
+        evidence_class = "committed_pre_probe_summary"
+        precision = "rounded_to_3_decimals_in_source"
+        extra_evidence: dict[str, Any] = {}
+        if index == 1:
+            capsules = {
+                arm: json.loads(_read(path))
+                for arm, path in OPUS_BLOCK_1_CAPSULES.items()
+            }
+            hidden = {
+                arm: capsule["hidden_evaluation"]
+                for arm, capsule in capsules.items()
+            }
+            for arm, evaluation in hidden.items():
+                if evaluation.get("reward_locator") != "verifier/reward.json":
+                    raise ValueError(f"Opus block 1 {arm} capsule lacks reward locator")
+                if re.fullmatch(r"[0-9a-f]{64}", str(evaluation.get("reward_sha256", ""))) is None:
+                    raise ValueError(f"Opus block 1 {arm} capsule lacks reward digest")
+            reward_i = Decimal(str(hidden["instrument"]["reward"]))
+            reward_h = Decimal(str(hidden["helper"]["reward"]))
+            evidence_path = OPUS_BLOCK_1_CAPSULES["instrument"]
+            evidence_class = "digest_bound_capsule_hidden_evaluation"
+            precision = "source_precision"
+            extra_evidence = {
+                "paired_evidence_path": OPUS_BLOCK_1_CAPSULES["helper"],
+                "instrument_reward_receipt_sha256": "sha256:" + hidden["instrument"]["reward_sha256"],
+                "helper_reward_receipt_sha256": "sha256:" + hidden["helper"]["reward_sha256"],
+            }
         difference = reward_i - reward_h
         blocks.append({
             "stage": "opus",
@@ -137,9 +170,10 @@ def _opus_blocks() -> list[dict[str, Any]]:
             "helper_reward": str(reward_h),
             "instrument_minus_helper": str(difference),
             "favors": "instrument" if difference > 0 else "helper" if difference < 0 else "tie",
-            "evidence_path": OPUS_SOURCE,
-            "evidence_class": "committed_pre_probe_summary",
-            "precision": "rounded_to_3_decimals_in_source",
+            "evidence_path": evidence_path,
+            "evidence_class": evidence_class,
+            "precision": precision,
+            **extra_evidence,
         })
     return blocks
 
@@ -169,6 +203,7 @@ def build(source_revision: str, *, verify_revision: bool = True) -> dict[str, An
     paths = [
         *ENDPOINT_SOURCES.values(),
         OPUS_SOURCE,
+        *OPUS_BLOCK_1_CAPSULES.values(),
         *RECORD_SOURCES.values(),
         STAGES_SOURCE,
     ]
@@ -197,7 +232,7 @@ def build(source_revision: str, *, verify_revision: bool = True) -> dict[str, An
             "favors_helper": sum(block["favors"] == "helper" for block in stage_blocks),
             "ties": sum(block["favors"] == "tie" for block in stage_blocks),
             "mean_instrument_minus_helper": _mean_difference(stage_blocks),
-            "mean_precision": "approximate_from_rounded_inputs" if stage == "opus" else "source_precision",
+            "mean_precision": "approximate_from_mixed_precision_inputs" if stage == "opus" else "source_precision",
         }
 
     verified = [record for record in records if record["verified"]]
@@ -217,6 +252,8 @@ def build(source_revision: str, *, verify_revision: bool = True) -> dict[str, An
         "generated_by": "ara/nanda-2026/src/execution/build_paper_results.py",
         "sources": [
             *(_source_entry(path, "machine_generated_endpoint_table") for path in ENDPOINT_SOURCES.values()),
+            *(_source_entry(path, "digest_bound_capsule_hidden_evaluation")
+              for path in OPUS_BLOCK_1_CAPSULES.values()),
             _source_entry(OPUS_SOURCE, "committed_pre_probe_summary"),
             *(_source_entry(path, "machine_generated_record_table") for path in RECORD_SOURCES.values()),
             _source_entry(STAGES_SOURCE, "preregistered_stage_configuration"),
@@ -245,7 +282,7 @@ def build(source_revision: str, *, verify_revision: bool = True) -> dict[str, An
             "failures": failures,
         },
         "release_blockers": [
-            "Opus primary rewards are summary-backed and rounded; bind raw reward receipts before the final freeze.",
+            "Opus blocks 2 and 3 remain summary-backed and rounded; bind their raw reward receipts before the final freeze.",
             "Opus secondary endpoint, spend, and complete sealed-retrospective tables are not committed.",
             "Do not convert the ten observed blocks into an efficacy, significance, or population-rate claim.",
         ],
@@ -262,7 +299,7 @@ def render_markdown(result: dict[str, Any]) -> str:
         "",
         f"**Pinned input revision:** `{result['source_revision']}`",
         "",
-        "The primary direction count covers all ten preregistered blocks. Haiku and Sonnet come from machine-generated endpoint tables. Opus comes from a committed pre-probe summary and is rounded to three decimals; its raw reward receipts and secondary tables remain a freeze blocker.",
+        "The primary direction count covers all ten preregistered blocks. Haiku and Sonnet come from machine-generated endpoint tables. Opus block 1 comes from digest-bound capsule hidden-evaluation fields; Opus blocks 2 and 3 come from a committed pre-probe summary rounded to three decimals. Their raw reward receipts and the remaining Opus secondary tables remain freeze blockers.",
         "",
         "## Primary endpoint by block",
         "",

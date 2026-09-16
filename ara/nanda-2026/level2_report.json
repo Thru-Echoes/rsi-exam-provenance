@@ -6,7 +6,7 @@
   "overall": {
     "tier": "Sound",
     "mean_score": 4.0,
-    "one_line_summary": "The artifact is unusually candid about a negative result and source strength, while raw Opus receipts and broader external validity remain the main methodological limitations.",
+    "one_line_summary": "The artifact is unusually candid about a negative result and source strength, while missing Opus block 2--3 receipts and broader external validity remain the main methodological limitations.",
     "strengths_summary": [
       "Supported, refuted, and hypothesis claims are kept distinct.",
       "The generated result preserves per-row evidence class and refuses stronger Opus claims than the source supports.",
@@ -14,7 +14,7 @@
     ],
     "weaknesses_summary": [
       "The study covers one task, reduced windows, and ten blocks and is not sized for an efficacy estimate.",
-      "Opus primary values are rounded summaries without raw receipt binding; Opus secondary tables are absent.",
+      "Opus block 1 is digest-bound, but blocks 2 and 3 remain rounded summaries without raw receipt binding; Opus secondary tables are absent from the merged tree.",
       "C02 compares observational cohorts with different conditions and supports description rather than a causal capture-effect estimate."
     ]
   },
@@ -47,13 +47,13 @@
       "score": 4,
       "strengths": ["The tree preserves the failed positive-efficacy thesis and the pivot to an auditability contribution."],
       "weaknesses": ["The tree summarizes rather than exhaustively reconstructs the full campaign trajectory."],
-      "suggestions": ["Add source-bound nodes for raw Opus receipt recovery and the final release decision if they occur."]
+      "suggestions": ["Add source-bound nodes for Opus block 2--3 receipt recovery and the final release decision if they occur."]
     },
     "D6_methodological_rigor": {
       "score": 3,
       "strengths": ["The blocked comparator, preregistered endpoint, source-pinned generator, and explicit refusal outcomes are appropriate for a bounded systems report."],
       "weaknesses": ["Ten blocks on one task do not support a population efficacy estimate, and the final-stage raw/secondary evidence is incomplete."],
-      "suggestions": ["Treat 3/7 as a direction count only; recover raw Opus receipts, then expand to more tasks and a prospectively sized study for any efficacy claim."]
+      "suggestions": ["Treat 3/7 as a direction count only; recover the missing Opus receipts, then expand to more tasks and a prospectively sized study for any efficacy claim."]
     }
   },
   "findings": [
@@ -63,9 +63,9 @@
       "severity": "major",
       "target_file": "logic/experiments.md",
       "target_entity": "E03",
-      "observation": "Opus primary direction is available only through a rounded committed summary, and its raw receipts and secondary tables are absent.",
-      "reasoning": "The source supports block direction but not a final exact-value freeze or secondary analysis.",
-      "suggestion": "Bind the raw reward receipts and regenerate the Opus endpoint table before final release; otherwise keep the evidence-class qualifier in every result surface."
+      "observation": "Opus block 1 is digest-bound through committed capsules, but blocks 2 and 3 are available only through a rounded committed summary and secondary tables are absent from the merged tree.",
+      "reasoning": "The mixed source set supports stage direction but not a final exact-value freeze or complete secondary analysis.",
+      "suggestion": "Bind the block 2--3 reward receipts and regenerate the Opus endpoint table before final release; otherwise keep the evidence-class qualifier in every result surface."
     },
     {
       "finding_id": "F02",
@@ -89,7 +89,7 @@
     }
   ],
   "questions_for_authors": [
-    "Can the original Opus job directories be recovered before the numerical freeze?",
+    "Can the original Opus block 2--3 job directories be recovered before the numerical freeze?",
     "Will the submission be anonymous, and may author-controlled repository links appear in the review copy?",
     "Is the contribution order and CRediT statement jointly approved?"
   ],

@@ -26,7 +26,7 @@ status: draft-not-approved
 
 ## Abstract
 
-Self-improving agents repeatedly decide whether an observed change should become the parent of later work. The choice is consequential, but a conventional rollout may preserve neither the evidence used for it nor a machine-checkable link from that evidence to the submitted artifact. We present a decision-provenance layer that records candidate-parent comparisons, binds artifacts and measurements by digest, and verifies lineage, coverage, recomputed statistics, and protocol conformance offline. We study it in reduced-window, modified-program RSI-Exam rollouts. The evidence supports the integrity and auditability contribution and exposes incomplete or unstable native provenance in the observed cohorts. It does not support a claim that the tested decision gate improves sealed reward: across ten blocked comparisons, three favor the instrument and seven favor the helper. The first seven block results come from machine-generated endpoint tables; the three Opus results come from a committed pre-probe summary rounded to three decimals, while raw Opus reward receipts and secondary tables remain a release blocker. The artifact therefore treats efficacy as refuted under the tested conditions and a proposed confirmation-limit mechanism as a hypothesis, not a causal result.
+Self-improving agents repeatedly decide whether an observed change should become the parent of later work. The choice is consequential, but a conventional rollout may preserve neither the evidence used for it nor a machine-checkable link from that evidence to the submitted artifact. We present a decision-provenance layer that records candidate-parent comparisons, binds artifacts and measurements by digest, and verifies lineage, coverage, recomputed statistics, and protocol conformance offline. We study it in reduced-window, modified-program RSI-Exam rollouts. The evidence supports the integrity and auditability contribution and exposes incomplete or unstable native provenance in the observed cohorts. It does not support a claim that the tested decision gate improves sealed reward: across ten blocked comparisons, three favor the instrument and seven favor the helper. Seven results come from machine-generated endpoint tables, the first Opus block comes from digest-bound capsule reward fields, and the remaining two Opus blocks come from a committed pre-probe summary rounded to three decimals. The artifact therefore treats efficacy as refuted under the tested conditions and a proposed confirmation-limit mechanism as a hypothesis, not a causal result.
 
 ## 1. Problem
 
@@ -57,7 +57,7 @@ The contract is tamper-evident relative to the supplied export. It is not an ora
 
 - **C01 — supported:** the implementation can bind rollout artifacts, evidence, decisions, and lineage into a record whose internal consistency and protocol conformance can be checked offline.
 - **C02 — supported in observed cohorts:** native agent-authored provenance is incomplete or structurally unstable in the examined reduced-window rollouts, while the instrumented path produces machine-checkable records or explicit refusals.
-- **C03 — refuted under tested conditions:** the tested decision instrument improves final sealed reward relative to the helper comparator. The generated ten-block direction count is 3 versus 7. Opus values are summary-backed and rounded, so they support direction only until raw receipts are bound.
+- **C03 — refuted under tested conditions:** the tested decision instrument improves final sealed reward relative to the helper comparator. The generated ten-block direction count is 3 versus 7. Opus block 1 is bound through committed capsules; blocks 2 and 3 remain summary-backed and rounded, so those rows support direction only until their raw receipts are bound.
 - **C04 — hypothesis:** confirmation planning limits may reject or delay some later candidates and thereby alter downstream search. The current evidence is mechanistically compatible with this explanation but is not a causal test.
 
 The formal claim cards, conditions, dependencies, and falsification criteria are in [`logic/claims.md`](logic/claims.md).
@@ -77,7 +77,7 @@ The generated result file pins every input to repository revision `727b9b821d781
 - Opus: helper favored in all 3 blocks; the approximate mean difference from rounded inputs is -0.144.
 - Record production: 18 verified records from 20 started trials, split 9/10 in each arm. The two visible refusals are unsnapshotted submissions, one in each arm.
 
-Thus the ten observed primary comparisons favor the instrument in 3 blocks and the helper in 7. We do not run or report an inferential efficacy test: the study is small, uses one task, and was not sized for a population effect. The Opus values are drawn from a committed pre-probe summary rather than a generated endpoint table and are rounded to three decimals. They are sufficient to recover block direction but not a final numerical freeze. The source hierarchy and remaining gaps are recorded in [`evidence/results/reconciliation-status.md`](evidence/results/reconciliation-status.md).
+Thus the ten observed primary comparisons favor the instrument in 3 blocks and the helper in 7. We do not run or report an inferential efficacy test: the study is small, uses one task, and was not sized for a population effect. The first Opus block is source-precision and digest-bound in committed capsules; the other two are drawn from a committed pre-probe summary rather than a generated endpoint table and are rounded to three decimals. The mixed-precision stage is sufficient for direction but not a final numerical freeze. The source hierarchy and remaining gaps are recorded in [`evidence/results/reconciliation-status.md`](evidence/results/reconciliation-status.md).
 
 ## 6. Interpretation
 
@@ -96,7 +96,7 @@ For decentralized agent systems, the implication is narrower than a global reput
 - The study uses one task, small stage sizes, modified programs, and reduced windows. It supports neither a general model ranking nor an official RSI-Exam performance claim.
 - Causal explanations for the observed reward pattern remain hypotheses until directly tested.
 - The study does not evaluate malicious record producers, key compromise, collusion, Sybil behavior, or cross-organization identity.
-- Opus primary values are rounded summaries until raw receipts are recovered and bound; secondary Opus analysis is not reported.
+- Opus blocks 2 and 3 remain rounded summaries until their raw receipts are recovered and bound; secondary Opus analysis is not reported.
 
 ## 8. Related work
 
@@ -108,7 +108,7 @@ The companion artifact pins the source revision and hashes each paper-critical i
 
 ## 10. Open decisions
 
-The following remain pending: title approval, final Track 3 framing approval, authorship order and contributions, anonymity mode, artifact license, public-release timing, and whether the raw Opus receipts can be recovered before the freeze. The public CFP does not state an anonymity or artifact-link policy, so the three-page IEEEtran review PDF remains anonymous and the ARA remains unpublished pending organizer or authenticated-submission guidance. The primary A/B denominator (10 blocks), direction count (3/7), and record-yield denominator (18/20, split 9/10 per arm) are now mechanically reconciled from pinned committed sources.
+The following remain pending: title approval, final Track 3 framing approval, authorship order and contributions, anonymity mode, artifact license, public-release timing, and whether the missing Opus block 2--3 receipts can be recovered before the freeze. The public CFP does not state an anonymity or artifact-link policy, so the three-page IEEEtran review PDF remains anonymous and the ARA remains unpublished pending organizer or authenticated-submission guidance. The primary A/B denominator (10 blocks), direction count (3/7), and record-yield denominator (18/20, split 9/10 per arm) are now mechanically reconciled from pinned committed sources.
 
 ## References
 

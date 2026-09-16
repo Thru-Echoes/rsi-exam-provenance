@@ -4,7 +4,7 @@
 
 **Pinned input revision:** `727b9b821d7814d7467a29c1e740ce92eea7e219`
 
-The primary direction count covers all ten preregistered blocks. Haiku and Sonnet come from machine-generated endpoint tables. Opus comes from a committed pre-probe summary and is rounded to three decimals; its raw reward receipts and secondary tables remain a freeze blocker.
+The primary direction count covers all ten preregistered blocks. Haiku and Sonnet come from machine-generated endpoint tables. Opus block 1 comes from digest-bound capsule hidden-evaluation fields; Opus blocks 2 and 3 come from a committed pre-probe summary rounded to three decimals. Their raw reward receipts and the remaining Opus secondary tables remain freeze blockers.
 
 ## Primary endpoint by block
 
@@ -17,7 +17,7 @@ The primary direction count covers all ten preregistered blocks. Haiku and Sonne
 | Sonnet | 1 | 0.3327198 | 0.38678773 | -0.05406793 | helper | machine_generated_endpoint_table |
 | Sonnet | 2 | 0.4350452 | 0.4697557 | -0.0347105 | helper | machine_generated_endpoint_table |
 | Sonnet | 3 | 0.46113606 | 0.4235464 | 0.03758966 | instrument | machine_generated_endpoint_table |
-| Opus | 1 | 0.551 | 0.608 | -0.057 | helper | committed_pre_probe_summary |
+| Opus | 1 | 0.5510569 | 0.60840837 | -0.05735147 | helper | digest_bound_capsule_hidden_evaluation |
 | Opus | 2 | 0.346 | 0.602 | -0.256 | helper | committed_pre_probe_summary |
 | Opus | 3 | 0.414 | 0.533 | -0.119 | helper | committed_pre_probe_summary |
 
@@ -40,7 +40,7 @@ The primary direction count covers all ten preregistered blocks. Haiku and Sonne
 
 ## Release blockers
 
-- Opus primary rewards are summary-backed and rounded; bind raw reward receipts before the final freeze.
+- Opus blocks 2 and 3 remain summary-backed and rounded; bind their raw reward receipts before the final freeze.
 - Opus secondary endpoint, spend, and complete sealed-retrospective tables are not committed.
 - Do not convert the ten observed blocks into an efficacy, significance, or population-rate claim.
 

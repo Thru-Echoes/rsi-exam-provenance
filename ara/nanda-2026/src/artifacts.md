@@ -23,4 +23,4 @@ The implementation remains in the parent repository. This index avoids copying c
 | IEEE review source | `ara/nanda-2026/submission/main.tex` | Anonymous IEEEtran source with bounded claims and no author-controlled artifact link. |
 | IEEE review PDF | `output/pdf/nanda-2026-track3-ieee-review.pdf` | Three-page review build; not approved or submitted. |
 
-The submission artifact should cite a versioned tag and commit. The generated result already records a digest and evidence class for each input; the final freeze must additionally bind the raw Opus reward receipts if they are recovered. The anonymous review PDF now uses IEEEtran. Rebuild it after author metadata, anonymity mode, and artifact-link policy are settled.
+The submission artifact should cite a versioned tag and commit. The generated result records a digest and evidence class for each input and now consumes the digest-bound Opus block 1 capsule rewards. The final freeze must additionally bind the block 2--3 reward receipts if they are recovered. The anonymous review PDF now uses IEEEtran. Rebuild it after author metadata, anonymity mode, and artifact-link policy are settled.
