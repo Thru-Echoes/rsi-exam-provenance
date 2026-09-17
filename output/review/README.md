@@ -2,6 +2,51 @@
 
 ## Current framework-first revision — 2026-09-17
 
+[Download the current review snapshot](nanda-2026-framework-review-snapshot.zip?raw=true).
+Open START_HERE.md and paper.pdf. This small public download contains the complete
+current ARA/source snapshot but deliberately excludes Git history; it is not the
+full offline-cloneable archive described below.
+
+- Scientific/source freeze: `ee8e2dce9f6ebd1b091ef962e32e1fe55f808e7d`.
+- Public review snapshot: 1,568,305 bytes; 522 content bindings.
+- Snapshot SHA-256: `3eb5329fff61c1a9d41ca2066831bca49861354b70df46e9b68f158d7d639d8b`.
+- Full offline archive, available locally: `nanda-2026-ara-framework-review.zip`.
+  6,409,460 bytes; 523 bindings; SHA-256
+  `484b26114296d5472e17fe5d9bb171a2377fbc4c6e301439ae8e2da34813865c`.
+  It includes repository.bundle and is not included in this distribution commit.
+  The earlier large-archive uploads failed with TLS errors; this delivery publishes
+  the smaller snapshot and provides full-history reproduction through a Git clone.
+- Distribution changes do not modify the frozen scientific source or PDF. The
+  source README inside the archive predates this post-freeze distribution receipt.
+
+## Verification of this distribution
+
+The full archive was unpacked and its bundle cloned with branch
+`codex/nanda-framework-review`. All 21 focused research checks passed (1.161 s),
+as did retained-case inspection, pinned historical tables, 141 source bindings and
+readable-manuscript synchronization. E07 was also re-executed from that clean clone
+against the pinned external Proofpress source, matching its receipt exactly.
+All 523 archived entries were hashed; root paper.pdf matches the committed PDF.
+The published GitHub PDF was downloaded and compared byte-for-byte.
+
+The smaller snapshot was separately unpacked: its 14 structure/conformance checks,
+retained-case extraction and 141 bindings passed. The primary fault runner and
+historical table reproduction require a real Git checkout, as its root README
+explains. An initial snapshot instruction incorrectly included the Git-dependent
+fault test; extraction caught that packaging error and it was corrected before
+publication. No scientific implementation or result was changed.
+
+To derive the review snapshot from the full archive:
+
+```sh
+python3 output/review/package_snapshot.py full-review.zip new-review-snapshot.zip
+```
+
+Both packages require the separately pinned Proofpress source/dependency to
+re-execute E07. Neither includes a human approval or a downstream agent run.
+
+## Revision summary
+
 Paper: **Capture, Verify, Govern: Decision Provenance for Agent Artifact Handoffs**.
 Four IEEE pages including references. Framework design is the main contribution;
 RSI-Exam instantiates Verify. The unchanged 12-package characterization supports
