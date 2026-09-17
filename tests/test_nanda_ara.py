@@ -99,8 +99,8 @@ class NandaAraStructureTests(unittest.TestCase):
         source = (ARA / "submission" / "main.tex").read_text(encoding="utf-8")
         self.assertIn(r"\documentclass[conference]{IEEEtran}", source)
         self.assertIn("Anonymous Authors", source)
-        self.assertIn("18 verified records", source)
-        self.assertIn("nine per arm", source)
+        self.assertIn("No new agent rollout", source)
+        self.assertIn("different, fully supplied synthetic package", source)
         self.assertNotRegex(source, r"Thru-Echoes|chenmingtang|Richard|Oliver")
         self.assertNotRegex(source, r"github\.com/(?!aiming-lab/RSI-Exam|ARA-Labs/Agent-Native-Research-Artifact|harveyai/harvey-labs)")
 
@@ -111,15 +111,35 @@ class NandaAraStructureTests(unittest.TestCase):
         self.assertEqual(len(report["cases"]), len(rows))
         labels = ["None (valid control)", "Excluded caches differ; full hashes refreshed",
                   "Reward and declaration rewritten together", "Unrecognized version status",
-                  "Referenced measurement file removed", "Recorded orientation reversed",
-                  "Recorded estimate increased by one", "Parent/candidate measurements exchanged",
-                  "Submitted provisional left unconfirmed", "Submission changed; version claim retained",
+                  "Referenced measurement file removed", "Recorded score direction reversed",
+                  "Recorded mean delta increased by one", "Parent/candidate measurements exchanged",
+                  "Pending submission left unconfirmed", "Submission changed; version claim retained",
                   "Recorded snapshot removed", "Unrecorded snapshot added"]
         for case, row, label in zip(report["cases"], rows, labels):
             self.assertEqual(label, row[0])
             expected = tuple("A" if case["outcomes"][key] == "accept" else "R"
                              for key in ("structure", "bindings", "full"))
             self.assertEqual(expected, row[1:], case["id"])
+
+    def test_running_example_matches_unmodified_fixture(self):
+        source = (ARA / "submission/main.tex").read_text()
+        decisions = [json.loads(line) for line in
+                     (REPO / "fixtures/gated/job/artifacts/app/methods/decisions.jsonl").read_text().splitlines()]
+        rows = re.findall(r"^(v[23]) / (initial|confirm) & \$([^$]+)\$ & \$\[([^,]+),([^\]]+)\]\$ & (\w+)", source, re.M)
+        self.assertEqual(3, len(rows))
+        names = {"revert": "Revert", "provisional": "Pending", "keep": "Keep"}
+        for row, decision in zip(rows, decisions):
+            self.assertEqual(decision["version_id"], row[0])
+            self.assertEqual("confirm" if decision["replicates"] else "initial", row[1])
+            self.assertEqual(decision["estimate"], float(row[2]))
+            self.assertEqual(decision["interval"]["lower"], float(row[3]))
+            self.assertEqual(decision["interval"]["upper"], float(row[4]))
+            self.assertEqual(names[decision["disposition"]], row[5])
+            self.assertEqual("v1", decision["parent_id"])
+            self.assertEqual(8, decision["sample_size"])
+            self.assertEqual(0.9, decision["interval"]["level"])
+            self.assertEqual(5000, decision["method"]["resamples"])
+            self.assertEqual(20260902, decision["method"]["seed"])
 
 
 if __name__ == "__main__":

@@ -1,5 +1,9 @@
 # Citation and venue audit
 
+## Reader-first revision - 2026-09-17
+
+The current manuscript has five references: RSI-Exam, PROV-CONSTRAINTS, in-toto, MLflow and ARA. Harvey and its historical evidence remain in the companion, not the paper bibliography. RSI-Exam, PROV-CONSTRAINTS and the official in-toto paper page were rechecked for the revised framing. No new related-work superiority claim is added. The prior six-reference audit below is historical.
+
 ## Current manuscript audit - 2026-09-16
 
 The old audit below is retained as historical context, not the current bibliography.

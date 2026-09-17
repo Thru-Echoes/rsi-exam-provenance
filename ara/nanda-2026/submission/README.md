@@ -6,7 +6,7 @@ Build from the repository root:
 
 ```bash
 mkdir -p output/pdf
-SOURCE_DATE_EPOCH=1789526400 tectonic \
+SOURCE_DATE_EPOCH=1789612800 tectonic \
   --outdir output/pdf \
   --keep-logs \
   ara/nanda-2026/submission/main.tex

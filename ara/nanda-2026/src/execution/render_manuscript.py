@@ -14,6 +14,7 @@ def render():
     body = tex.split(r"\section{Introduction}", 1)[1].split(r"\begin{thebibliography}", 1)[0]
     body = r"\section{Introduction}" + body
     body = re.sub(r"\\cite\{([^}]+)\}", lambda m: "[" + m.group(1) + "]", body)
+    body = body.replace(r"\ref{tab:example}", "1").replace(r"\ref{tab:faults}", "2")
     bibliography = tex.split(r"\begin{thebibliography}{00}", 1)[1].split(r"\end{thebibliography}", 1)[0]
     bibliography = re.sub(r"\\bibitem\{([^}]+)\}", lambda m: "\n\n[" + m.group(1) + "] ", bibliography)
     text = r"\section*{Abstract}" + "\n" + abstract + "\n" + body + r"\section*{References}" + "\n" + bibliography

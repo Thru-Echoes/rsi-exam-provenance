@@ -1,5 +1,18 @@
 # Local review verification
 
+## Reader-first local revision — 2026-09-17
+
+- Full suite: 426 tests in 55.733 seconds, OK with two skips.
+- Focused research suite: 20 tests passed; the added regression binds every number and disposition in the worked example to the unmodified synthetic decision log.
+- All twelve S/B/V rows still match saved execution; fixture, verifier, manifest and experiment-result files are unchanged.
+- Historical retained-case check and pinned historical table generator passed.
+- Readable manuscript synchronization and git diff whitespace checks passed.
+- Pyright: zero errors, one existing optional jsonschema source warning.
+- Three-page IEEE PDF rendered and all pages inspected; two tables legible, no clipping/overlap, fonts embedded/subset.
+- This is a local editorial review candidate, not a readability user study. Public PR #40 and its frozen ZIP remain unchanged.
+
+## Previous frozen delivery checks — 2026-09-16
+
 Checked 2026-09-16. This is author-side verification, not independent review or
 an official ARA certification.
 

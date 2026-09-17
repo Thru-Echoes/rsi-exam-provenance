@@ -4,6 +4,8 @@ Epistemic attribution: paper framing and these revised claim cards are ai-sugges
 executions E01 and E05 are ai-executed. Historical sources remain attributed to
 their repository authors. These labels do not represent human approval.
 
+Manuscript mapping (2026-09-17): C01/C05/C06 are the main contribution and evaluation. C07 is real-run motivation only. C02/C03/C04/C08 remain companion context or hypotheses, not additional manuscript results.
+
 ## C01 — Executable decision consistency
 **Statement:** The profile implements offline checks for declared artifact identity, paired-measurement reproduction, protocol state, and supplied-directory coverage.
 **Conditions:** Intended verifier and complete required files; internal consistency only, with no runtime witnessing.

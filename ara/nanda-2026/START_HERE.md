@@ -1,4 +1,6 @@
-# Auditable Keeps — human review bundle
+# Auditing Keep-or-Revert Decisions — human review
+
+Current working manuscript: reader-first revision, 2026-09-17. The public ZIP at output/review/nanda-2026-ara-review-final.zip remains the previous 2026-09-16 draft. For this local revision, open output/pdf/nanda-2026-track3-ieee-review.pdf from the repository root. The ZIP instructions below apply when reading an unpacked frozen bundle.
 
 This is an author-side, AI-assisted research draft. No official ARA Seal, independent peer review, author approval, or public submission is implied. The PDF is anonymous; the complete source/history is NOT anonymized.
 
@@ -29,7 +31,7 @@ Nine synthetic faults are rejected by full checks, versus one and three by weake
 ## Human decisions still open
 
 - Are the narrow system contribution and historical evidence boundaries convincing?
-- Does the Harvey illustration clarify the trust boundary or distract from the main result?
+- Does moving Harvey and historical A/B to the companion make the main argument easier to follow?
 - Confirm author order, affiliations, contribution/IP/COI declarations and venue anonymity/artifact policy.
 - Approve a specific frozen version and authorize release separately. This delivery does not publish or submit.
 

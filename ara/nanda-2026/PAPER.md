@@ -1,6 +1,6 @@
-# Auditable Keeps: Semantic Verification of Self-Improving Agent Decisions
+# Auditing Keep-or-Revert Decisions in Self-Improving Agents
 
-Status: human-review draft, 2026-09-16. Author approval and public submission are pending.
+Status: reader-first local review candidate, 2026-09-17. The public PR #40 ZIP remains the previous frozen draft. This revision is not yet pushed or submitted.
 
 **Question:** Which decision inconsistencies can an offline recipient detect beyond document structure and file binding?
 
@@ -19,3 +19,5 @@ The ARA is repository-backed: paths outside this directory resolve from the repo
 
 ## Historical case supplement
 [C07/C08](logic/claims.md) and [E06](logic/experiments.md) distinguish retained real-run inspection from controlled fixture execution. See repository-root studies/handoff-case-review/README.md. Historical source extraction is portable; original model runs and missing snapshots are not reproduced.
+
+The manuscript now uses C07 only as motivation; C08 (Harvey) and historical reward/development results remain companion material. [Reader-review rationale](evidence/reader-review-2026-09-17.md) explains the structural revision. The primary experiment and all outcomes are unchanged.

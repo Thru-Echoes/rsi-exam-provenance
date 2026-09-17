@@ -1,6 +1,8 @@
 # Human review guide
 
-Status: revised systems-paper draft. The central question now has a direct
+Status: reader-first local revision, 2026-09-17; not yet synchronized to PR #40.
+The current title is Auditing Keep-or-Revert Decisions in Self-Improving Agents.
+The central question has a direct
 controlled evaluation. This is an author-designed, fixture-based short paper;
 acceptance by a venue is not assured.
 
@@ -48,9 +50,14 @@ semantic review is self-review, not an official ARA Seal or independent peer rev
 The old level2_report.json was superseded because its positive coherence assessment
 did not identify the mismatch between the previous contribution and evaluation.
 
-## Current revision: real cases with explicit evidence ceilings
+## Historical-case evidence ceilings
 Read studies/handoff-case-review/README.md from repository root after the manuscript.
 C07 and C08 / E06 add retained-source inspection, not two additional verifier trials.
 The real RSI capsule/log reconstruct a branch and expose missing evidence; original result and snapshot bytes are unavailable here. H5 remains report-only.
 The Harvey license subgroup is selected retrospectively and treatment has extra ledger-state information. It illustrates reuse eligibility, not current-system effectiveness.
 The core contribution and primary controlled results remain C05/C06. Two passing controls do not establish a population false-positive rate.
+
+## Reader-first revision
+Read evidence/reader-review-2026-09-17.md for the full critique and edit rationale. The manuscript introduces the 2048 workflow and recipient's questions before record fields, and follows one synthetic decision sequence through recalculation and confirmation. Its new worked table is checked against the original fixture, not invented for exposition. Unused tuple/predicate notation is removed. The one-point mutation is explicitly not a changed verdict. The final reward rewrite is distinguished from visible-game decision measurements.
+
+Harvey/C08, reward A/B/C03, the cohort count/C02, TRACE import and development-vector details remain available in the companion, not the manuscript's primary narrative. The real retained RSI case/C07 motivates capture but does not count as a successful end-to-end verifier trial. Review whether the contribution is worth publishing on its existing evidence; the readability revision does not add empirical strength.

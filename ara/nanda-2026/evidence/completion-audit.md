@@ -1,5 +1,7 @@
 # Human-review delivery requirements
 
+Current local draft is the reader-first revision dated 2026-09-17. The prior publication/Notion delivery described below belongs to the 2026-09-16 freeze. This revision has not yet updated the public PR ZIP or Notion; see reader-review-2026-09-17.md.
+
 This audit concerns a human-reviewable submission draft, not author approval or
 external submission. The limitations are scientific boundaries, not missing
 positive results that may be filled in by assumption.

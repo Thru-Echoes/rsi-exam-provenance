@@ -113,3 +113,11 @@ tree:
     title: Inspect real retained evidence without inventing missing inputs
     result: RSI branch and log binding recoverable; raw per-seed and snapshot evidence absent. Harvey historical extraction is information-asymmetric and not a current verifier trial.
     evidence: [C07, C08]
+  - id: N14
+    type: pivot
+    support_level: explicit
+    attribution: ai-suggested
+    source_refs: ["ara/nanda-2026/evidence/reader-review-2026-09-17.md"]
+    title: Rebuild the narrative around a recipient checking one version decision
+    description: Human author reported confusion. Replace unused notation with a worked fixture sequence; move unrelated historical studies to the companion. No empirical result changed and readability improvement is not measured.
+    evidence: [C01, C05, C06]
