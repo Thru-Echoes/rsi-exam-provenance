@@ -47,3 +47,13 @@ The paper-facing research artifact containing the manuscript scaffold, structure
 **Definition:**
 
 When summaries conflict, the order is: raw job outputs and verifier receipts; generated per-trial tables; preregistered manifest and committed endpoint tables; committed pre-probe summaries; narrative handoffs; working notes. A lower-precedence source cannot silently override a higher-precedence one. If a bounded value is recovered from a weaker source, its evidence class and precision travel with the value.
+
+## Capture--verify--govern evidence contract
+
+**Definition:** A design-level boundary contract, not one universal wire format.
+Capture identifies the submitted decision, actors, revision/disposition and
+referenced evidence/rule. Verification identifies the exact package and checker,
+outcomes, diagnostics and limits. Governance binds a scoped candidate to evidence
+and a separate authority decision. TRACE accepted, RSI keep, and Proofpress
+admission are not interchangeable statuses. The present TRACE adapter imports
+neither all rule fields nor a required bound verifier receipt.

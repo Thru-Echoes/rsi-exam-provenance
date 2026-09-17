@@ -1,22 +1,25 @@
 # Frozen ARA review bundle
 
-## Current reader-first handoff revision — 2026-09-17
+## Current framework-first revision — 2026-09-17
 
-Paper: **Auditing Keep-or-Revert Decisions in Self-Improving Agents**.
+Paper: **Capture, Verify, Govern: Decision Provenance for Agent Artifact Handoffs**.
+Four IEEE pages including references. Framework design is the main contribution;
+RSI-Exam instantiates Verify. The unchanged 12-package characterization supports
+C05/C06. C10/E07 adds a pinned local conversion/intake demonstration, not a complete
+human-approved agent handoff. See [ARA manifest](../../ara/nanda-2026/PAPER.md)
+and [review guide](../../ara/nanda-2026/REVIEW.md).
 
-The current manuscript explains why kept versions affect later work, what a
-receiving agent or researcher can check without runtime access, and why capture,
-checking and admission are separate responsibilities. The synthetic experiment
-and its results are unchanged. Harvey and historical reward comparisons remain
-companion material, not primary manuscript evidence.
+The previous public source was c3d94b6790055fe60783137f5c2eaa4aed620ea8.
+The earlier local-only distribution commit 8e8136054ab016ecf493404edfb921d082c0a7e3
+and its archive are preserved in the original checkout. This revision starts from
+the public source in a separate worktree; no unpublished binary/history is overwritten.
 
-The new archive is `nanda-2026-ara-review-2026-09-17.zip`. Its root CONTENTS.json
-records the exact source revision and file hashes. This source checkpoint
-precedes packaging; the distribution commit adds the archive, its checksum and
-clean-clone receipt here. Earlier ZIPs are omitted from the browsable source
-snapshot to avoid nesting distributions; the offline Git history is preserved.
+Source freeze precedes distribution packaging. The current PDF and ARA source are
+the review authority; final archive names, hashes and clean-clone results are added
+here in the distribution record. Never interpret a historical ZIP as this paper.
 
-Review materials are shared through PR #40, not approved, merged or submitted.
+Review materials go to existing PR #40, not merge, deployment or conference submission.
+The anonymous author block is not full anonymization of named systems or public history.
 
 ## Previous frozen delivery — 2026-09-16 (superseded)
 

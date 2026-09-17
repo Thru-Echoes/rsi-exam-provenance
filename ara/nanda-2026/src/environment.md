@@ -49,15 +49,25 @@ Without `--check`, the first command regenerates `evidence/results/paper-results
 
 ## IEEE review build
 
-The anonymous review source uses the standard `IEEEtran` conference class. From the repository root:
+The review source uses the standard `IEEEtran` conference class and an anonymous author block. From the repository root:
 
 ```bash
-mkdir -p output/pdf
+paper_build=$(mktemp -d)
 SOURCE_DATE_EPOCH=1789612800 tectonic \
-  --outdir output/pdf \
+  --outdir "$paper_build" \
   --keep-logs \
   ara/nanda-2026/submission/main.tex
-mv output/pdf/main.pdf output/pdf/nanda-2026-track3-ieee-review.pdf
+cp "$paper_build/main.pdf" output/pdf/nanda-2026-track3-ieee-review.pdf
 ```
 
-The current review build is three US-letter pages with embedded, subset fonts. It is not approved or submitted. Re-check the venue's anonymity and artifact-link policy before adding author metadata or a public artifact URL.
+The current review build is four US-letter pages including references with embedded, subset fonts. It is not approved or submitted. Named implementations can identify contributors despite the anonymous author block; re-check the venue's anonymity and artifact-link policy.
+
+## Framework integration demonstration (E07)
+
+Fresh execution uses Python 3.11.13 and cryptography 46.0.7, with Proofpress source
+exported from commit `7fad672321ae00d7c7af350e7b26000846b37895` into a disposable
+directory. TRACE wire 0.5.1 is declared by the converter and accepted by the pinned
+adapter. Upstream schema validation is not rerun. See studies/framework-boundary/README.md.
+The external source/dependency is not bundled with the RSI-only artifact. A local
+clone containing the exact commit is required to re-execute E07; checking its saved
+receipt and hashes is a separate portable operation. No hosted or model calls.

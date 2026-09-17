@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "base_git_commit": "a58b5acc5fc7e0b08fd45e6be0d043ad0cbade1c",
+  "base_git_commit": "c3d94b6790055fe60783137f5c2eaa4aed620ea8",
   "status": "local-review-snapshot",
   "identity": "Exact file hashes include working-tree changes; base commit is not a clean-tree claim.",
   "exclusions": [
@@ -15,19 +15,19 @@
     },
     {
       "path": "ara/nanda-2026/PAPER.md",
-      "sha256": "4069bdcce6c33f457f1dbee03b69f32f3fde288ae05ccdaf75901600c8aa29f2"
+      "sha256": "778403237e975911525330170b3e96695f62541a2c8e55c47d2c2197f0c7e060"
     },
     {
       "path": "ara/nanda-2026/REVIEW.md",
-      "sha256": "34dd3fdb8915d9dd4864cad5ec148219b3dfc4d7a2761573f6dc65b09aa25e2e"
+      "sha256": "1e947c10d7c6259387aec1c75099d3a8b1096eb3e82f8f02a37f49e9669e51d4"
     },
     {
       "path": "ara/nanda-2026/START_HERE.md",
-      "sha256": "8c59ba680abf13bdb773979282ea05ad5b425f86e6f40a54038bde13259c1899"
+      "sha256": "ab8cfd0f4db31ade87cfc868e0d0eb646739d910aa308f0b22b1def63dc0a3e1"
     },
     {
       "path": "ara/nanda-2026/evidence/README.md",
-      "sha256": "6bcb7b0af19530ce9496dd7f3a969bd2b7ed01f091230c976d3566c3abafacc2"
+      "sha256": "25d1289a79fff625b7a04edab75b01c1792107844a9fa6147b5c1e8d9afe2b6e"
     },
     {
       "path": "ara/nanda-2026/evidence/citation-audit.md",
@@ -35,7 +35,11 @@
     },
     {
       "path": "ara/nanda-2026/evidence/completion-audit.md",
-      "sha256": "e9bb8e3cc8d9767942f74732df5284fa1a2c2e123a9098673de8f11a385db27e"
+      "sha256": "0a82d57994ef04d725a4f6c363ccc424de0fa18f17e2f0bd49a81657eecf6e59"
+    },
+    {
+      "path": "ara/nanda-2026/evidence/framework-review-2026-09-17.md",
+      "sha256": "413e2f7e785df433c3705baf34fa9ce9216a0dfd08be1edee7a4d4260cde75c4"
     },
     {
       "path": "ara/nanda-2026/evidence/reader-review-2026-09-17.md",
@@ -59,7 +63,7 @@
     },
     {
       "path": "ara/nanda-2026/evidence/review-verification.md",
-      "sha256": "e0c9db2a71f761ce677e87eef73addb5a9d540950afd9a374f745d39ddfa54cb"
+      "sha256": "84deca5562014a7b672672dfe0a7ef6026daa1b7ee9977ad55bde3c4fd141722"
     },
     {
       "path": "ara/nanda-2026/evidence/unmerged-opus-recovery-audit.md",
@@ -75,23 +79,23 @@
     },
     {
       "path": "ara/nanda-2026/level2_report.json",
-      "sha256": "b706a2f6f9870c35cfc3412177143b19929b4fc8782c8c1cfeb518b353539427"
+      "sha256": "002401a7795ef8c65de2ef35e91f9183fbf2bcaff28398a2add218c08ab6b625"
     },
     {
       "path": "ara/nanda-2026/logic/claims.md",
-      "sha256": "8b880eb4db5ff422a28a940b483d945392a4e810f9dbe731d47311f2f53d127c"
+      "sha256": "dfafdddf42a3d1336b7a8b02031271df43a5d9cb7ed91a329e8ce1030ef6859b"
     },
     {
       "path": "ara/nanda-2026/logic/concepts.md",
-      "sha256": "1cd476db279f1e52e8c94cab08f2792a3e11f000defebc46b14e95ab1e3b657e"
+      "sha256": "cb4362d8b80bc9c0cea09d0184e07be12d53b6a65d94688e748a6f0dbeea4908"
     },
     {
       "path": "ara/nanda-2026/logic/experiments.md",
-      "sha256": "cad202b4304cd985f8bccdf1ff5e63357491dfcd92480d1756970ec93548bb2f"
+      "sha256": "2d39fc681bcd0c0b7d490e5d4278adddc4f4e3c486d29d57b447dee8e8f34304"
     },
     {
       "path": "ara/nanda-2026/logic/problem.md",
-      "sha256": "361797e3a1b2e2db069df5b3549b7aeb0ffd63276a49748d5dd7c4a00320637f"
+      "sha256": "18f5066f5fc4b51e2539fe0b544e1bf01ee97d2fa463d59ee3cad8c14d003e47"
     },
     {
       "path": "ara/nanda-2026/logic/related_work.md",
@@ -99,11 +103,11 @@
     },
     {
       "path": "ara/nanda-2026/logic/solution/architecture.md",
-      "sha256": "bb3f612a52e9dd6c78d24b9df93672095cc75e032224b9ef52cd6da3e67cc40b"
+      "sha256": "65b7f4f026867ff81968cd54b0ab1c13fb350dd9be6b2c5d19c787770bdb7ff7"
     },
     {
       "path": "ara/nanda-2026/logic/solution/constraints.md",
-      "sha256": "2fe6fe53429d59cbb4216dd85c53eb6ae3192757c57637340d5d56a5957f7391"
+      "sha256": "a44de009621a99a82803364fbc30b486b5e7f9bb504dc1b61b9717acc6dd1064"
     },
     {
       "path": "ara/nanda-2026/logic/solution/decision-record-contract.md",
@@ -111,11 +115,11 @@
     },
     {
       "path": "ara/nanda-2026/src/artifacts.md",
-      "sha256": "10f4f3679c467c154ce46d90c36a79f8f92b06ad8ad8715a699797824501ad5a"
+      "sha256": "7048ab8a70752a330a6343ee6062ccec083ddf8609c536969300ac92abcedd06"
     },
     {
       "path": "ara/nanda-2026/src/environment.md",
-      "sha256": "1229c40afa95096fde861649d921b36a0e5dd250accb477e48da219acf07a2ec"
+      "sha256": "f421210b9d86d80ba2898142b537be1884fd99df173b7c04c284753862a8c809"
     },
     {
       "path": "ara/nanda-2026/src/execution/build_paper_results.py",
@@ -127,7 +131,7 @@
     },
     {
       "path": "ara/nanda-2026/src/execution/check_review_snapshot.py",
-      "sha256": "d745272908d5955bcf490e106a6988ccb8e561b395871bc4bad181182f5427c8"
+      "sha256": "09051f3b5c353e36fac2d46f74a4c93696797d273365a99f629b8c762caa48da"
     },
     {
       "path": "ara/nanda-2026/src/execution/package_review.py",
@@ -135,19 +139,19 @@
     },
     {
       "path": "ara/nanda-2026/src/execution/render_manuscript.py",
-      "sha256": "2b13ac0edfccf41e3a14de9914c13dc1209e130f5f2c27b7aceeca8263c8228b"
+      "sha256": "acf1d7bec34bdbeab7ab8a7ec3cf4dd9e055ca9d8c39419c8d547b9673be2a9d"
     },
     {
       "path": "ara/nanda-2026/submission/README.md",
-      "sha256": "48131054a8dc8ff9ecfea478ec5e040195057911a6e22d1416bc3a15ae9d3931"
+      "sha256": "07c5628049b5b11d2240694df4e20d0c3938b4a684ef1e45bc34e7caee67da84"
     },
     {
       "path": "ara/nanda-2026/submission/main.tex",
-      "sha256": "78bac5c24cc76e041e789a362af2b949414e0bac4f00e39bbc6782499607f0ea"
+      "sha256": "2548e8572c93de5f02dcc7c0bdc4ae65e5f93be927378e3f46c7be0f6cabbf70"
     },
     {
       "path": "ara/nanda-2026/submission/manuscript.md",
-      "sha256": "0f0c66f8201f90fc549564f21f83a2e2ee2c2b4c390a6164cef6e3c760375052"
+      "sha256": "1f96611156da9d4143a200a0a45d3e1ab73ec4b248cd9d17d0c7480421475a67"
     },
     {
       "path": "ara/nanda-2026/tables/README.md",
@@ -155,7 +159,7 @@
     },
     {
       "path": "ara/nanda-2026/trace/exploration_tree.yaml",
-      "sha256": "2c96673093d752be20f699e1e800b59c5e46bb5a2bb8f9491b8df3dc7d49f778"
+      "sha256": "9e49e8b79e1746077a4461a0fd61641cb684a15a478617f046f4ea35321c185d"
     },
     {
       "path": "docs/campaign/2026-09-instrument-ab/manifest.md",
@@ -323,7 +327,7 @@
     },
     {
       "path": "output/pdf/nanda-2026-track3-ieee-review.pdf",
-      "sha256": "30ab51a3c7ba9c757b7b1ebbeacfc78fe038ed4a5aedba9e61f4901c5df989a2"
+      "sha256": "01a2a529dde07420f1aeed3820926b7368e4af58b405c277894fe5e162aeb977"
     },
     {
       "path": "output/pdf/nanda-2026-track3-working-paper.pdf",
@@ -368,6 +372,18 @@
     {
       "path": "studies/decision-audit/run_faults.py",
       "sha256": "3a0cf3e4e057ef71edd3e6d8a1f95a4f41a651b9f31350d6c38841eefe1d9ec4"
+    },
+    {
+      "path": "studies/framework-boundary/README.md",
+      "sha256": "34bd161e0556276d4054acba139ff7d9c195e55e6633678f2c337d20747d9ef3"
+    },
+    {
+      "path": "studies/framework-boundary/results.json",
+      "sha256": "b804310e42139b802adfbd7f119feb3793876b710f6646e3bc326bf900fb22d1"
+    },
+    {
+      "path": "studies/framework-boundary/run_demo.py",
+      "sha256": "244090b9a2b84dbda9dba6c1cfbc8b40c2b73f097f30705cdaa75ef424f66218"
     },
     {
       "path": "studies/handoff-case-review/README.md",
@@ -507,7 +523,7 @@
     },
     {
       "path": "tests/test_nanda_ara.py",
-      "sha256": "376804651f097bfd303bc8c5eb2bef91c791056fa6379f2f6746f5a6462d07b0"
+      "sha256": "ed1f5f463d3261f6a4566039967c648a13309ddb8a7b94270b783b74e51c826f"
     },
     {
       "path": "tests/test_paper_results.py",

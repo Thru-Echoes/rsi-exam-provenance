@@ -1,5 +1,14 @@
 # Evidence index
 
+## Framework revision — 2026-09-17
+
+C09 is a design contribution, not an experimental finding. C10/E07 adds a fresh
+local integration demonstration at studies/framework-boundary/: clean verification,
+TRACE conversion, bounded import, idempotence, negative intake cases, a verifier-
+rejected but first-importable numerical error, and an unadmitted synthetic candidate.
+No human approval, downstream run or upstream schema-validation rerun is claimed.
+See framework-review-2026-09-17.md for the design/implementation distinction.
+
 ## Primary current study
 - Repository path studies/decision-audit/fault-manifest.json: twelve authored cases.
 - studies/decision-audit/run_faults.py: mutations and checking configurations.

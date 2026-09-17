@@ -1,5 +1,30 @@
 # Local review verification
 
+## Framework-first revision — 2026-09-17
+
+- Full repository suite: 427 tests in 58.408 seconds, OK with two skips.
+- Focused research suite: 21 tests in 1.153 seconds, all passing. The added test
+  binds the new integration receipt to its inputs and runner and preserves its
+  no-approval/no-downstream-run boundary; it does not execute external Proofpress.
+- E07 freshly executed, then rerun by the same author-side runner
+  with --check: exact pinned receipt reproduced. Python 3.11.13, cryptography
+  46.0.7; Proofpress 7fad672321ae00d7c7af350e7b26000846b37895. This is not an
+  independent evaluator. Only disposable local fixture repositories were written.
+- Retained-case check, historical table reproduction and Markdown synchronization
+  passed. Pyright: zero errors, one existing optional jsonschema source warning.
+- Four-page IEEE PDF including references, rendered and all pages inspected.
+  Three legible tables, no clipping or overlap, all fonts embedded/subset; no
+  margin or type-size reduction. The author block stays anonymous, not a guarantee
+  that named systems or the public ARA hide authorship.
+- Existing gate, converter, verifier, fixtures and twelve-package study/results
+  remain byte-identical to the prior public source. The new runner exercises
+  existing implementations, not a fix that makes the study pass.
+- Source snapshot and final clean-clone receipt are recorded after the source
+  freeze in output/review/README.md. Earlier verification sections below describe
+  earlier revisions and do not supply the current test counts.
+- No model rollout, paid inference, human approval, hosted service mutation or
+  conference submission occurred. Framework effectiveness is not established.
+
 ## Handoff framing and distribution revision — 2026-09-17
 
 - Full repository suite: 426 tests in 61.426 seconds, OK with two skips.

@@ -15,7 +15,7 @@ def main():
     args = parser.parse_args()
     previous = json.loads(TARGET.read_text())
     paths = {item["path"] for item in previous["files"]}
-    for folder in ("ara/nanda-2026", "studies/decision-audit", "studies/handoff-case-review", "profile", "gate",
+    for folder in ("ara/nanda-2026", "studies/decision-audit", "studies/handoff-case-review", "studies/framework-boundary", "profile", "gate",
                    "fixtures/gated", "tests"):
         for path in (ROOT / folder).rglob("*"):
             if path.is_file() and "__pycache__" not in path.parts and path.suffix != ".pyc":

@@ -1,10 +1,10 @@
 # Claims
 
 Epistemic attribution: paper framing and these revised claim cards are ai-suggested;
-executions E01 and E05 are ai-executed. Historical sources remain attributed to
+executions E01, E05 and E07 are ai-executed. Historical sources remain attributed to
 their repository authors. These labels do not represent human approval.
 
-Manuscript mapping (2026-09-17): C01/C05/C06 are the main contribution and evaluation. C07 is real-run motivation only. C02/C03/C04/C08 remain companion context or hypotheses, not additional manuscript results.
+Manuscript mapping (framework revision, 2026-09-17): C09 is the framework design; C01 is its domain-specific verification implementation; C05/C06 characterize Verify; C10 demonstrates the intake boundary. C07 motivates Capture. C02/C03/C04/C08 remain companion context or hypotheses. These distinct evidence levels must not be pooled as validation of the whole framework.
 
 ## C01 — Executable decision consistency
 **Statement:** The profile implements offline checks for declared artifact identity, paired-measurement reproduction, protocol state, and supplied-directory coverage.
@@ -93,3 +93,25 @@ Manuscript mapping (2026-09-17): C01/C05/C06 are the main contribution and evalu
 **Evidence basis:** Public pinned historical result/protocol projection, not original raw runs.
 **Dependencies:** none.
 **Tags:** historical-case, reuse-boundary, information-asymmetry.
+
+## C09 — Capture, verify and govern are separate responsibilities
+**Statement:** The proposed handoff framework distinguishes a submitted decision record, a package-bound domain-check result, and an explicitly scoped claim whose reuse requires separate authority.
+**Conditions:** This is a design proposal, not a general theorem or an empirically validated end-to-end workflow. The present TRACE adapter does not enforce a verifier-receipt binding.
+**Sources:** [design] submission/main.tex section II; logic/solution/architecture.md; docs/decision-log-contract.md; [implementation] gate/trace_from_decisions.py.
+**Status:** proposed architecture with partial reference instantiation.
+**Falsification criteria:** An alleged implemented boundary has no corresponding operation, or the documented statuses are silently promoted by the tested path. General usefulness remains an open empirical question.
+**Proof:** [E07] illustrates non-equivalence at intake only; it is not proof of the framework's effectiveness.
+**Evidence basis:** interface inspection and a local synthetic demonstration; no human-approval or multi-agent evaluation.
+**Dependencies:** C01, C10.
+**Tags:** framework-design, partial-instantiation, authority-separation.
+
+## C10 — TRACE intake neither repeats verification nor grants reuse
+**Statement:** A pinned local demo imports three TRACE decisions into three source records and three evidence items with no claims, admissions or governed context. The existing one-point numerical fault is refused by the RSI verifier yet accepted by conversion and first-time evidence import. An explicit synthetic claim proposal remains unadmitted and absent from governed context.
+**Conditions:** One synthetic lineage; Proofpress 7fad672321ae00d7c7af350e7b26000846b37895; TRACE wire 0.5.1. Changed normalized content under an already imported identity fails closed. Fault import uses a fresh receiver, not an overwrite. No human is simulated as approving.
+**Sources:** [result] studies/framework-boundary/results.json; [input] studies/framework-boundary/run_demo.py; Proofpress docs/TRACE_ADAPTER.md and src/proofpress/kernel/operations.py at the pinned revision.
+**Status:** supported local integration demonstration, not governance effectiveness or full TRACE schema conformance.
+**Falsification criteria:** Reproduction changes counts or boundary outcomes, the wrong estimate is accepted by full verification, or a candidate becomes governed context without admission.
+**Proof:** [E07].
+**Evidence basis:** fresh isolated execution, source/runner digests and read-back of empty context. Unsupported wire version, malformed interval and restamped identity are refused; repeat import is idempotent.
+**Dependencies:** C01.
+**Tags:** integration-demonstration, evidence-only, no-self-approval.

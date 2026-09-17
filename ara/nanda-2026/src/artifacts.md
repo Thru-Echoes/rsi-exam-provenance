@@ -14,6 +14,8 @@ or hosted service is needed for the primary controlled experiment.
 | Synthetic source package | fixtures/gated/ |
 | Decision contract | docs/decision-log-contract.md |
 | Historical integration receipt | docs/RUN_REPORT.md |
+| New pinned local integration demonstration | studies/framework-boundary/run_demo.py and results.json |
+| Integration reproduction and limits | studies/framework-boundary/README.md |
 | Historical cohort source | docs/PREFLIGHT.md and docs/shadow-audit/instrument-ab/ |
 | Historical result generator | ara/nanda-2026/src/execution/build_paper_results.py |
 | Current IEEE manuscript | ara/nanda-2026/submission/main.tex |

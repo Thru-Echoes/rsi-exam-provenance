@@ -45,7 +45,7 @@ class NandaAraStructureTests(unittest.TestCase):
 
     def test_claim_cards_have_required_fields(self):
         claims = sections(ARA / "logic" / "claims.md", "C")
-        self.assertEqual({f"C{i:02}" for i in range(1, 9)}, set(claims))
+        self.assertEqual({f"C{i:02}" for i in range(1, 11)}, set(claims))
         fields = (
             "Statement", "Conditions", "Sources", "Status", "Falsification criteria",
             "Proof", "Evidence basis", "Dependencies", "Tags",
@@ -58,7 +58,7 @@ class NandaAraStructureTests(unittest.TestCase):
     def test_claim_experiment_links_are_bidirectional(self):
         claims = sections(ARA / "logic" / "claims.md", "C")
         experiments = sections(ARA / "logic" / "experiments.md", "E")
-        self.assertEqual({f"E{i:02}" for i in range(1, 7)}, set(experiments))
+        self.assertEqual({f"E{i:02}" for i in range(1, 8)}, set(experiments))
         for claim_id, claim in claims.items():
             proof = set(re.findall(r"\[(E\d+)\]", claim))
             self.assertTrue(proof, claim_id)
@@ -97,6 +97,28 @@ class NandaAraStructureTests(unittest.TestCase):
         self.assertIn("Capture, checking, and admission", paper)
         self.assertIn("not a multi-agent network", paper)
         self.assertIn("does not authenticate the files", paper)
+        self.assertIn("not yet one automatically enforced pipeline", paper)
+        self.assertIn("does not require a receipt", paper)
+        self.assertIn("No human approval or downstream agent run", paper)
+        self.assertIn("system} resolver", paper)
+
+    def test_framework_demo_receipt_is_bound_and_narrow(self):
+        import hashlib
+        study = REPO / "studies/framework-boundary"
+        report = json.loads((study / "results.json").read_text())
+        for path, expected in report["input_sha256"].items():
+            self.assertEqual(expected, hashlib.sha256((REPO / path).read_bytes()).hexdigest())
+        self.assertEqual(report["runner_sha256"], hashlib.sha256((study / "run_demo.py").read_bytes()).hexdigest())
+        self.assertEqual(3, report["after_import"]["evidence"])
+        self.assertEqual(0, report["after_import"]["claims"])
+        self.assertEqual(0, report["after_import"]["admissions"])
+        self.assertEqual({"claims": 1, "admissions": 0, "governed_context_items": 0}, report["after_explicit_proposal"])
+        self.assertFalse(report["human_approval_exercised"])
+        self.assertFalse(report["downstream_agent_run"])
+        self.assertFalse(report["trace_schema_validation_rerun"])
+        self.assertFalse(report["wrong_estimate_boundary"]["verifier_accepts"])
+        self.assertTrue(report["wrong_estimate_boundary"]["adapter_accepts_in_fresh_receiver"])
+        self.assertEqual(["decision:estimate_not_reproducible:v2:1"], report["wrong_estimate_boundary"]["verifier_errors"])
 
     def test_ieee_review_source_is_anonymous_and_result_aligned(self):
         source = (ARA / "submission" / "main.tex").read_text(encoding="utf-8")

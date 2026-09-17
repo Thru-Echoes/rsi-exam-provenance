@@ -1,44 +1,57 @@
 {
   "artifact": "nanda-2026-decision-provenance",
-  "review_version": "reader-first-handoff-self-review-2026-09-17",
+  "review_version": "framework-first-self-review-2026-09-17",
   "status": "human-review-draft",
   "official_ara_seal": false,
   "independent_review": false,
-  "supersedes": "Prior Sound/4.0 self-review; withdrawn after human critique identified contribution/evaluation mismatch.",
-  "primary_claims": [
+  "supersedes": "Reader-first verifier-only hierarchy; historical positive score remains withdrawn.",
+  "framework_claim": "C09",
+  "implementation_claim": "C01",
+  "primary_empirical_claims": [
     "C05",
     "C06"
   ],
+  "integration_claim": "C10",
+  "motivation_claim": "C07",
   "findings": [
     {
       "severity": "major",
-      "observation": "Single synthetic base, author-selected faults, and shared checking components restrict generalization.",
-      "disposition": "Scope and limitations explicit in abstract, methods, results, conclusion."
-    },
-    {
-      "severity": "minor",
-      "observation": "One prespecified diagnostic prefix differs from actual output.",
-      "disposition": "Manifest and first result retained; report 8/9 diagnostic matches and 9/9 refusal outcomes."
+      "observation": "Framework breadth exceeds completed integration.",
+      "disposition": "Partial instantiation explicit; no required verifier-receipt binding, human approval or downstream run demonstrated."
     },
     {
       "severity": "major",
-      "observation": "Historical job directories not all included.",
-      "disposition": "Historical tables provide reported context only; primary evaluation is fully fixture-backed."
+      "observation": "Separation of concerns is not itself novel.",
+      "disposition": "Contribution anchored in executable RSI profile and evidence-intake non-equivalence; usefulness remains for human review."
+    },
+    {
+      "severity": "major",
+      "observation": "One synthetic lineage, author-selected faults, shared components.",
+      "disposition": "No population detection rate or cross-domain generalization."
+    },
+    {
+      "severity": "minor",
+      "observation": "One prespecified diagnostic prefix mismatch.",
+      "disposition": "9/9 refusals and 8/9 diagnostic matches retained."
+    },
+    {
+      "severity": "major",
+      "observation": "Real-run snapshots/measurements absent from retained export.",
+      "disposition": "C07 motivates Capture; not full verifier evaluation."
     }
   ],
-  "historical_case_revision": {
-    "claims": ["C07", "C08"],
-    "inspection": "E06; retained records and exact pinned source projection",
-    "limits": ["No complete original RSI replay", "No fresh Harvey model run", "Retrospective subgroup", "Only treatment has external ledger-state metadata", "Not the same verifier implementation"]
-  },
   "editorial_revision": {
-    "new_title": "Auditing Keep-or-Revert Decisions in Self-Improving Agents",
-    "rationale": "evidence/reader-review-2026-09-17.md",
+    "new_title": "Capture, Verify, Govern: Decision Provenance for Agent Artifact Handoffs",
+    "rationale": "evidence/framework-review-2026-09-17.md",
     "human_readability_measured": false,
-    "empirical_results_changed": false,
-    "companion_only": ["Harvey", "reward A/B", "cohort summary", "development diagnostics", "TRACE import"],
-    "distribution": "dated review bundle for PR #40; earlier frozen ZIP preserved",
-    "handoff_framing": "Kept versions can become parents of later work; a recipient checks supplied decision evidence without runtime access. Capture, checking and admission remain separate; no network evaluation or authorization claim."
+    "verify_study_changed": false,
+    "new_integration_demo": "E07",
+    "companion_only": [
+      "Harvey",
+      "reward A/B",
+      "cohort summary",
+      "development diagnostics"
+    ]
   },
   "publication_approval": "pending human authors"
 }

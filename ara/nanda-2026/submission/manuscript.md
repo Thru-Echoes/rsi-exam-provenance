@@ -1,20 +1,20 @@
-# Auditing Keep-or-Revert Decisions in Self-Improving Agents
+# Capture, Verify, Govern: Decision Provenance for Agent Artifact Handoffs
 
 Anonymous human-review draft. The IEEE PDF is the layout-authoritative copy.
 
 # Abstract
 
-When an AI coding agent keeps a revised program, later edits can build on that choice. A recipient who inherits the final program also inherits the consequences of those decisions, but its score and file hashes do not establish their evidential support. We present a decision record and offline verifier for auditing such handoffs without access to the producing agent’s runtime. The verifier connects code versions to paired test results, recalculates recorded statistics, checks declared keep-or-revert rules, and checks submitted-version identity. We characterize these checks using twelve synthetic evidence packages: nine deliberately introduced faults, two valid controls, and one internally consistent rewrite of an unsigned final reward. Format checks reject one fault; adding file-hash checks rejects three; full verification rejects all nine. Both valid controls and the reward rewrite pass. The results identify decision relationships that file binding alone cannot check. A retained real-run record illustrates missing decision evidence, but is not an additional end-to-end verifier evaluation. The contribution is a bounded audit mechanism for agent-produced artifacts: internal consistency neither proves authentic execution nor authorizes downstream reuse.
+When one agent continues another’s work, it inherits decisions as well as files. A recorded decision need not be supported by its evidence, and a supported decision need not be authorized for reuse. We present a capture–verify–govern framework that separates these responsibilities and specifies the information needed at each boundary. TRACE records submitted decisions, a domain-specific verifier checks their evidential consistency, and Proofpress separates evidence intake from claim review and governed reuse. We instantiate the verification layer on RSI-Exam program-version selection. In twelve synthetic packages, format checks reject one of nine authored faults, file-binding checks reject three, and full checks reject nine; two valid controls and a consistent unsigned reward rewrite pass. A separate local integration demonstration imports three TRACE decisions as evidence without creating claims or admissions; even a verifier-rejected numerical error remains importable as evidence. These results characterize verification and intake boundaries, not the effectiveness of a complete governance workflow. Recording is not verification, consistency is not authenticity, and neither grants permission to reuse.
 
 # Introduction
 
-Suppose an AI coding agent improves a program that plays 2048. It repeatedly edits the code, tests it, and keeps the new version or returns to an earlier one. RSI-Exam provides this setting: agents improve task programs using visible evaluations, then submit them for grading on unseen data \[rsiexam\]. Here, self-improving means improving the task program, not the language model’s weights.
+Suppose one agent hands a revised program to another agent or researcher. The recipient can inspect the files, but also needs to know why this version was selected and whether it is appropriate to rely on that decision now. A tool-call log, a matching file hash, and a reuse authorization answer different questions. Treating any one as a blanket trust signal obscures what the recipient can actually check.
 
-Keeping a candidate makes it the starting point for later edits. A receiving agent or researcher who continues from the final program inherits the consequences of those choices, often without access to the producing runtime. The recipient needs to ask: Which parent was each candidate compared against? Which tests belonged to each version? Did the declared rule support keeping it? Was a required confirmation completed? Is the submitted program the version that was selected?
+Our running example is an AI coding agent improving a program that plays 2048. It edits, tests, and keeps a version or returns to an earlier one. RSI-Exam provides this setting: agents improve task programs using visible evaluations, then submit them for grading on unseen data \[rsiexam\]. Here, self-improving means improving the task program, not the model’s weights. A kept version can become the parent of later edits. Its successor inherits the consequences of that choice without necessarily retaining the producing runtime.
 
-Logs may contain answers, but their entries need not agree. File hashes associate records with supplied bytes; they can match even when a recorded score difference is arithmetically wrong. We study *decision consistency*: whether supplied measurements and the declared selection rule support the recorded keep-or-revert decision. This does not recover private reasoning or prove that measurements genuinely came from an execution.
+We ask: *how should a submitted decision become checkable evidence, and what must remain separate before downstream reuse?* The audit unit is an explicit decision and its supporting artifacts, not every tool call or inferred private rationale. We propose three responsibilities: *capture* the submitted decision; *verify* its domain-specific evidence relationships; and *govern* whether a bounded claim may enter a recipient’s context. No stage automatically confers the authority of the next.
 
-Our question is: *what can a recipient check about a recorded version decision beyond file format and hash agreement?* The audit unit is a version-selection decision and its evidence, not an inventory of tool calls. We contribute an executable decision record and offline checker, characterized through controlled changes to evidence packages. Handoff motivates the recipient’s role; we test packages, not a multi-agent network. This is a task-specific systems contribution, not a general theory of provenance or a score-improvement method.
+Our contributions are (1) this separation and an evidence contract for crossing its boundaries; (2) a reference instantiation using TRACE, an RSI decision verifier, and Proofpress; and (3) a controlled characterization of the verifier plus a local demonstration of evidence-only intake. The framework is a design contribution, not a claim that its full workflow has been empirically validated. We test packages and local interfaces, not a multi-agent network, human-review outcomes, or improvements in downstream performance.
 
 ## A real record shows the evidence gap
 
@@ -22,7 +22,37 @@ A retained record from an actual RSI run makes the problem concrete. A candidate
 
 We can verify the retained experiment log’s hash and recover the declared branch history. But original code snapshots and per-seed measurements are absent from this retained export, so we cannot check their bytes or recalculate the decision’s statistical support. The companion’s Case R inspection reports these limits explicitly. This real-run example motivates what must be captured; the controlled experiment below tests the verifier on a different, fully supplied synthetic package.
 
-# Recording and Checking a Decision
+# The Capture–Verify–Govern Framework
+
+## Responsibilities and the evidence contract
+
+The producer may omit decisions, supply mismatched artifacts, or coherently fabricate an entire package. The receiver has the disclosed bytes, a chosen checker, and its own reuse policy; it has no trusted witness to execution. The framework makes these limits visible instead of interpreting a successful import or check as general trust.
+
+| Stage | Output and what it does not establish |
+|:---|:---|
+| Capture | TRACE decision: identities, actors, disposition, rationale and revision/evidence references. Not proof of correctness or complete capture. |
+| Verify | Domain checker: outcomes and diagnostics tied to a supplied package and check scope. Not proof of authentic execution. |
+| Govern | Proofpress: an evidence-bound candidate, separate review, and eligibility for scoped reuse. Not a substitute for domain checks. |
+
+Separate outputs and authority boundaries. Component names identify this instantiation, not mandatory products. {#tab:framework}
+
+At the **capture boundary**, the transferable record needs a stable decision identity, proposer and resolver identities, disposition, revision links, artifact references and the rule being claimed. Unsubmitted choices remain outside the record. TRACE represents the decision; a task profile supplies the meaning of its evidence and rule. A recorded resolver identity is attribution, not authenticated authority.
+
+At the **verification boundary**, a reusable check result must identify the checked package, checker/profile revision, outcomes, diagnostics and coverage limits. A scalar “pass” without those bindings cannot say which decision was checked. Our RSI package retains the rule and raw measurements needed to recompute it; the ARA companion binds sources and reported outcomes. These checks establish *decision consistency*, not that an execution produced the measurements.
+
+At the **governance boundary**, the candidate must state a bounded claim and intended reuse scope, with references to its evidence and any check results. An authorized human’s admission decision is distinct from the producing agent’s proposal and from a check result. The agent cannot approve its own claim. A downstream consumer should retrieve only admitted, current, in-scope, actor-eligible context; admission is not permanent proof of truth.
+
+This contract is a composition rule, not a new universal wire schema. Capture, checking, and admission may be implemented by different systems. Their statuses must not be silently promoted: TRACE `accepted`, RSI `keep`, and Proofpress admission have different meanings.
+
+## Reference implementation and its present boundary
+
+The RSI decision gate records a proposing agent and a *system* resolver. A converter maps keep/revert/pending and confirmation links into TRACE 0.5.1. It checks record-level constraints but does not recompute the measurements. Separately, the offline verifier consumes the full capsule and files. TRACE is a representation of submitted decisions, not a replacement for that package.
+
+Proofpress imports a bounded projection of TRACE as external evidence. Within a confidence block it retains interval, method name/resample count, sample size and named evidence digests; it drops other structured rule fields such as estimate, threshold and bootstrap seed. It neither opens the referenced result files nor consumes a verifier success as an admission instruction. Claim proposal, review and context retrieval are separate operations.
+
+Thus this is not yet one automatically enforced pipeline from verified package to approved context. In particular, the TRACE adapter does not require a receipt proving that the exact imported material passed the RSI checker. A full deployment must bind and check that receipt if its admission policy requires it. Our demonstration below tests this intake boundary and stops before human approval.
+
+# Instantiation: RSI Decision Verification
 
 ## What the producer hands over
 
@@ -44,7 +74,7 @@ The capsule also links the submitted program to a recorded version. A version oc
 
 ## A worked decision, from scores to submission
 
-Table 1 follows the synthetic package used in our controlled experiment. v1 is the parent. Candidate v2 performs worse and is reverted. Candidate v3 is also derived from v1: its initial result is inconclusive, but a subsequent confirmation supports keeping it. The submitted program is v3.
+Table 2 follows the synthetic package used in our controlled experiment. v1 is the parent. Candidate v2 performs worse and is reverted. Candidate v3 is also derived from v1: its initial result is inconclusive, but a subsequent confirmation supports keeping it. The submitted program is v3.
 
 | Candidate/test |  Mean delta |         90% interval | Decision |
 |:---------------|------------:|---------------------:|:---------|
@@ -77,7 +107,7 @@ Full verification also reports *coverage*: whether every snapshot in the supplie
 
 Consider changing v2’s recorded mean delta from $`-318.75`$ to $`-317.75`$, in both the decision log and capsule, then updating the log hash. Format and file binding still pass. Recalculation detects the discrepancy. This particular one-point error would not change the revert verdict; it tests numerical consistency, not the discovery of an incorrectly chosen winner. A separate test changes the submitted code while retaining the old version claim, exercising decision-to-artifact identity.
 
-# Controlled Evaluation
+# Evaluation and Integration Demonstration
 
 ## What is being tested?
 
@@ -91,7 +121,7 @@ To avoid testing only stale hashes, relevant decision changes are mirrored in th
 
 ## Results and interpretation
 
-Table 2 reports every outcome. S rejects one of nine faults, B rejects three, and V rejects nine. The six additional refusals cover three measurement inconsistencies, an unresolved confirmation, a submitted-version mismatch, and an incomplete snapshot inventory. Thus files can match their declarations while the relationships needed to audit a decision still fail.
+Table 3 reports every outcome. S rejects one of nine faults, B rejects three, and V rejects nine. The six additional refusals cover three measurement inconsistencies, an unresolved confirmation, a submitted-version mismatch, and an incomplete snapshot inventory. Thus files can match their declarations while the relationships needed to audit a decision still fail.
 
 | Package change                                |  S  |  B  |  V  |
 |:----------------------------------------------|:---:|:---:|:---:|
@@ -120,21 +150,27 @@ The final control changes an unsigned final reward file and the capsule’s matc
 
 This accepted rewrite is important to the interpretation of the nine refusals. Our mechanism checks consistency among supplied declarations and bytes. A producer able to rewrite evidence consistently can still supply false material. Acceptance must therefore not be read as proof that these experiments really happened or that the agent is trustworthy.
 
-# Scope, Related Work, and Limitations
+## Evidence intake does not grant reuse
 
-**Capture, checking, and admission.** Capture retains recorded versions, measurements and decisions. Checking tests their consistency. Admission determines whether a recipient is authorized to rely on a result in its own context. We implement and characterize checking, specifying the evidence it needs, but establish no admission policy. A reviewer can inspect a particular decision and its named failures rather than treating an entire log as a single trust claim.
+In a separate local fixture demonstration, we check the clean RSI package, convert its three decisions to TRACE 0.5.1, and import them into a disposable Proofpress repository. The committed runner uses a pinned public Proofpress revision; it does not contact a hosted service or run an agent. The import creates three source records and three evidence items, but zero claims, zero admissions and an empty governed-context result. Re-import leaves the ledger unchanged. An unsupported version, malformed interval and changed normalized content under an existing identity are refused.
 
-PROV-CONSTRAINTS already defines consistency conditions over provenance histories \[prov\]. Our narrower contribution is a working profile for agent version selection: paired-result recalculation, confirmation state, and the link from a decision to submitted code. We do not claim that adding a provenance record is itself novel.
+We then reuse the one-point mean-delta fault from the controlled study. The full verifier rejects it, but the converter accepts it and a fresh Proofpress receiver imports it as evidence. This is expected: intake validates its bounded projection, not the measurement calculation. It is not an additional fault or detection-rate observation. Finally, explicitly proposing a synthetic claim creates one candidate but still zero admissions and no governed context. No human approval or downstream agent run is exercised.
+
+These observations demonstrate two non-equivalences: importable evidence is not necessarily verified evidence, and even an explicit candidate is not authorized context. They support interface separation, not the effectiveness of human governance. Historical TRACE schema validation is recorded separately; this new run tests conversion and intake, not upstream schema conformance.
+
+# Related Work and Limits
+
+PROV-CONSTRAINTS already defines consistency conditions over provenance histories \[prov\]. We do not claim that provenance or separation of concerns is itself new. Our concrete contribution is their composition around an agent handoff: an explicit decision record, executable task-specific checks, and a non-promoting evidence intake boundary. The RSI profile supplies paired-result recalculation, confirmation state and decision-to-submission identity; another domain would need its own checker.
 
 in-toto verifies cryptographically linked software-supply-chain steps \[intoto\]; our unsigned packages provide no comparable authentication. MLflow records experiment parameters, metrics and artifacts \[mlflow\]; a tracking system could retain the inputs our checks need. Neither system is an experimental baseline here. Storage, authentication, and decision-consistency checks address different parts of an evidence handoff.
 
-Our results use one synthetic base, author-selected changes and shared checking components. The retained real-run case shows why evidence capture matters, but missing source files prevent its full replay. We have not demonstrated generalization to unseen tasks, reduced human audit effort, independent implementer agreement, or resistance to coordinated falsification. Reproducing an interval also does not certify its statistical validity under adaptive reuse of test seeds. A decision can follow its declared rule and still perform poorly on unseen games. Running checks outside the producing runtime does not authenticate the files that runtime supplies.
+Our results use one synthetic base, author-selected changes and shared checking components. The retained real-run case motivates capture but cannot be fully replayed. The integration demonstration is local and stops at an unadmitted candidate. We have not measured capture completeness, human-review quality, audit effort, downstream agent benefit, cross-domain generalization or resistance to coordinated falsification. Reproducing an interval does not certify its validity under adaptive reuse of seeds. A rule-consistent decision can perform poorly on unseen games. Running checks outside the producing runtime does not authenticate the files that runtime supplies.
 
-The Agent-Native Research Artifact companion \[ara\] contains cases, claims, source bindings and exploration history. Historical reward comparisons, development diagnostics and a legacy reuse case remain there, not as additional verifier trials. In a networked workflow, check outcomes could inform a recipient’s decision to continue from a supplied version. Identity, authorization and network-scale governance remain outside this evaluation.
+The Agent-Native Research Artifact companion \[ara\] contains cases, claims, integration code, source pins and exploration history. Historical reward comparisons and a legacy reuse case remain there, not as additional verifier trials. Network identity, receipt-enforced admission and a complete multi-agent governance evaluation remain future work.
 
 # Conclusion
 
-Later work can build on an agent’s keep decisions. Our record and verifier let a recipient check whether the supplied measurements, decision rule and submitted code agree. Full checks reject six authored faults that format and file-hash checks accept; a consistent unsigned reward rewrite still passes. These checks make decision relationships auditable within a supplied package. Authentic execution, better future performance and permission to reuse remain separate questions.
+Agent handoffs require more than retaining a process log. Capture–verify–govern separates what was submitted, what can be checked, and what a recipient may rely on. The RSI instantiation rejects six authored faults beyond format and file binding while accepting a consistent unsigned rewrite. Its TRACE integration demonstrates evidence intake without automatic claim admission. These bounded results support the separation of responsibilities, not validation of the entire framework: recorded, consistent and authorized are three different states.
 
 # References
 

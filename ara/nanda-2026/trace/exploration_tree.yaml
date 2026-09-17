@@ -129,3 +129,19 @@ tree:
     title: Explain why selection decisions matter across an artifact handoff
     description: Lead with later work inheriting keep decisions; separate capture, consistency checking and admission. Update PR and Notion while retaining unchanged experiment outcomes and the old frozen archive. No network deployment is claimed.
     evidence: [C01, C05, C06]
+  - id: N16
+    type: pivot
+    support_level: explicit
+    attribution: user-requested-ai-executed
+    source_refs: ["ara/nanda-2026/evidence/framework-review-2026-09-17.md"]
+    title: Make capture-verify-govern the framework and RSI its first instantiation
+    description: Separate design contribution from Verify characterization; specify boundary contract and disclose absent mandatory receipt binding and approved handoff. No whole-framework validation claim.
+    evidence: [C09]
+  - id: N17
+    type: experiment
+    support_level: explicit
+    attribution: ai-executed
+    source_refs: ["studies/framework-boundary/results.json", "studies/framework-boundary/README.md"]
+    title: Exercise evidence-only intake and unadmitted candidate boundaries
+    result: Three decisions import as evidence without claims or admissions. Existing numerical fault fails full verification but remains first-importable. Explicit candidate has no governed context. Same-identity overwrite is correctly refused; no human approval is invoked.
+    evidence: [C09, C10]

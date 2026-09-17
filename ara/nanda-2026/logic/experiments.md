@@ -50,3 +50,11 @@ All repository-relative paths below resolve from the root checkout.
 **Expected outcome:** Exact case-results.json, including false original-run-reproduction flags and incomplete RSI evidence.
 **Evidence:** studies/handoff-case-review/case-results.json; README.md and source projection in the same directory.
 No new model run, paid inference, independent test set, or complete current-verifier real-run trial is performed.
+
+## E07 — Local framework-boundary demonstration
+**Verifies:** C09 (illustration only), C10.
+**Run:** python studies/framework-boundary/run_demo.py --proofpress-root /path/to/proofpress --check
+**Setup:** Disposable local repository, the committed synthetic gated package, TRACE converter, and a git archive of Proofpress commit 7fad672321ae00d7c7af350e7b26000846b37895. Python environment must satisfy the pinned Proofpress dependencies; no credentials or network calls.
+**Procedure:** Verify the clean package, convert its three decisions, import twice and inspect projections/context. Test unsupported version, malformed interval and changed identity content. Reuse E05's wrong_estimate mutation: compare full verification with conversion and first-time import in another disposable receiver. Explicitly propose a bounded synthetic candidate, then query context without invoking approval.
+**Expected outcome:** Three evidence items, zero claims/admissions after import; no ledger growth on repeat; three specified intake refusals. Numerical fault rejected by verifier but accepted as imported evidence in a fresh receiver. Explicit proposal creates one candidate, zero admissions, empty governed context.
+**Evidence:** studies/framework-boundary/results.json, README.md and runner. Author-designed interface demonstration, not independent testing, a tenth fault, a human-review experiment or downstream benefit. Upstream TRACE schema validation is not rerun here; the historical pinned run remains docs/RUN_REPORT.md.

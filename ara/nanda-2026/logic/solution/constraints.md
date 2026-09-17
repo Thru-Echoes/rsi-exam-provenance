@@ -9,3 +9,7 @@
 - Missing evidence is an explicit unresolved or refused state, never a zero and never an inferred success.
 - Narrative summaries cannot override source tables or verifier receipts.
 - Public release, authorship order, and artifact licensing require joint human approval.
+- TRACE record acceptance does not authenticate a resolver; the RSI resolver is a system gate, not a human reviewer.
+- Import accepts evidence, including potentially false material. The intake boundary is not a mandatory verification gate.
+- Human approval is not exercised in E07. A synthetic proposal remains unadmitted; no agent may approve its own claim.
+- Current, scoped, actor-eligible reuse is a framework requirement. E07 tests empty context before admission, not the approved-context or expiry lifecycle.

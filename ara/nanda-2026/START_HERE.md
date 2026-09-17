@@ -1,22 +1,29 @@
-# Auditing Keep-or-Revert Decisions — human review
+# Capture, Verify, Govern — human review
 
-Current manuscript: reader-first handoff revision, 2026-09-17. This bundle packages the paper about auditing decisions that later agents or researchers may build on. Open paper.pdf in the ZIP root, or output/pdf/nanda-2026-track3-ieee-review.pdf in the repository. CONTENTS.json identifies the exact source revision. The older nanda-2026-ara-review-final.zip is the superseded 2026-09-16 draft and remains available as history.
+Framework-first review revision, 2026-09-17. Open paper.pdf in the ZIP root, or
+output/pdf/nanda-2026-track3-ieee-review.pdf in the repository. CONTENTS.json pins
+the exact source revision and bundle branch. Earlier ZIPs are historical drafts.
 
-This is an author-side, AI-assisted research draft. No official ARA Seal, independent peer review, author approval, or public submission is implied. The PDF is anonymous; the complete source/history is NOT anonymized.
+This is an author-side, AI-assisted research draft, not author approval, submission,
+an official ARA Seal or independent review. The PDF keeps an anonymous author
+block; named implementations and source/history are NOT anonymized.
 
 ## Review in this order
 
-1. Open paper.pdf (three-page IEEE manuscript) in the ZIP root.
-2. Read source/ara/nanda-2026/REVIEW.md and logic/claims.md: C05/C06 are the primary results; C07/C08 are historical illustrations with weaker evidence.
-3. Inspect source/studies/decision-audit/fault-results.json and source/studies/handoff-case-review/README.md.
-4. Review the evidence inventory before interpreting the real cases. Original RSI measurements/snapshots and Harvey raw runs are not included; nothing in this bundle recreates them.
+1. Read the four-page IEEE PDF: framework, RSI instantiation, Verify characterization,
+   intake demonstration, and limitations.
+2. Read source/ara/nanda-2026/REVIEW.md and logic/claims.md. C09 is framework design;
+   C05/C06 are Verify results; C10 is an integration demonstration, not full governance.
+3. Inspect source/studies/framework-boundary/ and source/studies/decision-audit/.
+4. Read source/studies/handoff-case-review/ for historical evidence limits.
 
-## Reproduce without network or provider credentials
+## Reproduce the portable RSI checks
 
-The ZIP contains a browsable source snapshot and repository.bundle with the Git history needed for the pinned historical-table check. From the unpacked ZIP directory:
+The full offline ZIP contains a browsable source snapshot plus repository.bundle
+with the history needed for pinned historical-table reproduction:
 
 ```sh
-git clone --branch codex/nanda-2026-ara repository.bundle reproduction
+git clone --branch codex/nanda-framework-review repository.bundle reproduction
 cd reproduction
 python3 studies/handoff-case-review/review_cases.py --check
 python3 -m unittest tests.test_handoff_cases tests.test_decision_audit tests.test_nanda_ara tests.test_paper_results tests.test_conformance -q
@@ -24,15 +31,33 @@ python3 ara/nanda-2026/src/execution/build_paper_results.py --source-revision 72
 python3 ara/nanda-2026/src/execution/check_review_snapshot.py --check
 ```
 
-Tested with Python 3.14.6 and Git. PDF rebuilding additionally requires Tectonic; readable Markdown regeneration requires Pandoc. Those optional tools may download dependencies on first use. Core evidence reproduction uses Python standard library only. An optional original Proofpress checkout enables extra source-projection comparison; it is not required for the portable checks above.
+These checks use Python standard library and Git. The E07 receipt is checked for
+source bindings here; this does NOT re-execute the external Proofpress component.
 
-Nine synthetic faults are rejected by full checks, versus one and three by weaker checks. One of nine expected diagnostic prefixes remains mismatched. A passing regression reproduces that disclosed mismatch; it does not turn it into a successful diagnostic expectation. Two valid controls and one coherent unsigned rewrite pass.
+## Re-execute the new integration demonstration
 
-## Human decisions still open
+Obtain the public Proofpress commit specified in studies/framework-boundary/README.md,
+and use Python >=3.11 with its cryptography dependency installed:
 
-- Are the narrow system contribution and historical evidence boundaries convincing?
-- Does moving Harvey and historical A/B to the companion make the main argument easier to follow?
-- Confirm author order, affiliations, contribution/IP/COI declarations and venue anonymity/artifact policy.
-- Approve a specific frozen version and authorize conference submission separately. Sharing a review bundle in PR #40 is not approval or submission.
+```sh
+python studies/framework-boundary/run_demo.py --proofpress-root /path/to/proofpress --check
+```
 
-The ZIP content manifest records hashes and source revision; it is an integrity inventory, not an authenticity certificate. The full repository also preserves older drafts and reports, clearly superseded by this review manuscript.
+The script exports the pinned commit, ignores local checkout changes, uses
+disposable local repositories and performs no network/provider calls or approvals.
+The external Proofpress source/dependencies are not included in this ZIP. Obtaining
+them may need network access; the actual demonstration does not.
+
+PDF rebuilding requires Tectonic; Markdown synchronization requires Pandoc.
+Neither is needed to inspect the included PDF or reproduce the primary Verify study.
+
+## Evidence limits and human decisions
+
+Nine faults are authored synthetic cases, not nine real incidents. One expected
+diagnostic prefix remains mismatched. Import is not domain verification; a
+synthetic candidate remains unadmitted. No complete human-approved agent handoff,
+independent test set, reviewer-benefit study or new model rollout is claimed.
+
+Authors must review the framework's novelty and scope, confirm attribution and
+venue policy, approve a specific revision, and separately authorize submission.
+The ZIP manifest is an integrity inventory, not an authenticity certificate.

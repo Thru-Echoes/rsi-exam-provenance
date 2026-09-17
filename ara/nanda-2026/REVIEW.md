@@ -1,73 +1,61 @@
 # Human review guide
 
-Status: reader-first handoff revision for PR #40, 2026-09-17; pending human review.
-The current title is Auditing Keep-or-Revert Decisions in Self-Improving Agents.
-The central question has a direct
-controlled evaluation. This is an author-designed, fixture-based short paper;
-acceptance by a venue is not assured.
+Status: framework-first revision, 2026-09-17, for existing PR #40. Four-page IEEE
+draft titled **Capture, Verify, Govern: Decision Provenance for Agent Artifact
+Handoffs**. Human approval, authorship and external submission remain pending.
 
-## Read first
-1. submission/manuscript.md or the IEEE PDF.
-2. logic/claims.md, especially C05 (incremental checks) and C06 (accepted rewrite).
-3. studies/decision-audit/fault-results.json from the repository root.
-4. logic/related_work.md for the narrow novelty claim.
+## Read in this order
 
-## Main findings
-Nine authored faults are rejected by full verification, versus one by structure
-and three by structure plus bindings. Six therefore require additional checks.
-Both valid controls pass. An unsigned reward rewritten consistently with its
-declaration passes. Eight of nine diagnostic targets match; the missing-snapshot
-case retains an incorrect expected prefix alongside the actual correct-family
-refusal. The evaluation does not tune the implementation to pass the new cases.
+1. The PDF or submission/manuscript.md: the framework is the main contribution;
+   RSI is its first verification instantiation, not the whole framework.
+2. logic/claims.md: C09 is design, C01 implementation, C05/C06 Verify results,
+   C10 the new intake demonstration. These evidence levels must not be pooled.
+3. studies/framework-boundary/README.md and results.json from repository root:
+   see what actually crosses each interface and what is not implemented.
+4. studies/decision-audit/fault-results.json and the retained-case dossier.
 
-## What changed after human critique
-The previous draft centered an auditability claim on a reward experiment. It also
-overstated the statistical conclusion as efficacy refutation. That framing and
-the earlier self-review score are superseded. The new primary evidence directly
-compares checking configurations. The reward campaign is historical context only.
-ARA PAPER.md is now a short manifest; the full manuscript has its own location.
+## What is newly supported
 
-## Scientific limits to review
-- Are these task-specific semantics a useful enough systems contribution? Prior
-  work already covers provenance constraints and cryptographic artifact chains.
-- The experiment uses one synthetic base and faults selected after source inspection.
-  It characterizes checks; it cannot estimate real-world detection rates.
-- No fresh independent implementation comparison, human audit study, or network
-  experiment was performed.
-- Original historical job directories are not all included. Their observations
-  are explicitly reported as historical, not newly reproduced.
-- Historical fixture import into ProofPress is not verification or approval.
+E07 freshly checks the existing converter and a pinned Proofpress revision in
+disposable local repositories. Three decisions become three evidence items, no
+claims, no admissions and empty context. An explicit candidate also remains
+outside governed context. The existing numerical fault is rejected by the full
+RSI checker but remains first-importable as evidence. No production changes,
+hosted writes, simulated human approval or model runs were used.
 
-## Author decisions before external submission
-Confirm author order, affiliations, contribution statement, final claims, and
-submission authority. Resolve the workshop's anonymity and artifact-link policy.
-The anonymous review PDF and full repository-backed ARA are ready for joint review;
-review materials are shared in PR #40, not submitted to a venue.
+## What remains unchanged
 
-## Tooling labels
-The automated local checks are reproducibility and consistency checks. Any local
-semantic review is self-review, not an official ARA Seal or independent peer review.
-The old level2_report.json was superseded because its positive coherence assessment
-did not identify the mismatch between the previous contribution and evaluation.
+E05 still contains twelve synthetic packages: nine authored faults, two valid
+controls and one unsigned reward-rewrite control. S/B/V reject 1/3/9 faults; the
+controls pass. Eight of nine diagnostic targets match, with the missing-snapshot
+prefix mismatch retained. No verifier code or historical result was changed.
 
-## Historical-case evidence ceilings
-Read studies/handoff-case-review/README.md from repository root after the manuscript.
-C07 and C08 / E06 add retained-source inspection, not two additional verifier trials.
-The real RSI capsule/log reconstruct a branch and expose missing evidence; original result and snapshot bytes are unavailable here. H5 remains report-only.
-The Harvey license subgroup is selected retrospectively and treatment has extra ledger-state information. It illustrates reuse eligibility, not current-system effectiveness.
-The core contribution and primary controlled results remain C05/C06. Two passing controls do not establish a population false-positive rate.
+C07 is a retained real-run illustration with missing original snapshots and
+measurements. C08/Harvey, reward A/B, cohort summaries and development diagnostics
+remain companion-only context. They do not validate the complete framework.
 
-## Reader-first revision
-Read evidence/reader-review-2026-09-17.md for the full critique and edit rationale. The manuscript introduces the 2048 workflow and recipient's questions before record fields, and follows one synthetic decision sequence through recalculation and confirmation. Its new worked table is checked against the original fixture, not invented for exposition. Unused tuple/predicate notation is removed. The one-point mutation is explicitly not a changed verdict. The final reward rewrite is distinguished from visible-game decision measurements.
+## Questions for a critical reviewer
 
-Harvey/C08, reward A/B/C03, the cohort count/C02, TRACE import and development-vector details remain available in the companion, not the manuscript's primary narrative. The real retained RSI case/C07 motivates capture but does not count as a successful end-to-end verifier trial. Review whether the contribution is worth publishing on its existing evidence; the readability revision does not add empirical strength.
+- Is the separation useful beyond the familiar observation that logs are not proof?
+  The concrete contribution is the executable profile and explicit intake boundary,
+  not a claim that separation of concerns is new.
+- Does the paper make its partial implementation clear? TRACE import does not
+  consume a complete verifier receipt or require verification before intake.
+- Are the author-selected cases sufficient for a workshop characterization?
+  They cannot estimate real-world detection rates or cross-domain generalization.
+- Does the manuscript distinguish a system resolver in RSI from authorized human
+  admission in Proofpress, without claiming the latter was exercised?
+- Is the framework claim proportionate to evidence that stops at an unadmitted
+  candidate, with no measurement of human-review quality or downstream benefit?
 
-## Handoff framing revision
-The abstract and introduction now explain why keep decisions matter to later work,
-identify a receiving agent or researcher without runtime access, and define the
-decision as the audit unit. Discussion separates capture, checking, and admission.
-Consistency is not predictive performance, authenticity, or authorization. This
-motivates the Track 3 audit-trail use case without claiming a network experiment.
-No private presentation notes, contact details, or internal deployment counts were
-added. The historical nine-keeps/four-regressions example is not promoted into a
-new verifier result; the manuscript retains its existing bounded Case R instead.
+## Human decisions before submission
+
+Confirm claims, author order, affiliations, contribution/IP/COI declarations,
+artifact-link/anonymity rules and submission authority. The PDF retains an anonymous
+author block, but named implementations and public history may identify contributors.
+The complete ARA is not anonymized. No official ARA Seal, independent peer review,
+merge, deployment or conference submission is implied.
+
+See evidence/framework-review-2026-09-17.md for the rationale and
+evidence/review-verification.md for execution receipts. Earlier editorial decisions
+remain in Git and the dated reader-review note, not current contribution guidance.
