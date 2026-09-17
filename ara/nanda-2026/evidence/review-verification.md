@@ -1,5 +1,24 @@
 # Local review verification
 
+## Handoff framing and distribution revision — 2026-09-17
+
+- Full repository suite: 426 tests in 61.426 seconds, OK with two skips.
+- Final focused research suite: 20 tests passed in 1.241 seconds. Retained-case
+  inspection, pinned historical table reproduction and readable-manuscript
+  synchronization also passed. All PDF fonts are embedded and subset.
+- The final handoff text keeps the existing twelve-case experiment, fixture,
+  verifier and result files unchanged. The reviewer-facing boundaries are also
+  checked by the focused ARA tests.
+- Three-page IEEE PDF rebuilt, rendered and all pages inspected. Both tables and
+  references fit; no clipping or overlap. No font size or margin was reduced.
+- Capture, consistency checking and admission are distinguished. No network
+  experiment, outcome improvement or execution authenticity is claimed.
+- The prior reader-first local revision and this handoff revision are prepared
+  together for the existing PR #40. A new dated archive preserves the earlier
+  frozen ZIP unchanged. Exact distribution pins and clean-clone results belong
+  in output/review/README.md, outside the scientific source freeze.
+- No new model rollout, paid inference, or independent human evaluation occurred.
+
 ## Reader-first local revision — 2026-09-17
 
 - Full suite: 426 tests in 55.733 seconds, OK with two skips.
@@ -9,7 +28,9 @@
 - Readable manuscript synchronization and git diff whitespace checks passed.
 - Pyright: zero errors, one existing optional jsonschema source warning.
 - Three-page IEEE PDF rendered and all pages inspected; two tables legible, no clipping/overlap, fonts embedded/subset.
-- This is a local editorial review candidate, not a readability user study. Public PR #40 and its frozen ZIP remain unchanged.
+- At this earlier checkpoint it was a local editorial candidate, not a readability
+  user study. Public PR #40 had not yet been synchronized; the handoff revision
+  above supersedes that distribution status.
 
 ## Previous frozen delivery checks — 2026-09-16
 
@@ -35,7 +56,7 @@ PDF and must not be treated as the current manuscript.
 
 Before external submission: author review and approval, authorship and affiliation,
 workshop anonymity/artifact-link policy, and final source freeze. No external
-submission or public publication has been performed.
+conference submission has been performed. Review materials are shared in PR #40.
 
 ## Historical-case revision checks
 - review_cases.py --check --proofpress-root verified the saved extraction and exact imported source selections against the pinned source bytes.

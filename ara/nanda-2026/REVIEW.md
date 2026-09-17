@@ -1,6 +1,6 @@
 # Human review guide
 
-Status: reader-first local revision, 2026-09-17; not yet synchronized to PR #40.
+Status: reader-first handoff revision for PR #40, 2026-09-17; pending human review.
 The current title is Auditing Keep-or-Revert Decisions in Self-Improving Agents.
 The central question has a direct
 controlled evaluation. This is an author-designed, fixture-based short paper;
@@ -42,7 +42,7 @@ ARA PAPER.md is now a short manifest; the full manuscript has its own location.
 Confirm author order, affiliations, contribution statement, final claims, and
 submission authority. Resolve the workshop's anonymity and artifact-link policy.
 The anonymous review PDF and full repository-backed ARA are ready for joint review;
-no public upload is part of this delivery.
+review materials are shared in PR #40, not submitted to a venue.
 
 ## Tooling labels
 The automated local checks are reproducibility and consistency checks. Any local
@@ -61,3 +61,13 @@ The core contribution and primary controlled results remain C05/C06. Two passing
 Read evidence/reader-review-2026-09-17.md for the full critique and edit rationale. The manuscript introduces the 2048 workflow and recipient's questions before record fields, and follows one synthetic decision sequence through recalculation and confirmation. Its new worked table is checked against the original fixture, not invented for exposition. Unused tuple/predicate notation is removed. The one-point mutation is explicitly not a changed verdict. The final reward rewrite is distinguished from visible-game decision measurements.
 
 Harvey/C08, reward A/B/C03, the cohort count/C02, TRACE import and development-vector details remain available in the companion, not the manuscript's primary narrative. The real retained RSI case/C07 motivates capture but does not count as a successful end-to-end verifier trial. Review whether the contribution is worth publishing on its existing evidence; the readability revision does not add empirical strength.
+
+## Handoff framing revision
+The abstract and introduction now explain why keep decisions matter to later work,
+identify a receiving agent or researcher without runtime access, and define the
+decision as the audit unit. Discussion separates capture, checking, and admission.
+Consistency is not predictive performance, authenticity, or authorization. This
+motivates the Track 3 audit-trail use case without claiming a network experiment.
+No private presentation notes, contact details, or internal deployment counts were
+added. The historical nine-keeps/four-regressions example is not promoted into a
+new verifier result; the manuscript retains its existing bounded Case R instead.

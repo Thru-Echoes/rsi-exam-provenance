@@ -1,12 +1,16 @@
 # Auditing Keep-or-Revert Decisions in Self-Improving Agents
 
-Status: reader-first local review candidate, 2026-09-17. The public PR #40 ZIP remains the previous frozen draft. This revision is not yet pushed or submitted.
+Status: reader-first handoff revision for PR #40, 2026-09-17. Human review is pending; this is not an approved or submitted paper. See repository-root output/review/README.md for the dated archive and exact source revision.
+
+**Motivation:** A kept version can become the parent of later work. A recipient inherits the consequences of those choices without necessarily having access to the producing runtime. The unit of audit is each version-selection decision and its evidence.
 
 **Question:** Which decision inconsistencies can an offline recipient detect beyond document structure and file binding?
 
 **Result:** In twelve authored fixture packages, full verification rejects all nine faults; six survive structure-plus-binding checks. Both valid controls pass. A consistently rewritten unsigned reward also passes, exposing the authenticity boundary. Eight of nine faults match the frozen diagnostic target; one prefix mismatch is retained.
 
 **Scope:** Internal characterization, not a held-out benchmark, efficacy result, or runtime attestation.
+
+Capture, consistency checking, and authorization to reuse are separate responsibilities. This paper characterizes checking; networked handoff is a use case, not a measured network deployment.
 
 Read:
 - [Manuscript](submission/manuscript.md) and [IEEE source](submission/main.tex).

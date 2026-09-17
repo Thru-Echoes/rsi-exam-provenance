@@ -121,3 +121,11 @@ tree:
     title: Rebuild the narrative around a recipient checking one version decision
     description: Human author reported confusion. Replace unused notation with a worked fixture sequence; move unrelated historical studies to the companion. No empirical result changed and readability improvement is not measured.
     evidence: [C01, C05, C06]
+  - id: N15
+    type: decision
+    support_level: explicit
+    attribution: user-requested-ai-executed
+    source_refs: ["ara/nanda-2026/evidence/reader-review-2026-09-17.md"]
+    title: Explain why selection decisions matter across an artifact handoff
+    description: Lead with later work inheriting keep decisions; separate capture, consistency checking and admission. Update PR and Notion while retaining unchanged experiment outcomes and the old frozen archive. No network deployment is claimed.
+    evidence: [C01, C05, C06]

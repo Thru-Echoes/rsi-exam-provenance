@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "base_git_commit": "e3c4ea8d030c60a57ed282b6b5eb75df66834062",
+  "base_git_commit": "a58b5acc5fc7e0b08fd45e6be0d043ad0cbade1c",
   "status": "local-review-snapshot",
   "identity": "Exact file hashes include working-tree changes; base commit is not a clean-tree claim.",
   "exclusions": [
@@ -15,15 +15,15 @@
     },
     {
       "path": "ara/nanda-2026/PAPER.md",
-      "sha256": "e4424cebd22e0659ae697680dfeca51589b52a169504e4e1480039052c2377c7"
+      "sha256": "4069bdcce6c33f457f1dbee03b69f32f3fde288ae05ccdaf75901600c8aa29f2"
     },
     {
       "path": "ara/nanda-2026/REVIEW.md",
-      "sha256": "58af3a4133db05cc38e01be53c1a470d051b7c7115c91e19028547df9474f863"
+      "sha256": "34dd3fdb8915d9dd4864cad5ec148219b3dfc4d7a2761573f6dc65b09aa25e2e"
     },
     {
       "path": "ara/nanda-2026/START_HERE.md",
-      "sha256": "d216401156de67c4424c3b11a83962522640cf4862c82ad30cb103e40500f7c2"
+      "sha256": "8c59ba680abf13bdb773979282ea05ad5b425f86e6f40a54038bde13259c1899"
     },
     {
       "path": "ara/nanda-2026/evidence/README.md",
@@ -35,11 +35,11 @@
     },
     {
       "path": "ara/nanda-2026/evidence/completion-audit.md",
-      "sha256": "690c0bfe0673a86e5ef9c0cb51ff3a1199ffdfd532a759cf4e7ae85ab7c7878e"
+      "sha256": "e9bb8e3cc8d9767942f74732df5284fa1a2c2e123a9098673de8f11a385db27e"
     },
     {
       "path": "ara/nanda-2026/evidence/reader-review-2026-09-17.md",
-      "sha256": "006ff43628b9827541db8c4e35eb5743d02de9b5f24f459314f44f9b2586410c"
+      "sha256": "4d34036bfe5ebae85c8e40ed0bf3d860477840999561489d841d70848b783bfe"
     },
     {
       "path": "ara/nanda-2026/evidence/results/paper-results.json",
@@ -59,7 +59,7 @@
     },
     {
       "path": "ara/nanda-2026/evidence/review-verification.md",
-      "sha256": "3b299941f8d3b779a0ffde89df92f49b1464933c1e843dfa25739568909aa79a"
+      "sha256": "e0c9db2a71f761ce677e87eef73addb5a9d540950afd9a374f745d39ddfa54cb"
     },
     {
       "path": "ara/nanda-2026/evidence/unmerged-opus-recovery-audit.md",
@@ -75,7 +75,7 @@
     },
     {
       "path": "ara/nanda-2026/level2_report.json",
-      "sha256": "cec3a6868bc8d70e9f329dcc9ee244b65dd34e68208be93591a62b9f7e713c26"
+      "sha256": "b706a2f6f9870c35cfc3412177143b19929b4fc8782c8c1cfeb518b353539427"
     },
     {
       "path": "ara/nanda-2026/logic/claims.md",
@@ -91,7 +91,7 @@
     },
     {
       "path": "ara/nanda-2026/logic/problem.md",
-      "sha256": "fcfe91d173d70dbbb1f3fb615c64b53a2ac0c42167cd643683a8b2b1d775c0bb"
+      "sha256": "361797e3a1b2e2db069df5b3549b7aeb0ffd63276a49748d5dd7c4a00320637f"
     },
     {
       "path": "ara/nanda-2026/logic/related_work.md",
@@ -131,7 +131,7 @@
     },
     {
       "path": "ara/nanda-2026/src/execution/package_review.py",
-      "sha256": "b36a1a76a22d2fa789a39fbe94d5f9d04a09d59a1d0a0437cba5ed3585be862d"
+      "sha256": "d2e7f69f9aa156292099c4e9a8e57e9b5fa79dc724126e8125ac9a1fab99866f"
     },
     {
       "path": "ara/nanda-2026/src/execution/render_manuscript.py",
@@ -139,15 +139,15 @@
     },
     {
       "path": "ara/nanda-2026/submission/README.md",
-      "sha256": "f0de52809499f99f37a432f69b96dc0a092edcd3bcf313008ac1da99836e0035"
+      "sha256": "48131054a8dc8ff9ecfea478ec5e040195057911a6e22d1416bc3a15ae9d3931"
     },
     {
       "path": "ara/nanda-2026/submission/main.tex",
-      "sha256": "8070b4721a2b2af1f163cf540e6443a9a9f34bbb2fe7e16f60ebab09446ab8fe"
+      "sha256": "78bac5c24cc76e041e789a362af2b949414e0bac4f00e39bbc6782499607f0ea"
     },
     {
       "path": "ara/nanda-2026/submission/manuscript.md",
-      "sha256": "24ed9d64c9eaf592d2265781509ffa3d8529b3621d25344614a691ff45f6d3c5"
+      "sha256": "0f0c66f8201f90fc549564f21f83a2e2ee2c2b4c390a6164cef6e3c760375052"
     },
     {
       "path": "ara/nanda-2026/tables/README.md",
@@ -155,7 +155,7 @@
     },
     {
       "path": "ara/nanda-2026/trace/exploration_tree.yaml",
-      "sha256": "eb513ad1a9dc54d80e33bbea4f1f91ffee3c2851ebde91b970af6aa20ceb97e4"
+      "sha256": "2c96673093d752be20f699e1e800b59c5e46bb5a2bb8f9491b8df3dc7d49f778"
     },
     {
       "path": "docs/campaign/2026-09-instrument-ab/manifest.md",
@@ -323,7 +323,7 @@
     },
     {
       "path": "output/pdf/nanda-2026-track3-ieee-review.pdf",
-      "sha256": "ce630bb31b7c2c117bd1da1b39c56671e2fe60bfbad2232993236693cd4eb827"
+      "sha256": "30ab51a3c7ba9c757b7b1ebbeacfc78fe038ed4a5aedba9e61f4901c5df989a2"
     },
     {
       "path": "output/pdf/nanda-2026-track3-working-paper.pdf",
@@ -507,7 +507,7 @@
     },
     {
       "path": "tests/test_nanda_ara.py",
-      "sha256": "35fc355697cb6697218d8a196aed379fffc9bf4478743beee099b65fc8687398"
+      "sha256": "376804651f097bfd303bc8c5eb2bef91c791056fa6379f2f6746f5a6462d07b0"
     },
     {
       "path": "tests/test_paper_results.py",

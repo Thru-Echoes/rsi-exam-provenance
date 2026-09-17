@@ -1,6 +1,6 @@
 # Auditing Keep-or-Revert Decisions — human review
 
-Current working manuscript: reader-first revision, 2026-09-17. The public ZIP at output/review/nanda-2026-ara-review-final.zip remains the previous 2026-09-16 draft. For this local revision, open output/pdf/nanda-2026-track3-ieee-review.pdf from the repository root. The ZIP instructions below apply when reading an unpacked frozen bundle.
+Current manuscript: reader-first handoff revision, 2026-09-17. This bundle packages the paper about auditing decisions that later agents or researchers may build on. Open paper.pdf in the ZIP root, or output/pdf/nanda-2026-track3-ieee-review.pdf in the repository. CONTENTS.json identifies the exact source revision. The older nanda-2026-ara-review-final.zip is the superseded 2026-09-16 draft and remains available as history.
 
 This is an author-side, AI-assisted research draft. No official ARA Seal, independent peer review, author approval, or public submission is implied. The PDF is anonymous; the complete source/history is NOT anonymized.
 
@@ -33,6 +33,6 @@ Nine synthetic faults are rejected by full checks, versus one and three by weake
 - Are the narrow system contribution and historical evidence boundaries convincing?
 - Does moving Harvey and historical A/B to the companion make the main argument easier to follow?
 - Confirm author order, affiliations, contribution/IP/COI declarations and venue anonymity/artifact policy.
-- Approve a specific frozen version and authorize release separately. This delivery does not publish or submit.
+- Approve a specific frozen version and authorize conference submission separately. Sharing a review bundle in PR #40 is not approval or submission.
 
 The ZIP content manifest records hashes and source revision; it is an integrity inventory, not an authenticity certificate. The full repository also preserves older drafts and reports, clearly superseded by this review manuscript.

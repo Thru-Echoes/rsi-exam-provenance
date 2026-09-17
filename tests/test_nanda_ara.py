@@ -94,6 +94,9 @@ class NandaAraStructureTests(unittest.TestCase):
         self.assertIn("do not estimate detection rates", paper)
         self.assertIn("only eight match", paper)
         self.assertIn("neither authenticates the grader", paper)
+        self.assertIn("Capture, checking, and admission", paper)
+        self.assertIn("not a multi-agent network", paper)
+        self.assertIn("does not authenticate the files", paper)
 
     def test_ieee_review_source_is_anonymous_and_result_aligned(self):
         source = (ARA / "submission" / "main.tex").read_text(encoding="utf-8")

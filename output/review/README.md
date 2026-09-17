@@ -1,5 +1,25 @@
 # Frozen ARA review bundle
 
+## Current reader-first handoff revision — 2026-09-17
+
+Paper: **Auditing Keep-or-Revert Decisions in Self-Improving Agents**.
+
+The current manuscript explains why kept versions affect later work, what a
+receiving agent or researcher can check without runtime access, and why capture,
+checking and admission are separate responsibilities. The synthetic experiment
+and its results are unchanged. Harvey and historical reward comparisons remain
+companion material, not primary manuscript evidence.
+
+The new archive is `nanda-2026-ara-review-2026-09-17.zip`. Its root CONTENTS.json
+records the exact source revision and file hashes. This source checkpoint
+precedes packaging; the distribution commit adds the archive, its checksum and
+clean-clone receipt here. Earlier ZIPs are omitted from the browsable source
+snapshot to avoid nesting distributions; the offline Git history is preserved.
+
+Review materials are shared through PR #40, not approved, merged or submitted.
+
+## Previous frozen delivery — 2026-09-16 (superseded)
+
 [Download the review ZIP](nanda-2026-ara-review-final.zip?raw=true), then open `START_HERE.md` and `paper.pdf` inside it.
 
 - Paper: **Auditable Keeps: Semantic Verification of Self-Improving Agent Decisions**.

@@ -1,6 +1,10 @@
 # Human-review delivery requirements
 
-Current local draft is the reader-first revision dated 2026-09-17. The prior publication/Notion delivery described below belongs to the 2026-09-16 freeze. This revision has not yet updated the public PR ZIP or Notion; see reader-review-2026-09-17.md.
+Current manuscript is the reader-first handoff revision dated 2026-09-17, prepared
+for the author's requested PR #40 and Notion update. The delivery described below
+belongs to the 2026-09-16 freeze. See reader-review-2026-09-17.md for the editorial
+changes and repository-root output/review/README.md for the current distribution
+pin and clean-clone receipt. The earlier ZIP remains unchanged as history.
 
 This audit concerns a human-reviewable submission draft, not author approval or
 external submission. The limitations are scientific boundaries, not missing

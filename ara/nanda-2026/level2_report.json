@@ -1,6 +1,6 @@
 {
   "artifact": "nanda-2026-decision-provenance",
-  "review_version": "reader-first-self-review-2026-09-17",
+  "review_version": "reader-first-handoff-self-review-2026-09-17",
   "status": "human-review-draft",
   "official_ara_seal": false,
   "independent_review": false,
@@ -37,7 +37,8 @@
     "human_readability_measured": false,
     "empirical_results_changed": false,
     "companion_only": ["Harvey", "reward A/B", "cohort summary", "development diagnostics", "TRACE import"],
-    "distribution": "local candidate; public PR ZIP unchanged"
+    "distribution": "dated review bundle for PR #40; earlier frozen ZIP preserved",
+    "handoff_framing": "Kept versions can become parents of later work; a recipient checks supplied decision evidence without runtime access. Capture, checking and admission remain separate; no network evaluation or authorization claim."
   },
   "publication_approval": "pending human authors"
 }

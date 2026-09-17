@@ -33,6 +33,10 @@ def main():
         entries = {}
         with zipfile.ZipFile(io.BytesIO(archive)) as source:
             for item in source.infolist():
+                # Keep earlier distributions in Git history, not nested inside
+                # the browsable snapshot of every subsequent review archive.
+                if item.filename.startswith("source/output/review/") and item.filename.endswith((".zip", ".bundle")):
+                    continue
                 if not item.is_dir():
                     entries[item.filename] = source.read(item)
         entries["repository.bundle"] = bundle.read_bytes()
@@ -40,6 +44,7 @@ def main():
         entries["paper.pdf"] = git("show", "HEAD:output/pdf/nanda-2026-track3-ieee-review.pdf")
         manifest = {"source_revision": revision, "branch": branch,
                     "status": "human-review-only-not-anonymized-not-submitted",
+                    "source_snapshot_exclusions": ["output/review/*.zip", "output/review/*.bundle"],
                     "sha256": {name: hashlib.sha256(data).hexdigest() for name, data in sorted(entries.items())}}
         entries["CONTENTS.json"] = (json.dumps(manifest, indent=2) + "\n").encode()
         with zipfile.ZipFile(args.output, "w", zipfile.ZIP_DEFLATED) as result:

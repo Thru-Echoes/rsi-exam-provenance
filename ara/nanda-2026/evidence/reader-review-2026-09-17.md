@@ -30,4 +30,20 @@ An agent tries several programs and selects one. Its recipient cannot audit that
 The scientific evidence is still a single-base, author-designed characterization. Better prose cannot turn it into independent validation or a broad benchmark. Novelty remains a narrow systems contribution. Keeping the real case modest is preferable to suggesting a complete replay that the retained files cannot support.
 
 ## Distribution state
-This reader-first revision is a local review candidate. The previously published PR #40 ZIP remains the frozen 2026-09-16 draft; it has not been silently replaced. Confirm the narrative before updating the public review bundle or Notion.
+The author requested implementation of the handoff framing and synchronization to
+Notion and PR #40. The new dated review archive supersedes, but does not overwrite,
+the frozen 2026-09-16 ZIP. See output/review/README.md for distribution pins.
+
+## Handoff framing follow-up
+- Explain the consequence of a keep before introducing auditing: later edits can
+  build on the selected version, and recipients inherit the consequences.
+- Name the receiving agent or researcher and its lack of access to the producer's
+  runtime. Networked handoff motivates the work but is not an evaluated deployment.
+- Make a version-selection decision and its supporting evidence the audit unit.
+- Separate capture, consistency checking, and authorization to reuse. Human claim
+  admission and automated version confirmation are not interchangeable operations.
+- Distinguish a consistent decision from good hidden-test performance, and offline
+  checking from source authentication.
+- Keep Case R as the real-record motivation. Do not add the historical nine-keeps
+  example as another verifier test or import presentation contact/internal notes.
+- Preserve the experiment, fixture, results and all scientific limitations.
