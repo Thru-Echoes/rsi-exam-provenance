@@ -10,7 +10,7 @@ When one agent continues another’s work it inherits decisions as well as files
 
 A tool-call log, a matching file hash, and a reuse authorization answer different questions. A recipient cannot observe the producing runtime: it needs evidence for why a version was selected and separate authority to rely on that decision.
 
-Our running example is an AI coding agent improving a program that plays 2048: it edits, tests, and keeps a version or returns to an earlier one. RSI-Exam provides this setting: agents improve task programs using visible evaluations, then submit them for grading on unseen data \[rsiexam\]. Here, self-improving means improving the task program, not the model’s weights. A kept version can become the parent of later edits. Its successor inherits the consequences of that choice without necessarily retaining the producing runtime.
+Our running example is an AI coding agent improving a 2048 program: it edits, tests, and keeps or reverts versions. RSI-Exam provides visible evaluations and grades submitted programs on unseen data \[rsiexam\]. Self-improvement here concerns the task program, not model weights. Each kept version may become the parent of later edits.
 
 We ask: *how should a submitted decision become checkable evidence, and what must remain separate before downstream reuse?* The audit unit is an explicit decision and its supporting artifacts, not every tool call or inferred private rationale. We propose three responsibilities (Fig. <a href="#fig:boundaries" data-reference-type="ref" data-reference="fig:boundaries">1</a>): *capture* the submitted decision; *verify* its domain-specific evidence relationships; and *govern* whether a bounded claim may enter a recipient’s context. No stage automatically confers the authority of the next.
 
@@ -57,7 +57,7 @@ This is not yet one automatically enforced pipeline from verified package to app
 
 ## What the producer hands over
 
-The evidence package contains saved code versions, test-result files, a decision log, submitted code, and a machine-readable summary called a *capsule*. The producer records decisions during the run and builds the capsule afterward. The recipient checks this directory without accessing the agent’s runtime or rerunning its program.
+The producer hands over saved code versions, test results, a decision log, submitted code, and a machine-readable *capsule*. Decisions are recorded during the run; the capsule is built afterward. The recipient checks these files without the producing runtime.
 
 Each decision identifies five things: the *parent* version being compared against and the new *candidate*; the parent and candidate result files, labeled by role and bound by file hashes; the score direction (higher or lower is better), statistic, confidence-interval procedure, random seed, and threshold; the recorded calculation and decision (keep, revert, or await a confirmation evaluation); and any later confirmation decision that resolves a pending state. The capsule also links the submitted program to a recorded version. A version occurrence is distinct from its code contents: reverting can create another occurrence of the same code. Code identity follows the task’s staging rules, excluding Python bytecode caches; a separate whole-directory hash checks the supplied tree.
 
@@ -148,7 +148,7 @@ Capture, verify, govern separates what was submitted, what can be checked, and w
 
 # Acknowledgment
 
-An AI coding assistant was used to suggest framing and draft text in Sections I, II, and V and to generate parts of the code for the study and demonstration in Section IV. The authors specified the studies, revised the text, reviewed the code, reran the reported checks, and take responsibility for the manuscript.
+OpenAI Codex and Anthropic Claude Code assisted extensively with drafting and revising the abstract and Sections I–VI. Codex also assisted with code for the Section IV study and demonstration, artifact tooling, test execution, and typesetting checks; Claude Code assisted with manuscript revisions and the source for Fig. <a href="#fig:boundaries" data-reference-type="ref" data-reference="fig:boundaries">1</a>. The authors take responsibility for the final content.
 
 # References
 

@@ -22,6 +22,9 @@ def main():
                 paths.add(path.relative_to(ROOT).as_posix())
     paths.discard(TARGET.relative_to(ROOT).as_posix())
     paths.add("output/pdf/nanda-2026-track3-ieee-review.pdf")
+    submission_pdf = "output/pdf/nanda-2026-track3-ieee-submission.pdf"
+    if (ROOT / submission_pdf).exists():
+        paths.add(submission_pdf)
     files = [{"path": path, "sha256": hashlib.sha256((ROOT / path).read_bytes()).hexdigest()}
              for path in sorted(paths)]
     if args.check:

@@ -37,7 +37,7 @@ def get_named_author_block(a1_affil: str, a1_email: str, a2_affil: str, a2_email
     """Two co-first authors with an equal-contribution note. ``first`` names who is listed first."""
     oliver = (r"\IEEEauthorblockN{Oliver Muellerklein\IEEEauthorrefmark{1}}" "\n"
               r"\IEEEauthorblockA{" + a1_affil.replace(";", r"\\") + r"\\" + a1_email + "}")
-    richard = (r"\IEEEauthorblockN{Chen-Ming Tang\IEEEauthorrefmark{1}}" "\n"
+    richard = (r"\IEEEauthorblockN{Chenming Tang\IEEEauthorrefmark{1}}" "\n"
                r"\IEEEauthorblockA{" + a2_affil.replace(";", r"\\") + r"\\" + a2_email + "}")
     blocks = [oliver, richard] if first == "muellerklein" else [richard, oliver]
     return (r"\author{" + "\n" + blocks[0] + "\n" + r"\and" + "\n" + blocks[1] + "\n"
