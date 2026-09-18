@@ -4,11 +4,11 @@ Anonymous human-review draft. The IEEE PDF is the layout-authoritative copy.
 
 # Abstract
 
-A tool-call log, a matching file hash, and a reuse authorization answer different questions. When one agent continues another’s work it inherits decisions as well as files; a recorded decision need not be supported by its evidence, and a supported decision need not be authorized for reuse. We present a capture, verify, govern framework that separates these responsibilities and specifies the information needed at each boundary. TRACE holds submitted decisions, a domain-specific verifier checks their evidential consistency, and Proofpress keeps evidence intake apart from claim admission and governed reuse. We instantiate the verification layer on RSI-Exam program-version selection: in twelve synthetic packages, format checks reject one of nine authored faults, file-binding checks reject three, and full checks reject nine; two valid controls and a consistent unsigned reward rewrite pass. A separate local demonstration imports three TRACE decisions as evidence without creating claims or admissions; a verifier-rejected package imports as evidence too, because intake never sees the estimate, so domain verification stays a separate step. These results characterize verification and intake boundaries, not the effectiveness of a complete governance workflow. Recorded is not verified, consistent is not authentic, and neither is authorized for reuse.
+When one agent continues another’s work it inherits decisions as well as files; a recorded decision need not be supported by evidence, nor a supported decision authorized for reuse. We present a capture, verify, govern framework separating these responsibilities. TRACE holds submitted decisions; a domain-specific verifier checks their evidential consistency; and Proofpress keeps evidence intake apart from claim admission and governed reuse. On RSI-Exam program-version selection, format checks reject one of nine authored faults, file-binding checks reject three, and full checks reject nine; two valid controls and a consistent unsigned reward rewrite pass. A local demonstration imports three TRACE decisions as evidence without creating claims or admissions. A verifier-rejected numerical error also imports because the intake projection omits the estimate: domain verification remains a separate step. These results characterize verification and intake boundaries, not the effectiveness of a complete governance workflow. Recorded is not verified, consistent is not authentic, and neither is authorized for reuse.
 
 # Introduction
 
-A tool-call log, a matching file hash, and a reuse authorization answer different questions. Suppose one agent hands a revised program to another agent or researcher in a different trust domain. The recipient can inspect the files but cannot observe the producing runtime, and needs to know why this version was selected and whether it is appropriate to rely on that decision now. Treating any one of the three signals as blanket trust obscures what the recipient can actually check.
+A tool-call log, a matching file hash, and a reuse authorization answer different questions. A recipient cannot observe the producing runtime: it needs evidence for why a version was selected and separate authority to rely on that decision.
 
 Our running example is an AI coding agent improving a program that plays 2048: it edits, tests, and keeps a version or returns to an earlier one. RSI-Exam provides this setting: agents improve task programs using visible evaluations, then submit them for grading on unseen data \[rsiexam\]. Here, self-improving means improving the task program, not the model’s weights. A kept version can become the parent of later edits. Its successor inherits the consequences of that choice without necessarily retaining the producing runtime.
 
@@ -24,7 +24,7 @@ In another rollout, under the exam’s own program, the agent kept nine of nine 
 
 # The Capture, Verify, Govern Framework
 
-<figure id="fig:boundaries">
+<figure id="fig:boundaries" data-latex-placement="t">
 
 <figcaption>One decision across the three boundaries. The arrows carry the record and the check result, never a status: recorded is not verified, consistent is not authentic, and neither is authorized for reuse.</figcaption>
 </figure>
@@ -33,17 +33,13 @@ In another rollout, under the exam’s own program, the agent kept nine of nine 
 
 The producer may omit decisions, supply mismatched artifacts, or coherently fabricate an entire package. The receiver has the disclosed bytes, a chosen checker, and its own reuse policy; it has no trusted witness to execution. The framework makes these limits visible rather than reading a successful import or check as general trust.
 
-<div id="tab:framework">
-
 | Stage | Required of the transferred object | Implemented here, and not |
 |:---|:---|:---|
 | Capture | Stable decision identity; distinct proposer and resolver (a proposal is never resolved by its proposer); disposition; revision links; digest-bound artifact references; the claimed rule. Unsubmitted choices stay outside. | TRACE record with an RSI task profile. Not established: correctness, complete capture, authenticated authority (a resolver identity is attribution). |
 | Verify | A check result naming the checked package, checker and profile revision, outcomes, diagnostics, coverage scope; a bare “pass” cannot say which decision was checked. | Offline verifier: recomputed paired statistics, decision rules, submitted-version identity, coverage. Not established: that an execution produced the measurements. |
-| Govern | A bounded claim, its reuse scope, references to evidence and check results; a check result bound to the exact decision and package so policy can require it; an admitting principal independent of the proposer. | Proofpress: evidence-only intake, separate claim proposal. Not implemented: binding the check result to the candidate; policy-enforced admission. |
+| Govern | A bounded claim, its reuse scope, references to evidence and check results; a check result bound to the exact decision and package so policy can require it; an admitting principal independent of the proposer. | Proofpress: evidence intake, claim proposal and policy-gated review. Not integrated: mandatory RSI verifier-receipt binding at admission. Human approval is not exercised here. |
 
 The evidence contract per boundary: required of the transferred object, implemented here, and not implemented.
-
-</div>
 
 At the governance boundary (Table 1) the admitting principal may be a human, a service, a quorum, or a policy mechanism; this instantiation’s policy assigns it to a human, and under that policy the producing agent must not admit its own claim. A downstream consumer should retrieve only admitted, in-scope context; admission is not permanent proof of truth.
 
@@ -67,9 +63,7 @@ Each decision identifies five things: the *parent* version being compared agains
 
 ## A worked decision, from scores to submission
 
-Table 2 follows the synthetic package. v1 is the parent. Candidate v2 performs worse and is reverted. Candidate v3 is also derived from v1: its initial result is inconclusive, but a subsequent confirmation supports keeping it. The submitted program is v3.
-
-<div id="tab:example">
+In the synthetic package (Table 2), both candidates derive from v1. Candidate v2 is reverted; v3 requires confirmation before being kept and submitted.
 
 | Candidate/test |  Mean delta |         90% interval | Decision |
 |:---------------|------------:|---------------------:|:---------|
@@ -78,8 +72,6 @@ Table 2 follows the synthetic package. v1 is the parent. Candidate v2 performs 
 | v3 / confirm   |  $`518.75`$ |      $`[467.5,575]`$ | Keep     |
 
 Running example from the synthetic package of Section IV. Each row compares the candidate with v1 over eight paired games; 90 percent percentile bootstrap, 5000 resamples, seed 20260902.
-
-</div>
 
 The calculations use paired games: parent and candidate are evaluated on the same seed within each comparison. For a higher-is-better score the mean improvement over the $`n`$ paired seeds is $`\widehat{\Delta}=\frac{1}{n}\sum_{i=1}^{n}\bigl(s_{\mathrm{cand}}(i)-s_{\mathrm{par}}(i)\bigr)`$, and the interval expresses uncertainty around it. The verifier recomputes the estimate and percentile-bootstrap interval from the supplied per-seed results and declared algorithm parameters. For a lower-is-better score the differences change sign.
 
@@ -107,8 +99,6 @@ To avoid testing only stale hashes, relevant decision changes are mirrored in th
 
 Table 3 reports every outcome. S rejects one of nine faults, B rejects three, and V rejects nine. The six additional refusals cover three measurement inconsistencies, an unresolved confirmation, a submitted-version mismatch, and an incomplete snapshot inventory. Thus files can match their declarations while the relationships needed to audit a decision still fail.
 
-<div id="tab:faults">
-
 | Package change                                |  S  |  B  |  V  |
 |:----------------------------------------------|:---:|:---:|:---:|
 | None (valid control)                          |  A  |  A  |  A  |
@@ -126,8 +116,6 @@ Table 3 reports every outcome. S rejects one of nine faults, B rejects three, a
 
 Controlled packages. S: format; B: format + file hashes; V: full checks including coverage. A: accepts that check scope; R: rejects.
 
-</div>
-
 Both valid controls pass: the unchanged package and one whose excluded bytecode caches differ. This establishes acceptance on two examples, not a population false-positive rate; likewise the fault counts do not estimate detection rates on naturally occurring errors.
 
 Rejection reasons matter. The extra snapshot is rejected for partial coverage, not an integrity error. The missing snapshot is correctly refused, but its diagnostic prefix differs from the manifest’s expected prefix. All nine faults are refused, but only eight match the prespecified diagnostic target. The unchanged expectation and actual output are both preserved; unexpected runtime exceptions abort the study rather than count as detections.
@@ -136,15 +124,15 @@ Rejection reasons matter. The extra snapshot is rejected for partial coverage, n
 
 The final control changes an unsigned final reward file and the capsule’s matching reward to 0.5, then refreshes the file hash. V accepts. This is the final benchmark reward, not one of the paired visible-game measurements used for keep-or-revert decisions. The verifier checks agreement with the supplied reward file; it neither authenticates the grader nor recalculates that reward from underlying score details.
 
-This accepted rewrite bounds the interpretation of the nine refusals. Our mechanism checks consistency among supplied declarations and bytes. A producer able to rewrite evidence consistently can still supply false material. Acceptance must therefore not be read as proof that these experiments really happened or that the agent is trustworthy.
+This accepted rewrite bounds the nine refusals: a producer can supply coherently false material. Consistency among declarations and bytes proves neither that experiments happened nor that the agent is trustworthy.
 
 ## Evidence intake does not grant reuse
 
-In a separate local fixture demonstration, we check the clean RSI package, convert its three decisions to TRACE records, and import them into a disposable Proofpress repository. The committed runner pins a public Proofpress revision and contacts no hosted service or agent. The import creates three source records and three evidence items, but zero claims, zero admissions and an empty governed-context result. Re-import leaves the ledger unchanged. An unsupported version, malformed interval and changed normalized content under an existing identity are refused.
+In a separate local fixture demonstration, we check the clean RSI package, convert its three decisions to TRACE records, and import them into a disposable Proofpress repository. The runner pins Proofpress source commit `7fad672` (full identifier in its receipt), not a package release, and contacts no hosted service or agent. The import creates three source records and three evidence items, but zero claims, zero admissions and an empty governed-context result. Re-import leaves the ledger unchanged. An unsupported version, malformed interval and changed normalized content under an existing identity are refused.
 
 We then reuse the one-point mean-delta fault from the controlled study. The full verifier rejects it, but the converter accepts it and a fresh Proofpress receiver imports it as evidence. This is expected: intake validates its bounded projection, not the measurement calculation. The estimate lies outside the adapter’s projection, so intake cannot inspect this discrepancy even in principle; the case places responsibility for domain verification, it does not measure detection. Finally, explicitly proposing a synthetic claim creates one candidate but still zero admissions and no governed context. No human approval or downstream agent run is exercised.
 
-In this implementation these observations demonstrate two non-equivalences: importable evidence is not necessarily verified evidence, and even an explicit candidate is not authorized context. They support interface separation, not the effectiveness of human governance; this run tests conversion and intake, not upstream schema conformance.
+These observations support interface separation, not human-governance effectiveness: importable evidence need not be verified, and a candidate is not authorized context. The run tests conversion and intake, not upstream schema conformance.
 
 # Related Work and Limits
 
@@ -178,6 +166,6 @@ An AI coding assistant was used to suggest framing and draft text in Sections I,
 
 \[trace\] *TRACE: A decision-provenance record for human and AI work*, v0.5.1, Apache-2.0, 2026. Repository and DOI withheld for review.
 
-\[proofpress\] *Proofpress: An evidence ledger with separate claim review and governed reuse*, v0.4.0, Apache-2.0, 2026. Repository withheld for review.
+\[proofpress\] *Proofpress: An evidence ledger with separate claim review and governed reuse*, Apache-2.0, 2026. Repository withheld for review.
 
 \[intoto\] S. Torres-Arias, H. Afzali, T. K. Kuppusamy, R. Curtmola, and J. Cappos, *in-toto: Providing farm-to-table guarantees for bits and bytes*, in USENIX Security, 2019, pp. 1393–1410.

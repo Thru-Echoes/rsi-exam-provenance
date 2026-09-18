@@ -22,14 +22,14 @@ SUBMISSION = Path(__file__).resolve().parents[2] / "submission"
 
 ANON_AUTHOR = r"\author{\IEEEauthorblockN{Anonymous Authors}}"
 ANON_TRACE = (r"\bibitem{trace} \emph{TRACE: A decision-provenance record for human and AI work}, v0.5.1, "
-              r"Apache-2.0, 2026. Repository and DOI withheld for anonymous review.")
+              r"Apache-2.0, 2026. Repository and DOI withheld for review.")
 ANON_PP = (r"\bibitem{proofpress} \emph{Proofpress: An evidence ledger with separate claim review and governed "
-           r"reuse}, v0.4.0, Apache-2.0, 2026. Repository withheld for anonymous review.")
+           r"reuse}, Apache-2.0, 2026. Repository withheld for review.")
 NAMED_TRACE = (r"\bibitem{trace} O. Muellerklein, \emph{TRACE: A decision-provenance record for human and AI work}, "
                r"v0.5.1, Apache-2.0, 2026. [Online]. Available: \url{https://github.com/Thru-Echoes/TRACE}, "
                r"doi: 10.5281/zenodo.21711455.")
 NAMED_PP = (r"\bibitem{proofpress} C.-M. Tang, \emph{Proofpress: An evidence ledger with separate claim review and "
-            r"governed reuse}, v0.4.0, Apache-2.0, 2026. [Online]. Available: "
+            r"governed reuse}, Apache-2.0, 2026. [Online]. Available: "
             r"\url{https://github.com/chenmingtang830/proofpress}.")
 
 

@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "base_git_commit": "c3d94b6790055fe60783137f5c2eaa4aed620ea8",
+  "base_git_commit": "8628b0834b55b2fa1edd1d61c81941e6e9d62292",
   "status": "local-review-snapshot",
   "identity": "Exact file hashes include working-tree changes; base commit is not a clean-tree claim.",
   "exclusions": [
@@ -23,7 +23,7 @@
     },
     {
       "path": "ara/nanda-2026/START_HERE.md",
-      "sha256": "ab8cfd0f4db31ade87cfc868e0d0eb646739d910aa308f0b22b1def63dc0a3e1"
+      "sha256": "f45f50b84273a0e138c1a0c5eb952bb6a9bafaa7fc2198511106c8773c75e868"
     },
     {
       "path": "ara/nanda-2026/evidence/README.md",
@@ -63,7 +63,7 @@
     },
     {
       "path": "ara/nanda-2026/evidence/review-verification.md",
-      "sha256": "84deca5562014a7b672672dfe0a7ef6026daa1b7ee9977ad55bde3c4fd141722"
+      "sha256": "1d8fede11a818a22cf4ddd66f6f93820d68fcbf701904013c57c766e66a5697e"
     },
     {
       "path": "ara/nanda-2026/evidence/unmerged-opus-recovery-audit.md",
@@ -83,7 +83,7 @@
     },
     {
       "path": "ara/nanda-2026/logic/claims.md",
-      "sha256": "dfafdddf42a3d1336b7a8b02031271df43a5d9cb7ed91a329e8ce1030ef6859b"
+      "sha256": "291aba3c5767328f89fad3d120b08f1fac8d42ea3ae232ed51104ea34f3de8db"
     },
     {
       "path": "ara/nanda-2026/logic/concepts.md",
@@ -119,7 +119,11 @@
     },
     {
       "path": "ara/nanda-2026/src/environment.md",
-      "sha256": "f421210b9d86d80ba2898142b537be1884fd99df173b7c04c284753862a8c809"
+      "sha256": "3bc97aa4965ff6b92ed1b13faac0c137226b068fd88a1eb6fdc15f20c299bee2"
+    },
+    {
+      "path": "ara/nanda-2026/src/execution/build_named_variant.py",
+      "sha256": "b1cb1ea49fc4d126a3cc56ac3bae9cec5b18dcf6c0cb13e9ac3db07d2126c455"
     },
     {
       "path": "ara/nanda-2026/src/execution/build_paper_results.py",
@@ -139,7 +143,7 @@
     },
     {
       "path": "ara/nanda-2026/src/execution/render_manuscript.py",
-      "sha256": "acf1d7bec34bdbeab7ab8a7ec3cf4dd9e055ca9d8c39419c8d547b9673be2a9d"
+      "sha256": "17a20c64996494df1795ef6b2a235b6403a6f8d2021df25739c25583689421a8"
     },
     {
       "path": "ara/nanda-2026/submission/README.md",
@@ -147,11 +151,11 @@
     },
     {
       "path": "ara/nanda-2026/submission/main.tex",
-      "sha256": "2548e8572c93de5f02dcc7c0bdc4ae65e5f93be927378e3f46c7be0f6cabbf70"
+      "sha256": "8f7c138973f80f37169a074cac3e46bcebbf515fa5e848c0812bcd4d6e14f925"
     },
     {
       "path": "ara/nanda-2026/submission/manuscript.md",
-      "sha256": "1f96611156da9d4143a200a0a45d3e1ab73ec4b248cd9d17d0c7480421475a67"
+      "sha256": "ad23bb297e6023e6674ce3cc259947e7c85de821e264f93cca283e077f5cdcea"
     },
     {
       "path": "ara/nanda-2026/tables/README.md",
@@ -327,7 +331,7 @@
     },
     {
       "path": "output/pdf/nanda-2026-track3-ieee-review.pdf",
-      "sha256": "01a2a529dde07420f1aeed3820926b7368e4af58b405c277894fe5e162aeb977"
+      "sha256": "5c627fee2f2ce3c13b8a793bc9c25e56743bb5555012433fdc8eafa260179e16"
     },
     {
       "path": "output/pdf/nanda-2026-track3-working-paper.pdf",
@@ -387,7 +391,11 @@
     },
     {
       "path": "studies/handoff-case-review/README.md",
-      "sha256": "1715d637da0e8cbd45415502ccfe66b27bdc8ad6b0424960670b7ff9ef963d37"
+      "sha256": "1d185712493844d9603359cc4bfe2a5f594ff36e92056d54cf8bea223ddedd8d"
+    },
+    {
+      "path": "studies/handoff-case-review/case-r-full-directory-verification.json",
+      "sha256": "3468baccd7d088496ea10687c10a7e1a8f49932f1a1edae3deeeb4c9d1ac6b90"
     },
     {
       "path": "studies/handoff-case-review/case-results.json",
@@ -520,6 +528,10 @@
     {
       "path": "tests/test_make_profile.py",
       "sha256": "e53618bd40f438c0942da7e939573297d20059c6030cfea61ff8593b7f278a65"
+    },
+    {
+      "path": "tests/test_named_variant.py",
+      "sha256": "45abd7e87821792541d1b2a88b780e5d486b000237ee8c85cc30fb20326e553c"
     },
     {
       "path": "tests/test_nanda_ara.py",

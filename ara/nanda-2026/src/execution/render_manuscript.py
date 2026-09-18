@@ -16,6 +16,9 @@ def render():
     body = re.sub(r"\\cite\{([^}]+)\}", lambda m: "[" + m.group(1) + "]", body)
     for number, label in enumerate(re.findall(r"\\label\{(tab:[^}]+)\}", tex), start=1):
         body = body.replace("\\ref{" + label + "}", str(number))
+    # References are already resolved above. Pandoc versions emit table labels
+    # as either HTML divs or caption attributes; omit these unused anchors.
+    body = re.sub(r"\\label\{tab:[^}]+\}", "", body)
     bibliography = tex.split(r"\begin{thebibliography}{00}", 1)[1].split(r"\end{thebibliography}", 1)[0]
     bibliography = re.sub(r"\\bibitem\{([^}]+)\}", lambda m: "\n\n[" + m.group(1) + "] ", bibliography)
     text = r"\section*{Abstract}" + "\n" + abstract + "\n" + body + r"\section*{References}" + "\n" + bibliography
