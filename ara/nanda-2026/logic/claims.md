@@ -76,10 +76,10 @@ Manuscript mapping (framework revision, 2026-09-17): C09 is the framework design
 **Statement:** The retained Opus block 1 capsule/log reconstruct v1-to-v2 revert and v1-to-v3 submission, with a matching log binding; absent results and snapshots prevent full replay.
 **Conditions:** Only the retained export is inspected; reported means and dispositions are declarations.
 **Sources:** studies/handoff-case-review/case-results.json; docs/figures/sources/ab-opus-1-I/.
-**Status:** supported retained-record inspection, not current verifier success on a real run.
+**Status:** supported retained-record inspection. A separate author-run receipt reports full-directory verifier success; the public export alone cannot reproduce that result.
 **Falsification criteria:** Source hashes differ, lineage extraction disagrees, or claimed missing evidence is present in the inspected export.
 **Proof:** [E06].
-**Evidence basis:** Original retained capsule and log plus deterministic inventory.
+**Evidence basis:** Original retained capsule and log plus deterministic inventory. `studies/handoff-case-review/case-r-full-directory-verification.json` separately records four gate decisions passing with complete supplied-directory coverage against an author-retained job directory. It binds the public capsule and verifier by digest, but is not an independent replay or authentication of the measurements. Candidate v2 has no gate decision. E06's portable-export inspection is unchanged.
 **Dependencies:** none.
 **Tags:** historical-case, incomplete-evidence.
 

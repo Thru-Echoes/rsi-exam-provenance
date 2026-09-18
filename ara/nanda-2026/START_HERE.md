@@ -3,6 +3,8 @@
 Framework-first review revision, 2026-09-17. Open paper.pdf in the ZIP root, or
 output/pdf/nanda-2026-track3-ieee-review.pdf in the repository. CONTENTS.json pins
 the exact source revision and bundle branch. Earlier ZIPs are historical drafts.
+For PR #41, use the repository PDF and source: the ZIPs listed in
+output/review/README.md freeze the preceding PR #40 revision and omit PR #41 changes.
 
 This is an author-side, AI-assisted research draft, not author approval, submission,
 an official ARA Seal or independent review. The PDF keeps an anonymous author

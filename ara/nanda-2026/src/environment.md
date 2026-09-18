@@ -68,6 +68,11 @@ Fresh execution uses Python 3.11.13 and cryptography 46.0.7, with Proofpress sou
 exported from commit `7fad672321ae00d7c7af350e7b26000846b37895` into a disposable
 directory. TRACE wire 0.5.1 is declared by the converter and accepted by the pinned
 adapter. Upstream schema validation is not rerun. See studies/framework-boundary/README.md.
+
+This is a source-commit pin, not an npm or PyPI release claim. The pinned
+`pyproject.toml` identifies `proofpress-local` with metadata version `0.6.0a1`;
+metadata alone does not establish package publication. The paper therefore cites
+the Proofpress project without a product release number.
 The external source/dependency is not bundled with the RSI-only artifact. A local
 clone containing the exact commit is required to re-execute E07; checking its saved
 receipt and hashes is a separate portable operation. No hosted or model calls.

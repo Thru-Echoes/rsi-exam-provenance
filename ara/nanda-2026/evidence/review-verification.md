@@ -1,5 +1,21 @@
 # Local review verification
 
+## PR #42 integration — 2026-09-18 UTC
+
+- Preserved Figure 1 from `8628b0834b55b2fa1edd1d61c81941e6e9d62292` and
+  integrated the Proofpress version, governance-boundary and named-generator fixes
+  from local correction `b596c18`. E07 uses a source pin, not a package release.
+- Full suite: 429 tests in 59.214 seconds, OK with two skips. After final prose
+  compression, the 12 named-generator/ARA checks passed again. Retained-export
+  inspection and Markdown synchronization also passed.
+- Rebuilt four US-letter pages with Tectonic and inspected all four rendered
+  pages. Figure 1 is now on page 1. No clipping or overlap observed; margins and
+  text sizes are unchanged. No experiment results or verifier code changed.
+- Refreshed source bindings; prior ZIP archives remain explicitly historical.
+- This remains an anonymous review draft. Actual AI-use disclosure and final
+  author metadata require confirmation before conference upload. No new model
+  rollout, independent Case R replay, or external Proofpress execution occurred.
+
 ## Framework-first revision — 2026-09-17
 
 - Full repository suite: 427 tests in 58.408 seconds, OK with two skips.
