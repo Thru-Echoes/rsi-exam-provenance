@@ -1,0 +1,95 @@
+{
+  "schema": "rsi-exam-provenance/full-directory-verification-receipt/v1",
+  "case": "R",
+  "capsule": "docs/figures/sources/ab-opus-1-I/capsule.json",
+  "capsule_sha256": "a7ebf26c1aceefe052a237a82ff9c4574a1cffbc22aa098b8a9a4f5cbc49baab",
+  "capsule_id": "ab-opus-1-I-UaXracv",
+  "verifier": "profile/verify_capsule.py",
+  "verifier_sha256": "26dd657f60dd49199b08e0dc3343b7e324cdea394d2c111dd64dcb083bbeab98",
+  "verifier_source_commit": "6076f4e",
+  "artifact_root": "the rollout's full harbor job directory (game2048_policy_search__UaXracv), retained by the authors and not part of this repository",
+  "invocation": "python3 profile/verify_capsule.py --require-complete --json --artifact-root <job directory> docs/figures/sources/ab-opus-1-I/capsule.json",
+  "run_at": "2026-09-18T04:15:38+00:00",
+  "result": {
+    "ok": true,
+    "integrity": "pass",
+    "coverage": "complete",
+    "errors": [],
+    "checks": {
+      "json": true,
+      "schema": true,
+      "semantics": true,
+      "files": true
+    }
+  },
+  "coverage_basis": "versions_directory",
+  "decision_log_lines": [
+    {
+      "line": 1,
+      "parent": "v0",
+      "candidate": "v1",
+      "disposition": "provisional",
+      "estimate": 36914.5,
+      "interval": {
+        "level": 0.9,
+        "lower": 25761.0,
+        "upper": 48879.0
+      },
+      "sample_size": 8,
+      "min_effect": 51.5,
+      "confirm_policy": "always"
+    },
+    {
+      "line": 2,
+      "parent": "v0",
+      "candidate": "v1",
+      "disposition": "keep",
+      "estimate": 32800.0,
+      "interval": {
+        "level": 0.9,
+        "lower": 21510.0,
+        "upper": 44029.0
+      },
+      "sample_size": 8,
+      "min_effect": 51.5,
+      "confirm_policy": "always"
+    },
+    {
+      "line": 3,
+      "parent": "v1",
+      "candidate": "v3",
+      "disposition": "provisional",
+      "estimate": 50343.0,
+      "interval": {
+        "level": 0.9,
+        "lower": 35191.0,
+        "upper": 65788.5
+      },
+      "sample_size": 8,
+      "min_effect": 974.3625000000001,
+      "confirm_policy": "always"
+    },
+    {
+      "line": 4,
+      "parent": "v1",
+      "candidate": "v3",
+      "disposition": "keep",
+      "estimate": 57097.0,
+      "interval": {
+        "level": 0.9,
+        "lower": 28839.5,
+        "upper": 88737.0
+      },
+      "sample_size": 8,
+      "min_effect": 974.3625000000001,
+      "confirm_policy": "always"
+    }
+  ],
+  "experiment_log_v2": {
+    "status": "reverted",
+    "visible_mean": 48115,
+    "gate": "not consulted (the agent reverted)",
+    "parent_visible_mean": 38974.5
+  },
+  "what_this_establishes": "The retained capsule is consistent with the full job directory: schema, file bindings, lineage, submitted-version identity, recomputed decision statistics, and snapshot coverage. It does not establish that RSI-Exam issued the scores or that the producer captured every experiment; v2 has no gate decision because the agent reverted it without consulting the gate."
+}

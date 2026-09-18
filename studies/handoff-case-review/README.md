@@ -11,6 +11,17 @@ We inspected available local exports before choosing examples. No complete histo
 
 Case R records v1 → v2 (reverted) and v1 → v3 (submitted). v2's reported visible mean exceeds v1 by 9140.5 but has no gate decision. This is an explanatory gap, not evidence that the revert was incorrect. Declared digest equality is not verification of absent code bytes.
 
+### Full job directory verification (added 2026-09-17)
+
+The table above describes what the retained export supports. The rollout's full harbor job directory is retained by
+the authors outside this repository, and the retained capsule was verified against it with
+`profile/verify_capsule.py --require-complete`: integrity pass, coverage complete, all four checks true, no errors.
+The receipt, with the capsule and verifier digests, the four decision-log lines (two candidates each screened and
+then confirmed on fresh seeds under an always-confirm policy), and the experiment-log entry for v2 ("gate: not
+consulted (the agent reverted)"), is `case-r-full-directory-verification.json`. Read together: the record is
+consistent with its files and still cannot say why v2 was reverted, because no evaluation under the rule was
+recorded for it. The job directory itself (snapshots, per-seed results, trajectory) is not committed here.
+
 ## Harvey source and fairness
 Source repository: https://github.com/chenmingtang830/proofpress
 Pinned revision: 7fad672321ae00d7c7af350e7b26000846b37895.
