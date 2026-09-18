@@ -1,0 +1,269 @@
+{
+  "blocks": [
+    {
+      "block": 1,
+      "evidence_class": "machine_generated_endpoint_table",
+      "evidence_path": "docs/shadow-audit/instrument-ab/haiku/endpoints.md",
+      "favors": "instrument",
+      "helper_reward": "0.07764052",
+      "helper_trial": "ab-haiku-1-H",
+      "instrument_minus_helper": "0.06239836",
+      "instrument_reward": "0.14003888",
+      "instrument_trial": "ab-haiku-1-I",
+      "precision": "source_precision",
+      "stage": "haiku"
+    },
+    {
+      "block": 2,
+      "evidence_class": "machine_generated_endpoint_table",
+      "evidence_path": "docs/shadow-audit/instrument-ab/haiku/endpoints.md",
+      "favors": "helper",
+      "helper_reward": "0.21636209",
+      "helper_trial": "ab-haiku-2-H",
+      "instrument_minus_helper": "-0.03555579",
+      "instrument_reward": "0.1808063",
+      "instrument_trial": "ab-haiku-2-I",
+      "precision": "source_precision",
+      "stage": "haiku"
+    },
+    {
+      "block": 3,
+      "evidence_class": "machine_generated_endpoint_table",
+      "evidence_path": "docs/shadow-audit/instrument-ab/haiku/endpoints.md",
+      "favors": "instrument",
+      "helper_reward": "0.04347278",
+      "helper_trial": "ab-haiku-3-H",
+      "instrument_minus_helper": "0.04998558",
+      "instrument_reward": "0.09345836",
+      "instrument_trial": "ab-haiku-3-I",
+      "precision": "source_precision",
+      "stage": "haiku"
+    },
+    {
+      "block": 4,
+      "evidence_class": "machine_generated_endpoint_table",
+      "evidence_path": "docs/shadow-audit/instrument-ab/haiku/endpoints.md",
+      "favors": "helper",
+      "helper_reward": "0.15123168",
+      "helper_trial": "ab-haiku-4-H",
+      "instrument_minus_helper": "-0.15123168",
+      "instrument_reward": "0.0",
+      "instrument_trial": "ab-haiku-4-I",
+      "precision": "source_precision",
+      "stage": "haiku"
+    },
+    {
+      "block": 1,
+      "evidence_class": "machine_generated_endpoint_table",
+      "evidence_path": "docs/shadow-audit/instrument-ab/sonnet/endpoints.md",
+      "favors": "helper",
+      "helper_reward": "0.38678773",
+      "helper_trial": "ab-sonnet-1-H",
+      "instrument_minus_helper": "-0.05406793",
+      "instrument_reward": "0.3327198",
+      "instrument_trial": "ab-sonnet-1-I",
+      "precision": "source_precision",
+      "stage": "sonnet"
+    },
+    {
+      "block": 2,
+      "evidence_class": "machine_generated_endpoint_table",
+      "evidence_path": "docs/shadow-audit/instrument-ab/sonnet/endpoints.md",
+      "favors": "helper",
+      "helper_reward": "0.4697557",
+      "helper_trial": "ab-sonnet-2-H",
+      "instrument_minus_helper": "-0.0347105",
+      "instrument_reward": "0.4350452",
+      "instrument_trial": "ab-sonnet-2-I",
+      "precision": "source_precision",
+      "stage": "sonnet"
+    },
+    {
+      "block": 3,
+      "evidence_class": "machine_generated_endpoint_table",
+      "evidence_path": "docs/shadow-audit/instrument-ab/sonnet/endpoints.md",
+      "favors": "instrument",
+      "helper_reward": "0.4235464",
+      "helper_trial": "ab-sonnet-3-H",
+      "instrument_minus_helper": "0.03758966",
+      "instrument_reward": "0.46113606",
+      "instrument_trial": "ab-sonnet-3-I",
+      "precision": "source_precision",
+      "stage": "sonnet"
+    },
+    {
+      "block": 1,
+      "evidence_class": "digest_bound_capsule_hidden_evaluation",
+      "evidence_path": "docs/figures/sources/ab-opus-1-I/capsule.json",
+      "favors": "helper",
+      "helper_reward": "0.60840837",
+      "helper_reward_receipt_sha256": "sha256:9b60d37c05d7be456846fb5fc5c000d2b522a771e571e6d49ed54c2efccca2f5",
+      "helper_trial": "ab-opus-1-H",
+      "instrument_minus_helper": "-0.05735147",
+      "instrument_reward": "0.5510569",
+      "instrument_reward_receipt_sha256": "sha256:0c521982ccd71e808f09659376b75de0ba9516fc375cce428a8a405b58619984",
+      "instrument_trial": "ab-opus-1-I",
+      "paired_evidence_path": "docs/figures/sources/ab-opus-1-H/capsule.json",
+      "precision": "source_precision",
+      "stage": "opus"
+    },
+    {
+      "block": 2,
+      "evidence_class": "committed_pre_probe_summary",
+      "evidence_path": "docs/shadow-audit/pilots/pilot-8-preregistration.md",
+      "favors": "helper",
+      "helper_reward": "0.602",
+      "helper_trial": "ab-opus-2-H",
+      "instrument_minus_helper": "-0.256",
+      "instrument_reward": "0.346",
+      "instrument_trial": "ab-opus-2-I",
+      "precision": "rounded_to_3_decimals_in_source",
+      "stage": "opus"
+    },
+    {
+      "block": 3,
+      "evidence_class": "committed_pre_probe_summary",
+      "evidence_path": "docs/shadow-audit/pilots/pilot-8-preregistration.md",
+      "favors": "helper",
+      "helper_reward": "0.533",
+      "helper_trial": "ab-opus-3-H",
+      "instrument_minus_helper": "-0.119",
+      "instrument_reward": "0.414",
+      "instrument_trial": "ab-opus-3-I",
+      "precision": "rounded_to_3_decimals_in_source",
+      "stage": "opus"
+    }
+  ],
+  "generated_by": "ara/nanda-2026/src/execution/build_paper_results.py",
+  "primary_summary": {
+    "aggregate_mean_instrument_minus_helper": "-0.055794377",
+    "aggregate_mean_precision": "approximate_because_opus_inputs_are_rounded",
+    "blocks": 10,
+    "by_stage": {
+      "haiku": {
+        "favors_helper": 2,
+        "favors_instrument": 2,
+        "mean_instrument_minus_helper": "-0.0186008825",
+        "mean_precision": "source_precision",
+        "observed_blocks": 4,
+        "planned_blocks": 4,
+        "ties": 0
+      },
+      "opus": {
+        "favors_helper": 3,
+        "favors_instrument": 0,
+        "mean_instrument_minus_helper": "-0.1441171566666666666666666667",
+        "mean_precision": "approximate_from_mixed_precision_inputs",
+        "observed_blocks": 3,
+        "planned_blocks": 3,
+        "ties": 0
+      },
+      "sonnet": {
+        "favors_helper": 2,
+        "favors_instrument": 1,
+        "mean_instrument_minus_helper": "-0.01706292333333333333333333333",
+        "mean_precision": "source_precision",
+        "observed_blocks": 3,
+        "planned_blocks": 3,
+        "ties": 0
+      }
+    },
+    "favors_helper": 7,
+    "favors_instrument": 3,
+    "ties": 0
+  },
+  "record_yield": {
+    "arms": {
+      "helper": {
+        "trials": 10,
+        "verified_records": 9
+      },
+      "instrument": {
+        "trials": 10,
+        "verified_records": 9
+      }
+    },
+    "failures": [
+      {
+        "arm": "H",
+        "evidence_path": "docs/shadow-audit/instrument-ab/haiku/records.md",
+        "outcome": "submitted_not_snapshotted",
+        "rollout": "ab-haiku-4-H-CkZZrtb",
+        "stage": "haiku",
+        "verified": false
+      },
+      {
+        "arm": "I",
+        "evidence_path": "docs/shadow-audit/instrument-ab/sonnet/records.md",
+        "outcome": "submitted_not_snapshotted",
+        "rollout": "ab-sonnet-1-I-xtakhda",
+        "stage": "sonnet",
+        "verified": false
+      }
+    ],
+    "trials": 20,
+    "verified_records": 18
+  },
+  "release_blockers": [
+    "Opus blocks 2 and 3 remain summary-backed and rounded; bind their raw reward receipts before the final freeze.",
+    "Opus secondary endpoint, spend, and complete sealed-retrospective tables are not committed.",
+    "Do not convert the ten observed blocks into an efficacy, significance, or population-rate claim."
+  ],
+  "schema_version": "rsi-exam-provenance/nanda-paper-results/v1",
+  "source_revision": "727b9b821d7814d7467a29c1e740ce92eea7e219",
+  "sources": [
+    {
+      "evidence_class": "machine_generated_endpoint_table",
+      "path": "docs/shadow-audit/instrument-ab/haiku/endpoints.md",
+      "sha256": "sha256:8c94e7e012fd722b07242e434b90403316539f2b72b3b822718ff47f99915c1b"
+    },
+    {
+      "evidence_class": "machine_generated_endpoint_table",
+      "path": "docs/shadow-audit/instrument-ab/sonnet/endpoints.md",
+      "sha256": "sha256:20043598969d82022eeecaf7335bd097ac67feafaed1e4ca1ec474d6ed748b6a"
+    },
+    {
+      "evidence_class": "digest_bound_capsule_hidden_evaluation",
+      "path": "docs/figures/sources/ab-opus-1-I/capsule.json",
+      "sha256": "sha256:a7ebf26c1aceefe052a237a82ff9c4574a1cffbc22aa098b8a9a4f5cbc49baab"
+    },
+    {
+      "evidence_class": "digest_bound_capsule_hidden_evaluation",
+      "path": "docs/figures/sources/ab-opus-1-H/capsule.json",
+      "sha256": "sha256:ab8cb43b419d3bde60861e1ed01913f396035b16619d39e96505dfdf1546295c"
+    },
+    {
+      "evidence_class": "committed_pre_probe_summary",
+      "path": "docs/shadow-audit/pilots/pilot-8-preregistration.md",
+      "sha256": "sha256:3495feb23610714d040a8dd816b200d8425ec69e0eacf1b65718281be92e0186"
+    },
+    {
+      "evidence_class": "machine_generated_record_table",
+      "path": "docs/shadow-audit/instrument-ab/haiku/records.md",
+      "sha256": "sha256:b5de6bfb766877cbcbafce09d1d06dc4d94ef7fcdb1cc15ce5b44530f439e05b"
+    },
+    {
+      "evidence_class": "machine_generated_record_table",
+      "path": "docs/shadow-audit/instrument-ab/sonnet/records.md",
+      "sha256": "sha256:95315a4d11b22dc8a8dcd6db5d3f779b341e08bb05e5aec116da4c31b80bb23e"
+    },
+    {
+      "evidence_class": "machine_generated_record_table",
+      "path": "docs/shadow-audit/instrument-ab/opus/records.md",
+      "sha256": "sha256:1f31bfc016328e4ab457d65ef30f119d78c8e90aa611d1bfd99a04dcae7d2e28"
+    },
+    {
+      "evidence_class": "preregistered_stage_configuration",
+      "path": "docs/campaign/2026-09-instrument-ab/stages.json",
+      "sha256": "sha256:78411a4af18578042efc90b93025568dca4769c2c9cc28e7a27dd5d4e1d33edb"
+    }
+  ],
+  "status": "provisional_primary_complete_secondary_partial",
+  "study_boundary": {
+    "design": "blocked instrument-versus-helper comparison",
+    "official_rsi_exam_result": false,
+    "population_rate_claimed": false,
+    "program_status": "modified-program reduced-window runs",
+    "task": "game2048_policy_search"
+  }
+}

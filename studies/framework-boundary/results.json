@@ -1,0 +1,63 @@
+{
+  "after_explicit_proposal": {
+    "admissions": 0,
+    "claims": 1,
+    "governed_context_items": 0
+  },
+  "after_import": {
+    "admissions": 0,
+    "claims": 0,
+    "events": 6,
+    "evidence": 3,
+    "sources": 3
+  },
+  "baseline_verification": {
+    "coverage": "complete",
+    "ok": true
+  },
+  "downstream_agent_run": false,
+  "expected_refusals": {
+    "changed_identity_content": "immutable source_recorded conflict",
+    "malformed_interval": "interval.lower must not exceed interval.upper",
+    "unsupported_version": "unsupported TRACE trace_version"
+  },
+  "human_approval_exercised": false,
+  "input_sha256": {
+    "fixtures/gated/job/artifacts/app/methods/decisions.jsonl": "4c6564e0782ab0c7956eae9f813dc17eee7984c94f313cf6124c9b1ead9640f2",
+    "fixtures/gated/job/capsule.json": "188c394efb75aec8077ecf16a14cfb0806a917a226752d901e5a0e380481f27a",
+    "gate/trace_from_decisions.py": "b4fd1d750259d200cc30b1f3811841695d744f08407fe24dcd47e2cadeacd0ed",
+    "profile/verify_capsule.py": "26dd657f60dd49199b08e0dc3343b7e324cdea394d2c111dd64dcb083bbeab98"
+  },
+  "kind": "local-synthetic-integration-demonstration",
+  "projected_confidence_keys": [
+    "evidence_digests",
+    "interval",
+    "method",
+    "sample_size"
+  ],
+  "proofpress_commit": "7fad672321ae00d7c7af350e7b26000846b37895",
+  "reimport_ledger_unchanged": true,
+  "runner_sha256": "244090b9a2b84dbda9dba6c1cfbc8b40c2b73f097f30705cdaa75ef424f66218",
+  "schema_version": 1,
+  "trace_release_pin": {
+    "commit": "a97d4e81fb3b4ec5134e992882d28a6cf97fac04",
+    "sha256": "sha256:ce7b5bf03b31ab669d12018b0d64fa2421d03b7e7ab2da156f98581e4d62c544"
+  },
+  "trace_schema_validation_rerun": false,
+  "trace_wire_version": "0.5.1",
+  "wrong_estimate_boundary": {
+    "adapter_accepts_in_fresh_receiver": true,
+    "after_import": {
+      "admissions": 0,
+      "claims": 0,
+      "events": 6,
+      "evidence": 3,
+      "sources": 3
+    },
+    "converter_accepts": true,
+    "verifier_accepts": false,
+    "verifier_errors": [
+      "decision:estimate_not_reproducible:v2:1"
+    ]
+  }
+}

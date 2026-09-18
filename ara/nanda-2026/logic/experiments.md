@@ -1,0 +1,60 @@
+# Experiments
+
+All repository-relative paths below resolve from the root checkout.
+
+## E01 — Development replay
+**Verifies:** C01
+**Run:** python3 studies/decision-audit/replay_development.py
+**Setup:** Ten known development vectors, including a valid baseline; three local components.
+**Procedure:** Preserve each case hash, component outcome, producer/verifier stage, and explicit validation reason.
+**Expected outcome:** Existing documented outcomes reproduce. Refusal alone does not establish the intended reason.
+**Evidence:** studies/decision-audit/development-results.json. Nine full-path refusals include three producer refusals. Missing v4 masks the intended ancestry check in one case. The converter is not schema-only.
+
+## E02 — Historical source reconciliation
+**Verifies:** C02
+**Run:** python3 ara/nanda-2026/src/execution/build_paper_results.py --source-revision 727b9b821d7814d7467a29c1e740ce92eea7e219 --check
+**Setup:** Committed tables and reports at the result generator's fixed source revision.
+**Procedure:** Reconcile all twenty A/B trials and retain source class; separately read dated preflight observations.
+**Expected outcome:** 18 verified records, 9 per arm, and two explicit submitted_not_snapshotted outcomes.
+**Evidence:** evidence/results/paper-results.json; docs/PREFLIGHT.md. This checks reports, not all original job directories.
+
+## E03 — Historical gate comparison
+**Verifies:** C03
+**Run:** Same source-reconciliation command as E02.
+**Setup:** Four Haiku, three Sonnet, three Opus blocks under the historical manifest.
+**Procedure:** Preserve 3/7 direction count and mixed raw/source precision. Do not infer a general effect.
+**Expected outcome:** Descriptive evidence does not support the positive efficacy claim.
+**Evidence:** evidence/results/paper-results.json and historical reconciliation-status.md. Optional deployment context, not the primary audit study.
+
+## E04 — Prospective confirmation-cap intervention
+**Verifies:** C04
+**Run:** Not executed; future experiment.
+**Setup:** Would require a fixed evidence sequence and controlled total compute.
+**Procedure:** Vary cap and remaining-window policy, measure selection and downstream search changes.
+**Expected outcome:** No outcome asserted.
+**Evidence:** None for causal identification. Excluded from the primary findings.
+
+## E05 — Controlled package checks
+**Verifies:** C01, C05, C06
+**Run:** python3 studies/decision-audit/run_faults.py
+**Setup:** Twelve packages from fixtures/gated; manifest committed at c1bcd7d before first execution, after inspecting source and tests.
+**Procedure:** Verify a clean copy first, inject the manifest's change, compare S (structure), B (structure and bindings), and V (full require-complete verification). The producer is not rerun after mutation. Capture changed-file hashes and actual reasons. Unexpected exceptions abort execution.
+**Expected outcome:** Nine faults rejected; clean and cache controls accepted; unsigned reward rewrite accepted. Manifest diagnostic expectations remain unchanged after execution.
+**Evidence:** studies/decision-audit/fault-results.json and fault-manifest.json. One diagnostic-prefix mismatch is retained: missing snapshot expects file:version:v2 but returns file:artifact:v2:missing_file. This is 9/9 expected refusal outcomes and 8/9 diagnostic-target matches, not a perfect test run. Evaluation code and limitations are indexed in src/artifacts.md.
+
+## E06 — Retained-record and historical-source inspection
+**Verifies:** C07, C08.
+**Run:** python3 studies/handoff-case-review/review_cases.py --check
+**Setup:** Retained RSI capsule/log and pinned public Harvey result/protocol projection; stdlib only.
+**Procedure:** Check log binding, extract branch and dispositions, inventory referenced paths, extract selected and full-pilot counts. Optionally verify projection against original pinned source files with --proofpress-root.
+**Expected outcome:** Exact case-results.json, including false original-run-reproduction flags and incomplete RSI evidence.
+**Evidence:** studies/handoff-case-review/case-results.json; README.md and source projection in the same directory.
+No new model run, paid inference, independent test set, or complete current-verifier real-run trial is performed.
+
+## E07 — Local framework-boundary demonstration
+**Verifies:** C09 (illustration only), C10.
+**Run:** python studies/framework-boundary/run_demo.py --proofpress-root /path/to/proofpress --check
+**Setup:** Disposable local repository, the committed synthetic gated package, TRACE converter, and a git archive of Proofpress commit 7fad672321ae00d7c7af350e7b26000846b37895. Python environment must satisfy the pinned Proofpress dependencies; no credentials or network calls.
+**Procedure:** Verify the clean package, convert its three decisions, import twice and inspect projections/context. Test unsupported version, malformed interval and changed identity content. Reuse E05's wrong_estimate mutation: compare full verification with conversion and first-time import in another disposable receiver. Explicitly propose a bounded synthetic candidate, then query context without invoking approval.
+**Expected outcome:** Three evidence items, zero claims/admissions after import; no ledger growth on repeat; three specified intake refusals. Numerical fault rejected by verifier but accepted as imported evidence in a fresh receiver. Explicit proposal creates one candidate, zero admissions, empty governed context.
+**Evidence:** studies/framework-boundary/results.json, README.md and runner. Author-designed interface demonstration, not independent testing, a tenth fault, a human-review experiment or downstream benefit. Upstream TRACE schema validation is not rerun here; the historical pinned run remains docs/RUN_REPORT.md.

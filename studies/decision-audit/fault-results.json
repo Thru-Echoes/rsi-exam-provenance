@@ -1,0 +1,632 @@
+{
+  "all_expectations_met": false,
+  "cases": [
+    {
+      "binding_errors": [],
+      "changed_files": {},
+      "expectation_met": true,
+      "expected_full": "accept",
+      "full_result": {
+        "capsule_id": "fixture-gated-001",
+        "checks": {
+          "files": true,
+          "json": true,
+          "schema": true,
+          "semantics": true
+        },
+        "coverage": "complete",
+        "coverage_basis": "versions_directory",
+        "errors": [],
+        "integrity": "pass",
+        "ok": true
+      },
+      "id": "clean",
+      "kind": "valid_control",
+      "mutation": "none",
+      "outcomes": {
+        "bindings": "accept",
+        "full": "accept",
+        "structure": "accept"
+      },
+      "package_manifest_sha256": "4bf99a6d8a422b627b7b41247ca85aea2009929984506c29e341cd88da9f1f05",
+      "structure_errors": [],
+      "target": "none",
+      "target_found": null
+    },
+    {
+      "binding_errors": [],
+      "changed_files": {
+        "artifacts/app/methods/main/__pycache__/policy.cpython-313.pyc": {
+          "after": "f4288a964f4000c2eefa1c1a0586d8db69cd724c05b9f9645f309cf0ee4d0f20",
+          "before": null
+        },
+        "artifacts/app/methods/versions/v3/__pycache__/policy.cpython-313.pyc": {
+          "after": "e363959107c953ee592e12547ea6bf9d8da2d6f3ebafcb72a7a22c357e81d6f1",
+          "before": null
+        },
+        "capsule.json": {
+          "after": "625cbb24535e76d51c02cdadca59dd5af6e5a03c04862526df8d1b6bf7016857",
+          "before": "188c394efb75aec8077ecf16a14cfb0806a917a226752d901e5a0e380481f27a"
+        }
+      },
+      "expectation_met": true,
+      "expected_full": "accept",
+      "full_result": {
+        "capsule_id": "fixture-gated-001",
+        "checks": {
+          "files": true,
+          "json": true,
+          "schema": true,
+          "semantics": true
+        },
+        "coverage": "complete",
+        "coverage_basis": "versions_directory",
+        "errors": [],
+        "integrity": "pass",
+        "ok": true
+      },
+      "id": "cache_variation",
+      "kind": "valid_control",
+      "mutation": "Add different excluded bytecode bytes to main and v3; refresh full-tree digests only.",
+      "outcomes": {
+        "bindings": "accept",
+        "full": "accept",
+        "structure": "accept"
+      },
+      "package_manifest_sha256": "1886700a20fc094e6e1ea268d1c59390ab2aa230e1cf39ca3b07ed8ecde7600d",
+      "structure_errors": [],
+      "target": "none",
+      "target_found": null
+    },
+    {
+      "binding_errors": [],
+      "changed_files": {
+        "capsule.json": {
+          "after": "7b2ed45871e35be473a017f537c4f0b6d482d084ea7edb7f615667ef580f2675",
+          "before": "188c394efb75aec8077ecf16a14cfb0806a917a226752d901e5a0e380481f27a"
+        },
+        "verifier/reward.json": {
+          "after": "31eb58ca1030dfce08f198ae733040e0668a2ef11d27d29fdf4163c9357cabcb",
+          "before": "aa31ef772a54a1cca5e9f66544a9eeeca911f52bd820a5b0dbc5f22523b628b1"
+        }
+      },
+      "expectation_met": true,
+      "expected_full": "accept",
+      "full_result": {
+        "capsule_id": "fixture-gated-001",
+        "checks": {
+          "files": true,
+          "json": true,
+          "schema": true,
+          "semantics": true
+        },
+        "coverage": "complete",
+        "coverage_basis": "versions_directory",
+        "errors": [],
+        "integrity": "pass",
+        "ok": true
+      },
+      "id": "reward_rewrite",
+      "kind": "boundary_control",
+      "mutation": "Change unsigned reward and capsule reward together to 0.5; refresh reward digest. Other files remain unchanged.",
+      "outcomes": {
+        "bindings": "accept",
+        "full": "accept",
+        "structure": "accept"
+      },
+      "package_manifest_sha256": "24c75d7bf82bb4db6f32b31411a01ed2df2819df896f1011e708d6972efe43db",
+      "structure_errors": [],
+      "target": "Authenticity and grader recomputation are outside the checked claim.",
+      "target_found": null
+    },
+    {
+      "binding_errors": [
+        "schema:$.versions[1].status:invalid"
+      ],
+      "changed_files": {
+        "capsule.json": {
+          "after": "fa9316bb68ca0ba6b5ca98b59a15480ddbf7b453c4925b407b8375040b94e9cc",
+          "before": "188c394efb75aec8077ecf16a14cfb0806a917a226752d901e5a0e380481f27a"
+        }
+      },
+      "expectation_met": true,
+      "expected_full": "reject",
+      "full_result": {
+        "capsule_id": "fixture-gated-001",
+        "checks": {
+          "files": false,
+          "json": true,
+          "schema": false,
+          "semantics": false
+        },
+        "coverage": "unverifiable",
+        "coverage_basis": "versions_directory",
+        "errors": [
+          "schema:$.versions[1].status:invalid"
+        ],
+        "integrity": "fail",
+        "ok": false
+      },
+      "id": "bad_status",
+      "kind": "fault",
+      "mutation": "Set v2 status to an unrecognized string.",
+      "outcomes": {
+        "bindings": "reject",
+        "full": "reject",
+        "structure": "reject"
+      },
+      "package_manifest_sha256": "de018b0c8b91facd27d0b8a32fe7ef516719a0e4c1b4b913151b3c815f623832",
+      "structure_errors": [
+        "schema:$.versions[1].status:invalid"
+      ],
+      "target": "schema:",
+      "target_found": true
+    },
+    {
+      "binding_errors": [
+        "binding:missing:artifacts/app/methods/results/v2/visible_result.json"
+      ],
+      "changed_files": {
+        "artifacts/app/methods/results/v2/visible_result.json": {
+          "after": null,
+          "before": "2b989bb0748aa05e8828a3b68f2074968994d70118a09956db5fdfc45fa3da8a"
+        }
+      },
+      "expectation_met": true,
+      "expected_full": "reject",
+      "full_result": {
+        "capsule_id": "fixture-gated-001",
+        "checks": {
+          "files": false,
+          "json": true,
+          "schema": true,
+          "semantics": true
+        },
+        "coverage": "complete",
+        "coverage_basis": "versions_directory",
+        "errors": [
+          "decision:evidence_missing:v2:1:candidate"
+        ],
+        "integrity": "fail",
+        "ok": false
+      },
+      "id": "missing_evidence",
+      "kind": "fault",
+      "mutation": "Remove the referenced v2 visible result; retain its claimed digest.",
+      "outcomes": {
+        "bindings": "reject",
+        "full": "reject",
+        "structure": "accept"
+      },
+      "package_manifest_sha256": "50b23a1dd300ecfd60b3b1a5a41070783a1a97e6d090b9f4d390f71e76354304",
+      "structure_errors": [],
+      "target": "decision:evidence_missing",
+      "target_found": true
+    },
+    {
+      "binding_errors": [],
+      "changed_files": {
+        "artifacts/app/methods/decisions.jsonl": {
+          "after": "96633cd52dbe8b2cd50e6c6271f0c654622ff7ec3012bfefc62533ba8b1fc53e",
+          "before": "4c6564e0782ab0c7956eae9f813dc17eee7984c94f313cf6124c9b1ead9640f2"
+        },
+        "capsule.json": {
+          "after": "4c9600c74e08b51ee1b5065de558a8c1410862313755b357a545017fae3d962c",
+          "before": "188c394efb75aec8077ecf16a14cfb0806a917a226752d901e5a0e380481f27a"
+        }
+      },
+      "expectation_met": true,
+      "expected_full": "reject",
+      "full_result": {
+        "capsule_id": "fixture-gated-001",
+        "checks": {
+          "files": false,
+          "json": true,
+          "schema": true,
+          "semantics": true
+        },
+        "coverage": "complete",
+        "coverage_basis": "versions_directory",
+        "errors": [
+          "decision:interval_not_reproducible:v2:1",
+          "decision:estimate_not_reproducible:v2:1"
+        ],
+        "integrity": "fail",
+        "ok": false
+      },
+      "id": "orientation",
+      "kind": "fault",
+      "mutation": "Change first decision direction to lower in log and capsule; refresh log hash; preserve measurements.",
+      "outcomes": {
+        "bindings": "accept",
+        "full": "reject",
+        "structure": "accept"
+      },
+      "package_manifest_sha256": "88afecd096dab0314cbe53e07a0153116a8f7499bc219a34c6270ec0db5f8bb2",
+      "structure_errors": [],
+      "target": "decision:interval_not_reproducible:v2:1",
+      "target_found": true
+    },
+    {
+      "binding_errors": [],
+      "changed_files": {
+        "artifacts/app/methods/decisions.jsonl": {
+          "after": "00384fa2693f7ea413550d4833c1a74365f6fdd970e338cd3bf27b45d6e2f8ae",
+          "before": "4c6564e0782ab0c7956eae9f813dc17eee7984c94f313cf6124c9b1ead9640f2"
+        },
+        "capsule.json": {
+          "after": "6a097274a62c9736dc71608630b795c5ca8a197d7dd0390c99322221bd2c1371",
+          "before": "188c394efb75aec8077ecf16a14cfb0806a917a226752d901e5a0e380481f27a"
+        }
+      },
+      "expectation_met": true,
+      "expected_full": "reject",
+      "full_result": {
+        "capsule_id": "fixture-gated-001",
+        "checks": {
+          "files": false,
+          "json": true,
+          "schema": true,
+          "semantics": true
+        },
+        "coverage": "complete",
+        "coverage_basis": "versions_directory",
+        "errors": [
+          "decision:estimate_not_reproducible:v2:1"
+        ],
+        "integrity": "fail",
+        "ok": false
+      },
+      "id": "wrong_estimate",
+      "kind": "fault",
+      "mutation": "Add 1 to first decision estimate in log and capsule; refresh log hash; preserve measurements and interval.",
+      "outcomes": {
+        "bindings": "accept",
+        "full": "reject",
+        "structure": "accept"
+      },
+      "package_manifest_sha256": "81314bf8b7ce163c243af82a1b80789b59580908bf3632b2c7daddd319ee4328",
+      "structure_errors": [],
+      "target": "decision:estimate_not_reproducible:v2:1",
+      "target_found": true
+    },
+    {
+      "binding_errors": [],
+      "changed_files": {
+        "artifacts/app/methods/decisions.jsonl": {
+          "after": "8e40de5de3e33fe594186c5e49103edac777e18ae4ed28c3f2b18931c5f982c3",
+          "before": "4c6564e0782ab0c7956eae9f813dc17eee7984c94f313cf6124c9b1ead9640f2"
+        },
+        "capsule.json": {
+          "after": "fec6fa4c7e76bad798df8a26a95352651a6fe23fe7296a813bdecd54ce3141f8",
+          "before": "188c394efb75aec8077ecf16a14cfb0806a917a226752d901e5a0e380481f27a"
+        }
+      },
+      "expectation_met": true,
+      "expected_full": "reject",
+      "full_result": {
+        "capsule_id": "fixture-gated-001",
+        "checks": {
+          "files": false,
+          "json": true,
+          "schema": true,
+          "semantics": true
+        },
+        "coverage": "complete",
+        "coverage_basis": "versions_directory",
+        "errors": [
+          "decision:interval_not_reproducible:v2:1",
+          "decision:estimate_not_reproducible:v2:1",
+          "log:score_mismatch:v2"
+        ],
+        "integrity": "fail",
+        "ok": false
+      },
+      "id": "swapped_measurements",
+      "kind": "fault",
+      "mutation": "Swap first decision parent/candidate evidence paths and hashes, keeping role labels; refresh evidence_digests and log hash; preserve statistics.",
+      "outcomes": {
+        "bindings": "accept",
+        "full": "reject",
+        "structure": "accept"
+      },
+      "package_manifest_sha256": "9de3b4df5bdc545e9d66dd15a7bec089b42df5c6cefcf475c6cce8fd7b2700be",
+      "structure_errors": [],
+      "target": "decision:interval_not_reproducible:v2:1",
+      "target_found": true
+    },
+    {
+      "binding_errors": [],
+      "changed_files": {
+        "artifacts/app/methods/decisions.jsonl": {
+          "after": "74066de096ad5cbf66e84569128247c0ea53e97d28a94379841b79ce8ef1ec18",
+          "before": "4c6564e0782ab0c7956eae9f813dc17eee7984c94f313cf6124c9b1ead9640f2"
+        },
+        "capsule.json": {
+          "after": "78674c689cc79665deda027bb38533f2a400cd5ca25ab753be71509fc5acc8ff",
+          "before": "188c394efb75aec8077ecf16a14cfb0806a917a226752d901e5a0e380481f27a"
+        }
+      },
+      "expectation_met": true,
+      "expected_full": "reject",
+      "full_result": {
+        "capsule_id": "fixture-gated-001",
+        "checks": {
+          "files": true,
+          "json": true,
+          "schema": true,
+          "semantics": false
+        },
+        "coverage": "complete",
+        "coverage_basis": "versions_directory",
+        "errors": [
+          "protocol:unresolved_provisional_submitted:v3"
+        ],
+        "integrity": "fail",
+        "ok": false
+      },
+      "id": "unconfirmed_submission",
+      "kind": "fault",
+      "mutation": "Remove v3 confirmation in log and capsule and refresh log hash; retain existing submitted snapshot and its submitted status.",
+      "outcomes": {
+        "bindings": "accept",
+        "full": "reject",
+        "structure": "accept"
+      },
+      "package_manifest_sha256": "f06ef293c874cc561d8981a2a8aa2e15dc4e92505ceb853834f33c0ed3990f05",
+      "structure_errors": [],
+      "target": "protocol:unresolved_provisional_submitted:v3",
+      "target_found": true
+    },
+    {
+      "binding_errors": [],
+      "changed_files": {
+        "artifacts/app/methods/main/policy.py": {
+          "after": "d9137f3c97cd5720a120e4fe0773f5c781f2ba8fecd020b558a6283edbc58600",
+          "before": "e42b2962e78faecf691e8ad7ddbe048c910dc52c077329739f69d70644f0aaac"
+        },
+        "capsule.json": {
+          "after": "3789ba9f148eec846d3d2a55f52895d72474a78f9bb7197ddb6bea7c97aa2056",
+          "before": "188c394efb75aec8077ecf16a14cfb0806a917a226752d901e5a0e380481f27a"
+        }
+      },
+      "expectation_met": true,
+      "expected_full": "reject",
+      "full_result": {
+        "capsule_id": "fixture-gated-001",
+        "checks": {
+          "files": true,
+          "json": true,
+          "schema": true,
+          "semantics": false
+        },
+        "coverage": "complete",
+        "coverage_basis": "versions_directory",
+        "errors": [
+          "semantic:final:method_tree_mismatch",
+          "semantic:final:class_mismatch"
+        ],
+        "integrity": "fail",
+        "ok": false
+      },
+      "id": "submission_mismatch",
+      "kind": "fault",
+      "mutation": "Replace main policy bytes with v2; refresh only final submission digests; retain declared submitted version v3.",
+      "outcomes": {
+        "bindings": "accept",
+        "full": "reject",
+        "structure": "accept"
+      },
+      "package_manifest_sha256": "072b1816823e5579093ae687357af0c20b761f9c1e0a7af7f1a7ee39c9ba70db",
+      "structure_errors": [],
+      "target": "semantic:final:method_tree_mismatch",
+      "target_found": true
+    },
+    {
+      "binding_errors": [
+        "binding:missing:artifacts/app/methods/versions/v2"
+      ],
+      "changed_files": {
+        "artifacts/app/methods/versions/v2/policy.py": {
+          "after": null,
+          "before": "d9137f3c97cd5720a120e4fe0773f5c781f2ba8fecd020b558a6283edbc58600"
+        }
+      },
+      "expectation_met": false,
+      "expected_full": "reject",
+      "full_result": {
+        "capsule_id": "fixture-gated-001",
+        "checks": {
+          "files": false,
+          "json": true,
+          "schema": true,
+          "semantics": true
+        },
+        "coverage": "partial",
+        "coverage_basis": "versions_directory",
+        "errors": [
+          "file:artifact:v2:missing_file"
+        ],
+        "integrity": "fail",
+        "ok": false
+      },
+      "id": "missing_snapshot",
+      "kind": "fault",
+      "mutation": "Remove v2 snapshot directory, retaining its capsule entry and decision evidence.",
+      "outcomes": {
+        "bindings": "reject",
+        "full": "reject",
+        "structure": "accept"
+      },
+      "package_manifest_sha256": "b64c299da7141e9635c50aba02ec5451ad7c9cd8bfde1afc2cfbb6ef10efb14e",
+      "structure_errors": [],
+      "target": "file:version:v2",
+      "target_found": false
+    },
+    {
+      "binding_errors": [],
+      "changed_files": {
+        "artifacts/app/methods/versions/v4/policy.py": {
+          "after": "9bd2ace0e6387f4580d1766c62af16f4e70b70f34eeb53ec9669c069a0d41ad8",
+          "before": null
+        }
+      },
+      "expectation_met": true,
+      "expected_full": "reject",
+      "full_result": {
+        "capsule_id": "fixture-gated-001",
+        "checks": {
+          "files": true,
+          "json": true,
+          "schema": true,
+          "semantics": true
+        },
+        "coverage": "partial",
+        "coverage_basis": "versions_directory",
+        "errors": [],
+        "integrity": "pass",
+        "ok": false
+      },
+      "id": "unrecorded_snapshot",
+      "kind": "fault",
+      "mutation": "Add v4 snapshot with distinct Python bytes, without a capsule entry or a log declaration.",
+      "outcomes": {
+        "bindings": "accept",
+        "full": "reject",
+        "structure": "accept"
+      },
+      "package_manifest_sha256": "49f55d02da98e17949b670c8e3ebca4132262dc1d6b40163186ce3bc7962e591",
+      "structure_errors": [],
+      "target": "coverage:partial",
+      "target_found": true
+    }
+  ],
+  "fixture_sha256": {
+    "job/agent/trajectory.json": "d98ee930ec247ae5dcdb994886203ab71b994b8cd951bda8dcc0670c56b83c45",
+    "job/artifacts/app/methods/decisions.jsonl": "4c6564e0782ab0c7956eae9f813dc17eee7984c94f313cf6124c9b1ead9640f2",
+    "job/artifacts/app/methods/decisions.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "job/artifacts/app/methods/experiment_log.md": "92de8c6c3b84dbef1d146ca2aa2e02fa9ecf209d21d28d2c848fc6db20e77293",
+    "job/artifacts/app/methods/main/policy.py": "e42b2962e78faecf691e8ad7ddbe048c910dc52c077329739f69d70644f0aaac",
+    "job/artifacts/app/methods/results/v1/visible_result.json": "a9fbeefee5519f92a3786b1ce1958637a8e9f92e6ac5a62ceae24aafad795afe",
+    "job/artifacts/app/methods/results/v2/visible_result.json": "2b989bb0748aa05e8828a3b68f2074968994d70118a09956db5fdfc45fa3da8a",
+    "job/artifacts/app/methods/results/v3/replication/candidate_result.json": "4af3ae28024d2389637fa1990d1be85d2d76dd71b70b7e76f560b89d81b1f49d",
+    "job/artifacts/app/methods/results/v3/replication/parent_result.json": "8c2735eb5784810082600ef490774fdcfc26f7cd1983394f22ce714eac065a4f",
+    "job/artifacts/app/methods/results/v3/visible_result.json": "9cbcf78d6fe4dbcceebdbc9b2ea7c61d8ef749f31d6759301a683ad010fc678e",
+    "job/artifacts/app/methods/versions/v1/policy.py": "832607b87e95777537aaaf56b9350e68b71c9da85c51e32587552c57da34cc36",
+    "job/artifacts/app/methods/versions/v2/policy.py": "d9137f3c97cd5720a120e4fe0773f5c781f2ba8fecd020b558a6283edbc58600",
+    "job/artifacts/app/methods/versions/v3/policy.py": "e42b2962e78faecf691e8ad7ddbe048c910dc52c077329739f69d70644f0aaac",
+    "job/capsule.json": "188c394efb75aec8077ecf16a14cfb0806a917a226752d901e5a0e380481f27a",
+    "job/verifier/reward.json": "aa31ef772a54a1cca5e9f66544a9eeeca911f52bd820a5b0dbc5f22523b628b1",
+    "job/verifier/score_details.json": "32ba65c9aaa03e7f01f63d5deffeff2cfabe13386c75b30dd6a50297432e2108",
+    "task/environment/methods/main/policy.py": "a9defcf32373551ad33b28a83b68060f6ad118f5c4c3de1aa4e76160e52effd3",
+    "task/task.toml": "3afb4d967419210fa6071126b4616566aae48a0afb8ce5cea833c5662e90d38d",
+    "task/tests/grade.py": "a7e1269e0f2dbcd6386c19cb99f06b9daed811dd84c5b712352b11fafbb063eb",
+    "task/tests/test.sh": "f02aa243e416fffa8eb9420c37a9ec60c00b07f27bcbb5da6852b0ef1e59ca13"
+  },
+  "git_head": "c1bcd7d06e1e6ed6ff1a0a7040ad4e3b19e6bd4c",
+  "manifest": {
+    "base": "fixtures/gated",
+    "cases": [
+      {
+        "expected_full": "accept",
+        "id": "clean",
+        "kind": "valid_control",
+        "mutation": "none",
+        "target": "none"
+      },
+      {
+        "expected_full": "accept",
+        "id": "cache_variation",
+        "kind": "valid_control",
+        "mutation": "Add different excluded bytecode bytes to main and v3; refresh full-tree digests only.",
+        "target": "none"
+      },
+      {
+        "expected_full": "accept",
+        "id": "reward_rewrite",
+        "kind": "boundary_control",
+        "mutation": "Change unsigned reward and capsule reward together to 0.5; refresh reward digest. Other files remain unchanged.",
+        "target": "Authenticity and grader recomputation are outside the checked claim."
+      },
+      {
+        "expected_full": "reject",
+        "id": "bad_status",
+        "kind": "fault",
+        "mutation": "Set v2 status to an unrecognized string.",
+        "target": "schema:"
+      },
+      {
+        "expected_full": "reject",
+        "id": "missing_evidence",
+        "kind": "fault",
+        "mutation": "Remove the referenced v2 visible result; retain its claimed digest.",
+        "target": "decision:evidence_missing"
+      },
+      {
+        "expected_full": "reject",
+        "id": "orientation",
+        "kind": "fault",
+        "mutation": "Change first decision direction to lower in log and capsule; refresh log hash; preserve measurements.",
+        "target": "decision:interval_not_reproducible:v2:1"
+      },
+      {
+        "expected_full": "reject",
+        "id": "wrong_estimate",
+        "kind": "fault",
+        "mutation": "Add 1 to first decision estimate in log and capsule; refresh log hash; preserve measurements and interval.",
+        "target": "decision:estimate_not_reproducible:v2:1"
+      },
+      {
+        "expected_full": "reject",
+        "id": "swapped_measurements",
+        "kind": "fault",
+        "mutation": "Swap first decision parent/candidate evidence paths and hashes, keeping role labels; refresh evidence_digests and log hash; preserve statistics.",
+        "target": "decision:interval_not_reproducible:v2:1"
+      },
+      {
+        "expected_full": "reject",
+        "id": "unconfirmed_submission",
+        "kind": "fault",
+        "mutation": "Remove v3 confirmation in log and capsule and refresh log hash; retain existing submitted snapshot and its submitted status.",
+        "target": "protocol:unresolved_provisional_submitted:v3"
+      },
+      {
+        "expected_full": "reject",
+        "id": "submission_mismatch",
+        "kind": "fault",
+        "mutation": "Replace main policy bytes with v2; refresh only final submission digests; retain declared submitted version v3.",
+        "target": "semantic:final:method_tree_mismatch"
+      },
+      {
+        "expected_full": "reject",
+        "id": "missing_snapshot",
+        "kind": "fault",
+        "mutation": "Remove v2 snapshot directory, retaining its capsule entry and decision evidence.",
+        "target": "file:version:v2"
+      },
+      {
+        "expected_full": "reject",
+        "id": "unrecorded_snapshot",
+        "kind": "fault",
+        "mutation": "Add v4 snapshot with distinct Python bytes, without a capsule entry or a log declaration.",
+        "target": "coverage:partial"
+      }
+    ],
+    "checks": {
+      "bindings": "Structure plus cited source/reward/evidence file hashes and recorded snapshot/submission tree hashes. Shares production digest functions. Does not check cross-field identity, recompute measurements, or enforce coverage or protocol.",
+      "full": "Unmodified verifier with require_complete=True. No producer runs after mutation. Capture all errors and coverage.",
+      "structure": "Existing CAPSULE_SPEC structural checker only; internal ablation, not an independent schema implementation."
+    },
+    "design": "Author-designed controlled cases after implementation inspection; not preregistered, held out, or representative of an error population.",
+    "reporting": "Report each case and exact reason. Broad expected prefixes identify a family only; retain mismatched targets as failed expectations. Do not count crashes as rejections. Publish both accepted boundary controls and rejected faults. Do not silently revise this manifest after observing outcomes.",
+    "version": 1
+  },
+  "source_sha256": {
+    "profile/verify_capsule.py": "26dd657f60dd49199b08e0dc3343b7e324cdea394d2c111dd64dcb083bbeab98",
+    "studies/decision-audit/fault-manifest.json": "7c86f5fabec42610cfc6438a7b9280269d07aa17e37b89f427ecee651e81e57f",
+    "studies/decision-audit/replay_development.py": "dca4ce3c9dba7e648a45a4d601c0ff5789322d5470a1875541fd91793edbb2b9",
+    "studies/decision-audit/run_faults.py": "3a0cf3e4e057ef71edd3e6d8a1f95a4f41a651b9f31350d6c38841eefe1d9ec4",
+    "tests/test_conformance.py": "2392adef6ca2e5725bc4b2bd00ba960788bf228d4b123dd7d4823b0f7ef9e6e4"
+  },
+  "study": "authored-controlled-fault-cases"
+}
