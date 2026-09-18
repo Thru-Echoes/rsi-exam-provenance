@@ -1,11 +1,18 @@
 \documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
 \usepackage{newtxtext,newtxmath}
 \usepackage{booktabs}
 \usepackage{url}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning}
 \title{Capture, Verify, Govern: Decision Provenance\\for Agent Artifact Handoffs}
-\author{\IEEEauthorblockN{Anonymous Authors}}
+\author{
+\IEEEauthorblockN{Oliver Muellerklein\IEEEauthorrefmark{1}}
+\IEEEauthorblockA{University of California, Berkeley\\omuellerklein@berkeley.edu}
+\and
+\IEEEauthorblockN{Chenming Tang\IEEEauthorrefmark{1}}
+\IEEEauthorblockA{Proofpress\\tangchenming0830@gmail.com}
+\thanks{\IEEEauthorrefmark{1}These authors contributed equally.}}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -185,7 +192,7 @@ OpenAI Codex and Anthropic Claude Code assisted extensively with drafting and re
 \bibitem{broemme} A. Br\"{o}mme, ``An evidence model for agentic processes: Evidence claims, trust assumptions, and policy assessment,'' arXiv:2609.08481, Sep. 2026.
 \bibitem{novafabric} M. S. Ardebili, ``NovaFabric: Tamper-evident, replayable evidence for autonomous AI agent runs,'' arXiv:2609.12582, Sep. 2026.
 \bibitem{harness} X. Wang, X. Zhang, and J. Shao, ``Auditing harness tampering in self-improving agents,'' arXiv:2609.00069, Aug. 2026.
-\bibitem{trace} \emph{TRACE: A decision-provenance record for human and AI work}, v0.5.1, Apache-2.0, 2026. Repository and DOI withheld for review.
-\bibitem{proofpress} \emph{Proofpress: An evidence ledger with separate claim review and governed reuse}, Apache-2.0, 2026. Repository withheld for review.
+\bibitem{trace} O. Muellerklein, \emph{TRACE: A decision-provenance record for human and AI work}, v0.5.1, Apache-2.0, 2026. [Online]. Available: \url{https://github.com/Thru-Echoes/TRACE}, doi: 10.5281/zenodo.21711455.
+\bibitem{proofpress} C.-M. Tang, \emph{Proofpress: An evidence ledger with separate claim review and governed reuse}, Apache-2.0, 2026. [Online]. Available: \url{https://github.com/chenmingtang830/proofpress}.
 \bibitem{intoto} S. Torres-Arias, H. Afzali, T. K. Kuppusamy, R. Curtmola, and J. Cappos, \emph{in-toto: Providing farm-to-table guarantees for bits and bytes}, in USENIX Security, 2019, pp. 1393--1410.\end{thebibliography}
 \end{document}

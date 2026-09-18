@@ -32,7 +32,7 @@ class NamedVariantTests(unittest.TestCase):
                 self.assertIn("7fad672", result)
                 self.assertIn("These authors contributed equally", result)
                 self.assertEqual(first == "muellerklein",
-                    result.index("Oliver Muellerklein") < result.index("Chen-Ming Tang"))
+                    result.index("Oliver Muellerklein") < result.index("Chenming Tang"))
                 self.assertEqual(canonical, (folder / "main.tex").read_text())
 
     def test_changed_canonical_reference_fails_before_writing(self):
